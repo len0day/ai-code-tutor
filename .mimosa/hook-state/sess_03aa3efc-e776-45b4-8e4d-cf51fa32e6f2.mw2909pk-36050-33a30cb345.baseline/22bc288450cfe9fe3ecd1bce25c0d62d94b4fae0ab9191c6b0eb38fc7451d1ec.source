@@ -1,0 +1,778 @@
+import type { Course } from "@/lib/types";
+
+export const javaCourse: Course = {
+  lang: "java",
+  name: "Java",
+  emoji: "☕",
+  tagline: "企业级后端常青树，强类型、跨平台、生态成熟",
+  gradient: "from-orange-500 to-red-500",
+  levels: [
+    {
+      id: "1",
+      name: "入门",
+      description: "从零开始：JVM、语法结构与基本流程",
+      lessons: [
+        {
+          id: "java-1-1",
+          title: "初识 Java 与 JVM",
+          summary: "一次编写到处运行的秘密在 JVM，先跑通第一个类。",
+          keyPoints: [
+            "Java 是编译型：.java 编译成 .class 字节码，由 JVM 执行",
+            "所有代码必须写在类里，main 方法是程序入口：public static void main(String[] args)",
+            "文件名必须与 public 类名完全一致（HelloWorld.java）",
+            "JDK（开发工具包） ⊃ JRE（运行环境） ⊃ JVM（虚拟机）",
+          ],
+          example: {
+            code: `public class HelloWorld {
+    public static void main(String[] args) {
+        System.out.println("Hello, Java!");
+        System.out.println(1 + 1);
+    }
+}
+// 运行: javac HelloWorld.java && java HelloWorld
+// (JDK 11+ 可直接: java HelloWorld.java)
+`,
+          },
+        },
+        {
+          id: "java-1-2",
+          title: "基本数据类型与变量",
+          summary: "八种基本类型强类型声明，String 是最常用的引用类型。",
+          keyPoints: [
+            "整数：byte/short/int/long，小数：float/double，字符 char，布尔 boolean",
+            "long 赋值加 L（9999999999L），float 加 f；整数默认 int，小数默认 double",
+            "变量必须先声明类型再使用：int age = 18;",
+            "String 是引用类型不可变；final 修饰常量 final double PI = 3.14;",
+          ],
+          example: {
+            code: `int age = 18;
+long bigNum = 9_000_000_000L;
+double price = 9.99;
+char grade = 'A';          // 单引号字符
+boolean passed = true;
+final int MAX = 100;       // 常量
+
+String name = "小明";
+String msg = name + " " + age + " 岁";   // + 可拼接
+System.out.println(msg);
+System.out.println((int) 3.99);   // 强转截断 -> 3
+`,
+          },
+        },
+        {
+          id: "java-1-3",
+          title: "运算符与控制流程",
+          summary: "if/switch/for/while 与 C 家族一脉相承，switch 增强 14 后更香。",
+          keyPoints: [
+            "算术 + - * / %：整数相除结果还是整数（5/2=2）",
+            "比较 == != < >，逻辑 && || !（短路求值）",
+            "switch 传统写法忘 break 会穿透；新式 switch -> 表达式无此烦恼",
+            "三元运算符 int max = a > b ? a : b;",
+          ],
+          example: {
+            code: `int score = 85;
+
+if (score >= 90) {
+    System.out.println("优秀");
+} else if (score >= 60) {
+    System.out.println("及格");
+} else {
+    System.out.println("挂科");
+}
+
+String level = switch (score / 10) {   // Java 14+ 箭头 switch
+    case 10, 9 -> "A";
+    case 8 -> "B";
+    default -> "C";
+};
+System.out.println(level);
+`,
+          },
+        },
+        {
+          id: "java-1-4",
+          title: "数组",
+          summary: "定长同类型容器，声明即确定大小，遍历用下标或增强 for。",
+          keyPoints: [
+            "int[] arr = new int[5]; 长度固定为 5，默认值 0",
+            "字面量：int[] arr = {1, 2, 3};",
+            "arr.length 是属性（不是方法）；越界抛 ArrayIndexOutOfBoundsException",
+            "增强 for：for (int x : arr)，只读遍历最方便",
+          ],
+          example: {
+            code: `int[] scores = {88, 92, 55, 76};
+int sum = 0;
+
+for (int i = 0; i < scores.length; i++) {
+    sum += scores[i];
+}
+System.out.println("平均分: " + sum / scores.length);
+
+for (int s : scores) {        // 增强 for
+    if (s < 60) continue;
+    System.out.println("及格: " + s);
+}
+
+int[][] matrix = {{1, 2}, {3, 4}};   // 二维数组
+System.out.println(matrix[1][0]);    // 3
+`,
+          },
+        },
+        {
+          id: "java-1-5",
+          title: "方法与参数传递",
+          summary: "方法必须属于类，静态方法直接调用；Java 永远是值传递。",
+          keyPoints: [
+            "修饰符 返回类型 方法名(参数)：public static int add(int a, int b)",
+            "无返回值用 void；return 提前结束方法",
+            "重载 Overload：同名不同参（个数/类型），看参数不看返回值",
+            "Java 只有值传递：传对象传的是引用的拷贝（方法内可改对象内容）",
+          ],
+          example: {
+            code: `public class MethodDemo {
+    // 重载：同名不同参
+    static int add(int a, int b) { return a + b; }
+    static double add(double a, double b) { return a + b; }
+
+    static void swap(int[] arr, int i, int j) {
+        int t = arr[i]; arr[i] = arr[j]; arr[j] = t;  // 能改，因为传的是数组引用
+    }
+
+    public static void main(String[] args) {
+        System.out.println(add(1, 2));       // 3
+        System.out.println(add(1.5, 2.5));   // 4.0
+        int[] a = {1, 2};
+        swap(a, 0, 1);
+        System.out.println(a[0]);            // 2
+    }
+}
+`,
+          },
+        },
+        {
+          id: "java-1-6",
+          title: "字符串 String",
+          summary: "String 不可变所以安全高效，StringBuilder 是拼接的正确姿势。",
+          keyPoints: [
+            "String 不可变：每次「修改」都是新建对象，s.length()、s.charAt(i)",
+            "常用方法：equals 比内容（别用 ==）、substring、indexOf、split、trim",
+            "循环拼接必须用 StringBuilder：append 后 toString，避免产生海量临时对象",
+            "文本块 \"\"\" 三引号（Java 15+）写多行字符串",
+          ],
+          example: {
+            code: `String s = "Hello Java";
+System.out.println(s.length());          // 10
+System.out.println(s.substring(6));      // "Java"
+System.out.println(s.toUpperCase());
+System.out.println("a,b,c".split(",").length);  // 3
+
+String sql = \"\"\"
+        SELECT id, name
+        FROM users
+        WHERE age > %d
+        \"\"\".formatted(18);
+System.out.println(sql);
+
+StringBuilder sb = new StringBuilder();
+for (int i = 0; i < 5; i++) sb.append(i).append(",");
+System.out.println(sb);   // 0,1,2,3,4,
+`,
+          },
+        },
+      ],
+    },
+    {
+      id: "2",
+      name: "初级",
+      description: "面向对象与集合：Java 的核心腹地",
+      lessons: [
+        {
+          id: "java-2-1",
+          title: "面向对象：类与对象",
+          summary: "类是图纸对象是产品，构造方法负责出厂设置。",
+          keyPoints: [
+            "class 字段 + 方法；new Student(\"小明\") 创建实例",
+            "构造方法与类同名、无返回值；不写则送默认无参构造",
+            "this 指当前实例，this.name = name 区分参数与字段",
+            "封装：字段 private，通过 getter/setter 访问",
+          ],
+          example: {
+            code: `public class Student {
+    private String name;      // 私有字段
+    private int score;
+
+    public Student(String name, int score) {   // 构造方法
+        this.name = name;
+        this.score = score;
+    }
+
+    public String getName() { return name; }
+
+    public boolean isPassed() { return score >= 60; }
+}
+
+Student s = new Student("小明", 88);
+System.out.println(s.getName() + " 及格:" + s.isPassed());
+`,
+          },
+        },
+        {
+          id: "java-2-2",
+          title: "封装、继承与多态",
+          summary: "三大特性是 OOP 的骨架：private 藏细节、extends 复用、重写现多态。",
+          keyPoints: [
+            "继承 class Dog extends Animal，Java 单继承（一个爹）",
+            "super() 调父类构造，super.method() 调父类方法",
+            "@Override 重写；父类引用指向子类对象 → 多态",
+            "instanceof 判断实际类型，向下转型要显式 (Dog) animal",
+          ],
+          example: {
+            code: `class Animal {
+    void speak() { System.out.println("..."); }
+}
+
+class Dog extends Animal {
+    @Override
+    void speak() { System.out.println("汪汪"); }
+    void fetch() { System.out.println("捡球"); }
+}
+
+Animal a = new Dog();   // 多态：父类引用指向子类对象
+a.speak();              // 汪汪 —— 调的是子类实现
+if (a instanceof Dog d) {   // Java 16+ 模式匹配
+    d.fetch();
+}
+`,
+          },
+        },
+        {
+          id: "java-2-3",
+          title: "抽象类与接口",
+          summary: "抽象类定义「是什么」，接口定义「能做什么」，两者组合设计。",
+          keyPoints: [
+            "abstract class 可含抽象方法（无实现）与普通方法，不能实例化",
+            "interface 一组行为契约：方法默认 public abstract，字段是常量",
+            "类 implements 接口，可实现多个（弥补单继承）",
+            "接口可含 default 方法（有实现体）；函数式接口只有一个抽象方法",
+          ],
+          example: {
+            code: `interface Flyable {
+    void fly();                          // 抽象方法
+    default void land() {                // 默认实现
+        System.out.println("降落");
+    }
+}
+
+abstract class Bird {
+    abstract String name();
+}
+
+class Sparrow extends Bird implements Flyable {
+    String name() { return "麻雀"; }
+    public void fly() { System.out.println("扑棱扑棱"); }
+}
+
+Sparrow sp = new Sparrow();
+sp.fly(); sp.land();
+`,
+          },
+        },
+        {
+          id: "java-2-4",
+          title: "集合框架 List / Set / Map",
+          summary: "实际开发 99% 用集合不用数组，三大接口各有性格。",
+          keyPoints: [
+            "List 有序可重复：ArrayList 查快、LinkedList 插删快",
+            "Set 不重复：HashSet 无序、TreeSet 有序；去重靠 equals/hashCode",
+            "Map 键值对：HashMap 最常用、TreeMap 按键排序、LinkedHashMap 保插入序",
+            "泛型尖括号指定元素类型 List<String>，取出无需强转",
+          ],
+          example: {
+            code: `import java.util.*;
+
+List<String> list = new ArrayList<>();
+list.add("A"); list.add("B");
+System.out.println(list.get(0));        // A
+
+Set<Integer> set = new HashSet<>();
+set.add(1); set.add(1);
+System.out.println(set.size());         // 1
+
+Map<String, Integer> scores = new HashMap<>();
+scores.put("小明", 88);
+scores.put("小红", 92);
+System.out.println(scores.getOrDefault("小刚", 0));  // 0
+
+for (Map.Entry<String, Integer> e : scores.entrySet()) {
+    System.out.println(e.getKey() + "=" + e.getValue());
+}
+`,
+          },
+        },
+        {
+          id: "java-2-5",
+          title: "异常处理",
+          summary: "受检异常逼你面对错误，运行时异常暴露 bug，try-with-resources 自动关资源。",
+          keyPoints: [
+            "Throwable 下分 Error（别管）与 Exception；Exception 分受检与运行时（RuntimeException）",
+            "try / catch (具体类型) / finally；多 catch 从小到大排列",
+            "throw 抛出，throws 声明方法可能抛的受检异常",
+            "try-with-resources：try (Resource r = ...) 自动关闭实现 AutoCloseable 的对象",
+          ],
+          example: {
+            code: `import java.io.*;
+
+static int parse(String s) {
+    try {
+        return Integer.parseInt(s);
+    } catch (NumberFormatException e) {
+        System.out.println("不是数字: " + s);
+        return 0;
+    } finally {
+        System.out.println("解析结束");
+    }
+}
+
+class AgeException extends Exception {     // 自定义受检异常
+    AgeException(String msg) { super(msg); }
+}
+
+static void checkAge(int age) throws AgeException {
+    if (age < 0 || age > 150) throw new AgeException("年龄非法: " + age);
+}
+`,
+          },
+        },
+        {
+          id: "java-2-6",
+          title: "泛型基础",
+          summary: "泛型把类型检查提前到编译期，一套代码适配所有类型。",
+          keyPoints: [
+            "class Box<T> 类型参数；使用时 Box<String>，编译期类型安全",
+            "方法泛型 <T> T first(List<T> list)，与类泛型独立",
+            "通配符 ? extends X 只读、? super X 只写（PECS 原则）",
+            "泛型运行时被擦除：List<Integer> 和 List<String> 是同一个 Class",
+          ],
+          example: {
+            code: `class Box<T> {
+    private T value;
+    public void set(T v) { this.value = v; }
+    public T get() { return value; }
+}
+
+class Util {
+    static <T> T firstOrDefault(List<T> list, T def) {
+        return list.isEmpty() ? def : list.get(0);
+    }
+}
+
+Box<String> sb = new Box<>();
+sb.set("hello");
+System.out.println(sb.get().toUpperCase());  // 无需强转
+
+System.out.println(Util.firstOrDefault(List.of(), "空"));
+`,
+          },
+        },
+      ],
+    },
+    {
+      id: "3",
+      name: "中级",
+      description: "Lambda、Stream 与并发：现代 Java 必修",
+      lessons: [
+        {
+          id: "java-3-1",
+          title: "Lambda 与函数式接口",
+          summary: "Lambda 是函数式接口的简写，行为从此可以作为参数传递。",
+          keyPoints: [
+            "语法：(参数) -> 表达式 或 (参数) -> { 语句 }",
+            "只能赋给函数式接口（单一抽象方法）：Runnable、Comparator、Supplier 等",
+            "四大核心：Supplier<T> 无参有值、Consumer<T> 只消费、Function<T,R> 转换、Predicate<T> 判真假",
+            "方法引用进一步简写：System.out::println、String::compareTo",
+          ],
+          example: {
+            code: `import java.util.*;
+import java.util.function.*;
+
+Runnable task = () -> System.out.println("跑任务");
+Supplier<Double> random = Math::random;
+Function<String, Integer> len = String::length;
+Predicate<Integer> isEven = n -> n % 2 == 0;
+
+List<String> names = new ArrayList<>(List.of("张三", "李四", "王五"));
+names.sort((a, b) -> a.compareTo(b));    // Lambda 排序
+names.sort(Comparator.naturalOrder());   // 等价
+task.run();
+`,
+          },
+        },
+        {
+          id: "java-3-2",
+          title: "Stream API",
+          summary: "声明式数据处理流水线：filter → map → collect，一行顶十行。",
+          keyPoints: [
+            "三段式：数据源.stream() → 中间操作（惰性）→ 终结操作（触发）",
+            "中间：filter 过滤、map 转换、sorted 排序、distinct 去重",
+            "终结：collect(toList())、forEach、count、anyMatch、reduce",
+            "Collectors.groupingBy 分组、joining 拼接是办公神器",
+          ],
+          example: {
+            code: `import java.util.stream.*;
+import static java.util.stream.Collectors.*;
+
+List<String> names = List.of("小明", "小红", "小刚", "小芳", "小强");
+
+List<String> result = names.stream()
+        .filter(n -> n.length() == 2)
+        .map(String::toUpperCase)
+        .collect(toList());
+
+Map<Integer, List<String>> byLen = names.stream()
+        .collect(groupingBy(String::length));
+
+String joined = names.stream().collect(joining(", "));
+int total = IntStream.rangeClosed(1, 100).sum();   // 5050
+`,
+          },
+        },
+        {
+          id: "java-3-3",
+          title: "Optional 与新日期时间",
+          summary: "Optional 逼你处理 null，java.time 让日期计算不再痛苦。",
+          keyPoints: [
+            "Optional.of(x) / ofNullable(可能为null) / empty()",
+            "取值：orElse(默认)、orElseThrow()、ifPresent(消费)",
+            "链式：opt.map(User::getName).filter(n -> n.length() > 1)",
+            "LocalDate / LocalDateTime / Duration / DateTimeFormatter 线程安全",
+          ],
+          example: {
+            code: `import java.time.*;
+import java.time.format.*;
+import java.util.Optional;
+
+Optional<String> name = Optional.ofNullable(System.getProperty("user.name"));
+System.out.println(name.map(String::toUpperCase).orElse("匿名"));
+
+LocalDate today = LocalDate.now();
+LocalDate birthday = LocalDate.of(2000, 6, 1);
+long days = ChronoUnit.DAYS.between(birthday, today);
+LocalDate nextWeek = today.plusWeeks(1);
+
+String fmt = today.format(DateTimeFormatter.ofPattern("yyyy年MM月dd日"));
+`,
+          },
+        },
+        {
+          id: "java-3-4",
+          title: "IO 与文件操作",
+          summary: "NIO.2 的 Files + Path 让文件操作像 Shell 一样顺手。",
+          keyPoints: [
+            "Path path = Path.of(\"a.txt\") 路径；Files 工具类一站搞定",
+            "一行读写：Files.readString / writeString / readAllLines",
+            "大文件流式：Files.lines(path) 返回 Stream<String>，逐行惰性",
+            "字节流 InputStream/OutputStream，字符流 Reader/Writer + 缓冲",
+          ],
+          example: {
+            code: `import java.nio.file.*;
+import java.util.stream.*;
+
+Path file = Path.of("notes.txt");
+Files.writeString(file, "第一行\\n第二行\\n");
+
+try (Stream<String> lines = Files.lines(file)) {
+    lines.filter(l -> !l.isBlank())
+         .map(String::toUpperCase)
+         .forEach(System.out::println);
+}
+
+Files.list(Path.of("."))
+     .filter(Files::isRegularFile)
+     .forEach(p -> System.out.println(p.getFileName()));
+`,
+          },
+        },
+        {
+          id: "java-3-5",
+          title: "多线程与线程安全",
+          summary: "线程是并发的最小单位，共享可变状态是万恶之源。",
+          keyPoints: [
+            "创建：new Thread(() -> ...) 或线程池 ExecutorService（推荐）",
+            "竞态条件：count++ 不是原子操作，多线程会丢计数",
+            "synchronized 方法/块加锁；AtomicInteger 等无锁原子类更高效",
+            "线程通信：wait/notify 或 JUC 的 CountDownLatch、BlockingQueue",
+          ],
+          example: {
+            code: `import java.util.concurrent.*;
+import java.util.concurrent.atomic.*;
+
+AtomicInteger counter = new AtomicInteger();
+
+ExecutorService pool = Executors.newFixedThreadPool(4);
+for (int i = 0; i < 1000; i++) {
+    pool.submit(() -> {
+        counter.incrementAndGet();     // 原子自增，无需锁
+    });
+}
+pool.shutdown();
+pool.awaitTermination(5, TimeUnit.SECONDS);
+System.out.println(counter.get());     // 永远是 1000
+`,
+          },
+        },
+        {
+          id: "java-3-6",
+          title: "线程池与并发工具",
+          summary: "不要手动 new Thread，线程池统一管理；JUC 工具箱解决 90% 并发难题。",
+          keyPoints: [
+            "ThreadPoolExecutor 七参数：核心数、最大数、队列、拒绝策略…",
+            "实战用 Executors.newFixedThreadPool / newCachedThreadPool 或虚拟线程",
+            "CompletableFuture 组合异步任务：supplyAsync → thenApply → join",
+            "ConcurrentHashMap 替代加锁 HashMap；ThreadLocal 线程私有变量",
+          ],
+          example: {
+            code: `import java.util.concurrent.*;
+
+CompletableFuture<String> user =
+    CompletableFuture.supplyAsync(() -> "小明");
+CompletableFuture<Integer> score =
+    CompletableFuture.supplyAsync(() -> 95);
+
+String result = user.thenCombine(score, (u, s) -> u + ":" + s)
+                    .join();
+System.out.println(result);      // 小明:95
+
+ConcurrentHashMap<String, Integer> map = new ConcurrentHashMap<>();
+map.computeIfAbsent("hits", k -> 0);
+map.merge("hits", 1, Integer::sum);   // 原子计数
+`,
+          },
+        },
+      ],
+    },
+    {
+      id: "4",
+      name: "高级",
+      description: "JVM、反射与工程化：深入底层与生产实践",
+      lessons: [
+        {
+          id: "java-4-1",
+          title: "JVM 内存模型与 GC",
+          summary: "堆栈方法区各有分工，分代回收是理解 JVM 调优的地基。",
+          keyPoints: [
+            "线程私有：虚拟机栈（栈帧/局部变量）、程序计数器；共享：堆、方法区（元空间）",
+            "对象在堆分配，分新生代（Eden+Survivor）与老年代",
+            "GC 算法：标记-清除、标记-整理、复制；主流收集器 G1（JDK9+ 默认）、ZGC",
+            "OOM 与 StackOverflowError 定位：-Xmx -Xss 参数 + jmap/visualvm 分析",
+          ],
+          example: {
+            code: `// JVM 参数示例
+// java -Xms512m -Xmx1024m -Xss512k -XX:+UseG1GC App
+// -Xms 初始堆  -Xmx 最大堆  -Xss 线程栈  -XX:+PrintGCDetails 打印GC
+
+public class MemoryDemo {
+    public static void main(String[] args) {
+        Runtime rt = Runtime.getRuntime();
+        System.out.printf("最大堆: %dMB, 空闲: %dMB%n",
+            rt.maxMemory() / 1024 / 1024,
+            rt.freeMemory() / 1024 / 1024);
+
+        // 制造 StackOverflowError
+        // recurse();  static void recurse() { recurse(); }
+    }
+}
+`,
+          },
+        },
+        {
+          id: "java-4-2",
+          title: "反射与注解",
+          summary: "反射在运行时透视类结构，注解是贴在代码上的元数据，框架的两大支柱。",
+          keyPoints: [
+            "Class<?> c = Class.forName(\"...\")；获取字段/方法/构造器并调用",
+            "getDeclaredField 可拿 private（需 setAccessible(true)）",
+            "自定义注解 @interface + 元注解（@Retention、@Target）",
+            "运行时读取注解 getAnnotation → 框架原理（Spring/MyBatis 就这么干）",
+          ],
+          example: {
+            code: `import java.lang.annotation.*;
+import java.lang.reflect.*;
+
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+@interface Test { }
+
+class Demo {
+    @Test
+    void hello() { System.out.println("被测试方法"); }
+}
+
+public class Runner {
+    public static void main(String[] args) throws Exception {
+        Object obj = new Demo();
+        for (Method m : obj.getClass().getDeclaredMethods()) {
+            if (m.isAnnotationPresent(Test.class)) {
+                m.invoke(obj);          // 反射调用
+            }
+        }
+    }
+}
+`,
+          },
+        },
+        {
+          id: "java-4-3",
+          title: "设计模式精要",
+          summary: "单例、工厂、观察者、策略是日常开发出镜率最高的四个模式。",
+          keyPoints: [
+            "单例：私有构造 + 静态实例；枚举单例最安全，双重检查锁最经典",
+            "工厂方法：把 new 收口到工厂，新增类型不改调用方",
+            "策略模式：用接口+Lambda 替换 if/else 分支",
+            "观察者：事件源通知所有订阅者（Spring 事件、消息队列的原型）",
+          ],
+          example: {
+            code: `// 单例（双重检查锁）
+class Singleton {
+    private static volatile Singleton instance;
+    private Singleton() { }
+    static Singleton getInstance() {
+        if (instance == null) {
+            synchronized (Singleton.class) {
+                if (instance == null) instance = new Singleton();
+            }
+        }
+        return instance;
+    }
+}
+
+// 策略模式：Lambda 替代分支
+interface Sorter { void sort(int[] a); }
+Sorter quick = a -> System.out.println("快排 " + a.length);
+Sorter merge = a -> System.out.println("归并 " + a.length);
+quick.sort(new int[10]);
+`,
+          },
+        },
+        {
+          id: "java-4-4",
+          title: "Maven 与项目构建",
+          summary: "Maven 管依赖、定生命周期，是 Java 工程的通用骨架。",
+          keyPoints: [
+            "pom.xml 三要素：groupId/artifactId/version（GAV 坐标）",
+            "<dependencies> 声明依赖，传递依赖自动带进来；scope 控制范围（compile/test）",
+            "生命周期：mvn compile → test → package → install",
+            "properties 统一版本号；Spring Boot 的 parent 继承免写版本",
+          ],
+          example: {
+            code: `<!-- pom.xml 核心结构 -->
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.example</groupId>
+  <artifactId>demo</artifactId>
+  <version>1.0.0</version>
+
+  <properties>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+      <version>2.11.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <version>5.10.0</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+</project>
+`,
+          },
+        },
+        {
+          id: "java-4-5",
+          title: "单元测试 JUnit 5",
+          summary: "TDD 不是信仰而是工具：@Test 断言 + 参数化 + 生命周期钩子。",
+          keyPoints: [
+            "@Test 标注测试方法，Assertions.assertEquals / assertTrue 断言",
+            "@BeforeEach / @AfterEach 每个测试前后执行，@BeforeAll 只跑一次",
+            "@ParameterizedTest + @CsvSource 一份数据测多组",
+            "@DisplayName 起可读名字；assertThrows 断言异常",
+          ],
+          example: {
+            code: `import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+
+class CalcTest {
+
+    @Test
+    @DisplayName("加法基础用例")
+    void testAdd() {
+        assertEquals(3, 1 + 2);
+        assertEquals(-1, Integer.MIN_VALUE, "边界");  // 演示
+    }
+
+    @Test
+    void testDivideByZero() {
+        assertThrows(ArithmeticException.class,
+            () -> { int x = 1 / 0; });
+    }
+
+    @org.junit.jupiter.params.ParameterizedTest
+    @org.junit.jupiter.params.provider.CsvSource({"1,2,3", "0,0,0", "10,20,30"})
+    void testAddMany(int a, int b, int expect) {
+        assertEquals(expect, a + b);
+    }
+}
+`,
+          },
+        },
+        {
+          id: "java-4-6",
+          title: "综合项目：控制台记账本",
+          summary: "综合运用 23 课：集合 + 枚举 + Stream + 文件持久化 + 测试。",
+          keyPoints: [
+            "record 定义账目记录（不可变数据类，Java 16+）",
+            "枚举 Category 约束收支类型，switch 表达式处理命令",
+            "Map<String, Double> + Stream 按月汇总统计",
+            "CSV 读写持久化，核心方法配 JUnit 测试",
+          ],
+          example: {
+            code: `import java.nio.file.*;
+import java.time.LocalDate;
+import java.util.*;
+import java.util.stream.*;
+
+record Expense(LocalDate date, String category, double amount) { }
+
+public class Ledger {
+    static final List<Expense> items = new ArrayList<>();
+
+    static void add(LocalDate d, String cat, double amt) {
+        items.add(new Expense(d, cat, amt));
+    }
+
+    static Map<String, Double> byCategory() {
+        return items.stream().collect(
+            Collectors.groupingBy(Expense::category,
+                Collectors.summingDouble(Expense::amount)));
+    }
+
+    public static void main(String[] args) {
+        add(LocalDate.now(), "餐饮", 35.5);
+        add(LocalDate.now(), "书籍", 89.0);
+        add(LocalDate.now().minusDays(1), "餐饮", 22.0);
+        byCategory().forEach((k, v) -> System.out.printf("%s: %.2f%n", k, v));
+    }
+}
+`,
+          },
+        },
+      ],
+    },
+  ],
+};

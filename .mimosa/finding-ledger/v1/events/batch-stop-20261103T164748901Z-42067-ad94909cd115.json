@@ -1,0 +1,109 @@
+{
+  "schemaVersion": "mimosa-finding-ledger-batch/v1",
+  "batchId": "stop-20261103T164748901Z-42067-ad94909cd115",
+  "runId": "20261103T164748901Z-42067-ad94909cd115",
+  "runStatus": "completed",
+  "coverage": {
+    "status": "complete",
+    "reasons": []
+  },
+  "source": {
+    "component": "zcode-hook",
+    "operationId": "Stop"
+  },
+  "revision": "cb6064b782123729fe962a38e01e63b6396f8ff3",
+  "diffHash": "674351684192a55e38591dce866d019554a6127a67d98216250501fb7389022a",
+  "rulesVersion": "unavailable",
+  "sessionHash": "33c17d334c7b6edf36549f98bd6650657640dabcbce17f878130572b89a5a50e",
+  "reportRef": ".mimosa/reports/task-review-sess_03aa3efc-e776-45b4-8e4d-cf51fa32e6f2-20261103T164748901Z-42067-ad94909cd115.json",
+  "events": [
+    {
+      "eventId": "hook-87dace0fede99a711d79fb20dc03cd3b",
+      "findingId": "mimosa-e3bc6f6ea425f96b9b3a515b",
+      "type": "finding_observed",
+      "at": "2026-11-03T16:47:48.901Z",
+      "identity": {
+        "projectRelativeFile": "package.json",
+        "ruleId": "mimosa.supply.version-range",
+        "codeEvidenceHash": "57a83b85cde8c52625c44b7b59c0a52f8de05ec76e015462d50d85dd925128b0",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 13,
+      "endLine": 13,
+      "reasonCode": "observe",
+      "reportedToAgent": false,
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "evidenceHash": "57a83b85cde8c52625c44b7b59c0a52f8de05ec76e015462d50d85dd925128b0"
+      },
+      "sequence": 0
+    }
+  ],
+  "observedFindingIds": [],
+  "verifiedFiles": [
+    {
+      "file": "src/lib/ai/provider.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "src/app/api/ai/route.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "src/lib/client.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "src/lib/tts.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "src/app/api/tts/route.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "src/lib/ttsClient.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "src/components/SpeakButton.tsx",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "src/components/ReasoningBlock.tsx",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "src/components/ChatPanel.tsx",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "src/app/learn/[lang]/[lessonId]/page.tsx",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "src/components/CodeReview.tsx",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "next.config.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    }
+  ],
+  "recordedAt": "2026-11-03T16:47:49.122Z"
+}

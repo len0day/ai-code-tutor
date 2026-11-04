@@ -1,0 +1,54 @@
+{
+  "schemaVersion": "mimosa-finding-ledger-batch/v1",
+  "batchId": "stop-20261104T052345412Z-38090-9613dc24f726",
+  "runId": "20261104T052345412Z-38090-9613dc24f726",
+  "runStatus": "completed",
+  "coverage": {
+    "status": "complete",
+    "reasons": []
+  },
+  "source": {
+    "component": "zcode-hook",
+    "operationId": "Stop"
+  },
+  "revision": "cb6064b782123729fe962a38e01e63b6396f8ff3",
+  "diffHash": "d8d2fbd5b0b64267681f222b469163a8c685ef9f083c81d68e7af1a8938fa45e",
+  "rulesVersion": "unavailable",
+  "sessionHash": "33c17d334c7b6edf36549f98bd6650657640dabcbce17f878130572b89a5a50e",
+  "reportRef": ".mimosa/reports/task-review-sess_03aa3efc-e776-45b4-8e4d-cf51fa32e6f2-20261104T052345412Z-38090-9613dc24f726.json",
+  "events": [],
+  "observedFindingIds": [],
+  "verifiedFiles": [
+    {
+      "file": "src/lib/gates.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "src/app/api/progress/route.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "src/app/learn/[lang]/[lessonId]/page.tsx",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "src/app/languages/[lang]/[lessonId]/page.tsx",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "src/components/QuizTab.tsx",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "src/app/api/ai/route.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    }
+  ],
+  "recordedAt": "2026-11-04T05:23:45.612Z"
+}

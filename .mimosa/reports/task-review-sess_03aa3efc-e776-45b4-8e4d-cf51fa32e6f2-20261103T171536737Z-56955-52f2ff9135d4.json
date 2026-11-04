@@ -1,0 +1,478 @@
+{
+  "schema_version": "mimosa-task-review/v2",
+  "run_id": "20261103T171536737Z-56955-52f2ff9135d4",
+  "run_status": "completed",
+  "errors": [],
+  "coverage": {
+    "schema_version": "mimosa-hook-coverage/v1",
+    "status": "complete",
+    "scope": "hook_observed_diff",
+    "baseline": {
+      "complete": true,
+      "captured_files": 45,
+      "candidate_limit": 5000,
+      "truncated": false,
+      "enumeration_error_count": 0,
+      "snapshot_error_count": 0,
+      "compensated_target_count": 12
+    },
+    "change_tracking": {
+      "touched_observed": 12,
+      "touched_retained": 12,
+      "truncated": false,
+      "bash_mutation": true,
+      "bash_discovered": 12,
+      "bash_discovery_limit": 80,
+      "bash_discovery_truncated": false
+    },
+    "candidates": {
+      "eligible_files": 12,
+      "selected_files": 12,
+      "limit": 20,
+      "truncated": false
+    },
+    "scanning": {
+      "required_files": 12,
+      "scanned_files": 12,
+      "skipped_files": 0,
+      "failed_files": 0,
+      "project_checks_required": 0,
+      "project_checks_completed": 0
+    },
+    "notification": {
+      "eligible_findings": 0,
+      "detailed_findings": 0,
+      "detail_limit": 3,
+      "truncated": false
+    },
+    "reason_counts": {},
+    "reasons": [],
+    "reasons_truncated": false
+  },
+  "generated_at": "2026-11-03T17:15:36.737Z",
+  "session_id": "sess_03aa3efc-e776-45b4-8e4d-cf51fa32e6f2",
+  "target": ".",
+  "revision": "cb6064b782123729fe962a38e01e63b6396f8ff3",
+  "rules_version": "unavailable",
+  "diff_hash": "27c6fd1eef6b31af1c750563fc767b089bc6ee036c9f8fe71fb8ffb5c132d2b6",
+  "diff": {
+    "algorithm": "sha256",
+    "changed_file_count": 12,
+    "changed_files": [
+      {
+        "file": "src/app/api/ai/route.ts",
+        "ranges": [
+          {
+            "start": 2,
+            "end": 2
+          },
+          {
+            "start": 6,
+            "end": 6
+          },
+          {
+            "start": 10,
+            "end": 17
+          },
+          {
+            "start": 31,
+            "end": 32
+          },
+          {
+            "start": 57,
+            "end": 99
+          },
+          {
+            "start": 109,
+            "end": 109
+          },
+          {
+            "start": 116,
+            "end": 131
+          },
+          {
+            "start": 141,
+            "end": 146
+          },
+          {
+            "start": 155,
+            "end": 159
+          },
+          {
+            "start": 162,
+            "end": 165
+          },
+          {
+            "start": 170,
+            "end": 170
+          },
+          {
+            "start": 177,
+            "end": 180
+          },
+          {
+            "start": 184,
+            "end": 188
+          },
+          {
+            "start": 194,
+            "end": 194
+          },
+          {
+            "start": 199,
+            "end": 199
+          },
+          {
+            "start": 213,
+            "end": 215
+          },
+          {
+            "start": 292,
+            "end": 294
+          }
+        ],
+        "before_hash": "4996e9837f4d04ef649992127d34ea49a453cedda652979dc37679ab9bcaf5cc",
+        "after_hash": "8b09d8e113627b192994d3e9f5bf8ae230fe4f317bb781cbe5d4b0ea82af006d"
+      },
+      {
+        "file": "src/app/api/cache/route.ts",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 12
+          }
+        ],
+        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after_hash": "c5717d15688a441a61c65e67ebb1e077ae3ca72dc4bfe204c11bbfad9c85934b"
+      },
+      {
+        "file": "src/app/api/memory/route.ts",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 34
+          }
+        ],
+        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after_hash": "0b5b3690385e665d2bad51e5b9f07065209a7b649c88cd8c8ba683dc54b0d6d0"
+      },
+      {
+        "file": "src/app/learn/[lang]/[lessonId]/page.tsx",
+        "ranges": [
+          {
+            "start": 142,
+            "end": 142
+          },
+          {
+            "start": 150,
+            "end": 150
+          },
+          {
+            "start": 291,
+            "end": 291
+          },
+          {
+            "start": 293,
+            "end": 293
+          }
+        ],
+        "before_hash": "d88a1ce948767f1fa8cc803b03ba338e9dda4e24d9aebffdb8a92f449c80ccc9",
+        "after_hash": "fcacdc908de391499d61f64f3105fdb1a215f918b8d18b766e15c2d1bef6e11a"
+      },
+      {
+        "file": "src/app/settings/page.tsx",
+        "ranges": [
+          {
+            "start": 20,
+            "end": 27
+          },
+          {
+            "start": 40,
+            "end": 40
+          },
+          {
+            "start": 43,
+            "end": 47
+          },
+          {
+            "start": 282,
+            "end": 308
+          }
+        ],
+        "before_hash": "a0e7c03fadef18426f0cd72d63b2da9047a864fbea1e99747539837367a8e532",
+        "after_hash": "00ad2327fd5cc2c14d858b6809afac7051d87aeaf35c938e85d261285c7f7571"
+      },
+      {
+        "file": "src/components/ChatPanel.tsx",
+        "ranges": [
+          {
+            "start": 7,
+            "end": 13
+          },
+          {
+            "start": 41,
+            "end": 42
+          },
+          {
+            "start": 45,
+            "end": 45
+          },
+          {
+            "start": 52,
+            "end": 52
+          },
+          {
+            "start": 55,
+            "end": 69
+          },
+          {
+            "start": 74,
+            "end": 79
+          },
+          {
+            "start": 90,
+            "end": 93
+          },
+          {
+            "start": 99,
+            "end": 99
+          },
+          {
+            "start": 108,
+            "end": 108
+          },
+          {
+            "start": 121,
+            "end": 127
+          },
+          {
+            "start": 143,
+            "end": 158
+          }
+        ],
+        "before_hash": "5c2c231f51e8305f7c9dd16e75847f8ca38dc6e27a656ccafd342eb3d5bc247d",
+        "after_hash": "13c6059dc01892e048d1f395fcdd9279c6d5baeb9029479b9191e4b543aeffc2"
+      },
+      {
+        "file": "src/components/InterviewTab.tsx",
+        "ranges": [
+          {
+            "start": 52,
+            "end": 52
+          },
+          {
+            "start": 89,
+            "end": 89
+          },
+          {
+            "start": 92,
+            "end": 92
+          },
+          {
+            "start": 95,
+            "end": 95
+          },
+          {
+            "start": 99,
+            "end": 99
+          },
+          {
+            "start": 107,
+            "end": 107
+          },
+          {
+            "start": 212,
+            "end": 212
+          },
+          {
+            "start": 338,
+            "end": 338
+          },
+          {
+            "start": 341,
+            "end": 341
+          },
+          {
+            "start": 355,
+            "end": 359
+          }
+        ],
+        "before_hash": "a3cba14f66b7b73d64315d3297315654ac8c5690ea10a2df11026740882a97cf",
+        "after_hash": "166018877a871defd5ed05327a1e77cdfa889b51b65cdbf6800beedace795c4f"
+      },
+      {
+        "file": "src/components/QuizTab.tsx",
+        "ranges": [
+          {
+            "start": 47,
+            "end": 47
+          },
+          {
+            "start": 54,
+            "end": 54
+          },
+          {
+            "start": 63,
+            "end": 63
+          },
+          {
+            "start": 65,
+            "end": 65
+          },
+          {
+            "start": 69,
+            "end": 69
+          },
+          {
+            "start": 78,
+            "end": 78
+          },
+          {
+            "start": 204,
+            "end": 204
+          },
+          {
+            "start": 213,
+            "end": 217
+          },
+          {
+            "start": 353,
+            "end": 353
+          },
+          {
+            "start": 356,
+            "end": 356
+          }
+        ],
+        "before_hash": "c9e694bf86299bb223207a5ea5032de32d5f76b83fac6e160b13943d36677411",
+        "after_hash": "53c1d97c2de88d5bf4112fb1353e2275c93c91d88baf1fbb0a437693e7c47c41"
+      },
+      {
+        "file": "src/lib/cache.ts",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 87
+          }
+        ],
+        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after_hash": "ba51fbf57beb5c832a2ea8dd3514e2cad4c88a21e99427df3415a7e06a38e27d"
+      },
+      {
+        "file": "src/lib/client.ts",
+        "ranges": [
+          {
+            "start": 4,
+            "end": 4
+          },
+          {
+            "start": 221,
+            "end": 224
+          },
+          {
+            "start": 252,
+            "end": 260
+          },
+          {
+            "start": 271,
+            "end": 271
+          },
+          {
+            "start": 280,
+            "end": 283
+          },
+          {
+            "start": 286,
+            "end": 286
+          },
+          {
+            "start": 291,
+            "end": 318
+          }
+        ],
+        "before_hash": "f98fbdd424169fc519e787c8d5ea2af82f733535bd914c72001e7907a1621d17",
+        "after_hash": "e656fee398ac6658ff5f6dacbd783db0cd20f011147817a3779a7c29bcad3400"
+      },
+      {
+        "file": "src/lib/memory.ts",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 71
+          }
+        ],
+        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after_hash": "45d4e85f247866e8eed880a50fc52fb239da0440cef6e2da25924b9d1ec26266"
+      },
+      {
+        "file": "src/lib/prompts.ts",
+        "ranges": [
+          {
+            "start": 7,
+            "end": 8
+          },
+          {
+            "start": 27,
+            "end": 31
+          },
+          {
+            "start": 38,
+            "end": 38
+          }
+        ],
+        "before_hash": "3732d62a7a0eb678b09073f36c31253a567a676eb061072077850630be3da3f3",
+        "after_hash": "cfe8a8fae44f06efe3a346c72b879e6dbeefa5d473cec9d48f3fb0f477e3ec3c"
+      }
+    ]
+  },
+  "timing": {
+    "started_at": "2026-11-03T17:15:35.939Z",
+    "completed_at": "2026-11-03T17:15:36.737Z",
+    "duration_ms": 798,
+    "measurement": "hook_wall_clock"
+  },
+  "tokens": {
+    "input": 0,
+    "output": 0,
+    "total": 0,
+    "model_calls": 0,
+    "measurement": "known-zero"
+  },
+  "telemetry": {
+    "schemaVersion": "mimosa-gate-telemetry/v1",
+    "profile": "gate",
+    "operation": "Stop",
+    "outcome": "complete",
+    "latencyMs": 798,
+    "peakMemoryBytes": 204177408,
+    "memoryMeasurement": "max-observed-process-rss",
+    "scannedFiles": 12,
+    "cache": {
+      "hits": 0,
+      "misses": 0,
+      "measurement": "not-applicable"
+    },
+    "denyCount": 0,
+    "tokens": {
+      "input": 0,
+      "output": 0,
+      "total": 0,
+      "modelCalls": 0,
+      "measurement": "known-zero"
+    }
+  },
+  "finding_count": 0,
+  "rewake_finding_count": 0,
+  "evidence_boundary": {
+    "scan": "candidate",
+    "static_fix_verification": "observed_static_only",
+    "runtime_verification": "not_performed"
+  },
+  "finding_events": [],
+  "findings": [],
+  "artifacts": {
+    "immutable_report": ".mimosa/reports/task-review-sess_03aa3efc-e776-45b4-8e4d-cf51fa32e6f2-20261103T171536737Z-56955-52f2ff9135d4.json",
+    "latest_report": ".mimosa/reports/task-review-sess_03aa3efc-e776-45b4-8e4d-cf51fa32e6f2.json",
+    "history_summary": ".mimosa/history/run-20261103T171536737Z-56955-52f2ff9135d4.json"
+  }
+}

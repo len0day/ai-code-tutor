@@ -1,0 +1,288 @@
+{
+  "schemaVersion": "mimosa-finding-ledger-batch/v1",
+  "batchId": "stop-20261103T162640690Z-32458-ed997d6d1bc5",
+  "runId": "20261103T162640690Z-32458-ed997d6d1bc5",
+  "runStatus": "inconclusive",
+  "coverage": {
+    "status": "partial",
+    "reasons": [
+      {
+        "code": "candidate_limit_exceeded",
+        "stage": "candidate-select",
+        "target": "src/app/page.tsx",
+        "detail": "8 changed reviewable file(s) were not scanned because the limit is 20",
+        "affectsCompletion": true
+      },
+      {
+        "code": "baseline_partial",
+        "stage": "baseline",
+        "target": ".",
+        "detail": "baseline capture had enumeration or snapshot errors",
+        "affectsCompletion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "candidate-select",
+        "target": "src/app/page.tsx",
+        "detail": "candidate_limit_exceeded: 8 changed reviewable file(s) were not scanned because the limit is 20",
+        "affectsCompletion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "baseline",
+        "target": ".",
+        "detail": "baseline_partial: baseline capture had enumeration or snapshot errors",
+        "affectsCompletion": true
+      }
+    ]
+  },
+  "source": {
+    "component": "zcode-hook",
+    "operationId": "Stop"
+  },
+  "revision": "cb6064b782123729fe962a38e01e63b6396f8ff3",
+  "diffHash": "1293cd2d4d79bad64ba44164b6cf255419219ac08dd147f35eed5a179f1fcc48",
+  "rulesVersion": "unavailable",
+  "sessionHash": "33c17d334c7b6edf36549f98bd6650657640dabcbce17f878130572b89a5a50e",
+  "reportRef": ".mimosa/reports/task-review-sess_03aa3efc-e776-45b4-8e4d-cf51fa32e6f2-20261103T162640690Z-32458-ed997d6d1bc5.json",
+  "events": [
+    {
+      "eventId": "hook-c927e0f068e289833291c2a7b1519da2",
+      "findingId": "mimosa-042a9d402d6a79f40d366084",
+      "type": "finding_blocked",
+      "at": "2026-11-03T16:05:40.296Z",
+      "identity": {
+        "projectRelativeFile": "src/components/Markdown.tsx",
+        "ruleId": "security",
+        "codeEvidenceHash": "ffc8730e6a77291f11bcdd7cbb10a7531a032293b3e8eacd1e2332eb6e366905",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 53,
+      "endLine": 53,
+      "reasonCode": "deny",
+      "reportedToAgent": true,
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "evidenceHash": "ffc8730e6a77291f11bcdd7cbb10a7531a032293b3e8eacd1e2332eb6e366905"
+      },
+      "sequence": 0
+    },
+    {
+      "eventId": "hook-908879e52d2727dee5c644b7d1611715",
+      "findingId": "mimosa-042a9d402d6a79f40d366084",
+      "type": "static_fix_verified",
+      "at": "2026-11-03T16:05:52.638Z",
+      "identity": {
+        "projectRelativeFile": "src/components/Markdown.tsx",
+        "ruleId": "security",
+        "codeEvidenceHash": "ffc8730e6a77291f11bcdd7cbb10a7531a032293b3e8eacd1e2332eb6e366905",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 53,
+      "endLine": 53,
+      "reasonCode": "static_rescan_passed",
+      "reportedToAgent": false,
+      "evidence": {
+        "kind": "static_scan",
+        "boundary": "observed",
+        "producer": "deterministic",
+        "evidenceHash": "ffc8730e6a77291f11bcdd7cbb10a7531a032293b3e8eacd1e2332eb6e366905"
+      },
+      "sequence": 1
+    },
+    {
+      "eventId": "hook-b840c8fb11cb217ca01eb8ea50fa4e47",
+      "findingId": "mimosa-1744557e87a1aa5f3ecb2a1d",
+      "type": "finding_observed",
+      "at": "2026-11-03T16:26:40.690Z",
+      "identity": {
+        "projectRelativeFile": "package.json",
+        "ruleId": "mimosa.supply.version-range",
+        "codeEvidenceHash": "8b71c0a6a50f7d9b94be6188c0306dce7bc3e216263f1fde3bf9be3c33bbb1a0",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 12,
+      "endLine": 12,
+      "reasonCode": "observe",
+      "reportedToAgent": false,
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "evidenceHash": "8b71c0a6a50f7d9b94be6188c0306dce7bc3e216263f1fde3bf9be3c33bbb1a0"
+      },
+      "sequence": 2
+    },
+    {
+      "eventId": "hook-92c4395c9c8ba035ef698bf67efd12d8",
+      "findingId": "mimosa-dd99edea798784619ff429a8",
+      "type": "finding_observed",
+      "at": "2026-11-03T16:26:40.690Z",
+      "identity": {
+        "projectRelativeFile": "package.json",
+        "ruleId": "mimosa.supply.version-range",
+        "codeEvidenceHash": "7faba0c49e3e24e60f10b50493958062e0aa2e2bb1009073188c80fef2b8c155",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 16,
+      "endLine": 16,
+      "reasonCode": "observe",
+      "reportedToAgent": false,
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "evidenceHash": "7faba0c49e3e24e60f10b50493958062e0aa2e2bb1009073188c80fef2b8c155"
+      },
+      "sequence": 3
+    },
+    {
+      "eventId": "hook-c3be568c1ba5fe163ab57b674ef6b0ab",
+      "findingId": "mimosa-ecb1a79d93c0885f150c2336",
+      "type": "finding_observed",
+      "at": "2026-11-03T16:26:40.690Z",
+      "identity": {
+        "projectRelativeFile": "package.json",
+        "ruleId": "mimosa.supply.version-range",
+        "codeEvidenceHash": "dafc9d4c10b79806eb8e7fb954fc7da2351e319579c63adc54f29daa18588daf",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 17,
+      "endLine": 17,
+      "reasonCode": "observe",
+      "reportedToAgent": false,
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "evidenceHash": "dafc9d4c10b79806eb8e7fb954fc7da2351e319579c63adc54f29daa18588daf"
+      },
+      "sequence": 4
+    },
+    {
+      "eventId": "hook-d29629c3bb7212d111e978d79366add0",
+      "findingId": "mimosa-cfccfa787e6a3fdcf2e4d37c",
+      "type": "finding_observed",
+      "at": "2026-11-03T16:26:40.690Z",
+      "identity": {
+        "projectRelativeFile": "package.json",
+        "ruleId": "mimosa.supply.version-range",
+        "codeEvidenceHash": "66954089fa11cead64f26e382aaed10d05ecb663f9f8c580f0beaee7240bba02",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 18,
+      "endLine": 18,
+      "reasonCode": "observe",
+      "reportedToAgent": false,
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "evidenceHash": "66954089fa11cead64f26e382aaed10d05ecb663f9f8c580f0beaee7240bba02"
+      },
+      "sequence": 5
+    }
+  ],
+  "observedFindingIds": [],
+  "verifiedFiles": [
+    {
+      "file": "src/lib/types.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "src/lib/ai/presets.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "src/lib/store.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "src/lib/ai/provider.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "src/lib/prompts.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "src/data/courses/python.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "src/data/courses/javascript.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "src/data/courses/java.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "src/data/courses/typescript.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "src/data/courses/index.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "src/app/api/settings/route.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "src/app/api/settings/test/route.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "src/app/api/progress/route.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "src/app/api/ai/route.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "src/app/layout.tsx",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "src/components/Nav.tsx",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "src/components/Markdown.tsx",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "src/lib/client.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    }
+  ],
+  "recordedAt": "2026-11-03T16:26:40.923Z"
+}

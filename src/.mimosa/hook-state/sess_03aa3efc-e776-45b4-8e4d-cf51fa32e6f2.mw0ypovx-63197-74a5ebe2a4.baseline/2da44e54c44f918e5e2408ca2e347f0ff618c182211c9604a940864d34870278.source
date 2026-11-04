@@ -1,0 +1,86 @@
+"use client";
+
+import { memo, useMemo, useState } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import hljs from "highlight.js/lib/common";
+
+function highlightCode(code: string, lang?: string): string {
+  try {
+    if (lang && hljs.getLanguage(lang)) {
+      return hljs.highlight(code, { language: lang }).value;
+    }
+    return hljs.highlightAuto(code).value;
+  } catch {
+    return code.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  }
+}
+
+function CodeBlock({ code, lang }: { code: string; lang?: string }) {
+  const [copied, setCopied] = useState(false);
+  const html = useMemo(() => highlightCode(code, lang), [code, lang]);
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      /* 剪贴板不可用则忽略 */
+    }
+  };
+
+  return (
+    <div className="my-3 rounded-xl overflow-hidden border border-slate-800">
+      <div className="flex items-center justify-between bg-slate-900 px-4 py-1.5">
+        <span className="text-xs text-slate-400 font-mono">{lang || "code"}</span>
+        <button
+          onClick={copy}
+          className="text-xs text-slate-400 hover:text-white transition-colors"
+        >
+          {copied ? "✓ 已复制" : "复制"}
+        </button>
+      </div>
+      <pre className="!my-0 !rounded-none">
+        <code
+          className="hljs"
+          dangerouslySetInnerHTML={{ __html: html }}
+        />
+      </pre>
+    </div>
+  );
+}
+
+/**
+ * AI 输出 / 课程内容的 Markdown 渲染（代码块高亮 + 复制按钮）。
+ * 代码块内容经 highlight.js 手动高亮，避免 rehype 与自定义组件的结构冲突。
+ */
+const Markdown = memo(function Markdown({ content }: { content: string }) {
+  return (
+    <div className="md">
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        components={{
+          code({ className, children }) {
+            const text = String(children).replace(/\n$/, "");
+            const isBlock = text.includes("\n") || /language-|hljs/.test(className ?? "");
+            if (isBlock) {
+              const matched = className?.match(/language-(\w+)/);
+              const lang = matched ? matched[1] : undefined;
+              return <CodeBlock code={text} lang={lang} />;
+            }
+            return <code className={className}>{children}</code>;
+          },
+          pre({ children }) {
+            // CodeBlock 已自带 <pre>，跳过默认包裹
+            return <>{children}</>;
+          },
+        }}
+      >
+        {content}
+      </ReactMarkdown>
+    </div>
+  );
+});
+
+export default Markdown;

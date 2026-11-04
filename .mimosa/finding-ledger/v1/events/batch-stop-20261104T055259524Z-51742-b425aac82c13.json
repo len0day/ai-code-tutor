@@ -1,0 +1,404 @@
+{
+  "schemaVersion": "mimosa-finding-ledger-batch/v1",
+  "batchId": "stop-20261104T055259524Z-51742-b425aac82c13",
+  "runId": "20261104T055259524Z-51742-b425aac82c13",
+  "runStatus": "inconclusive",
+  "coverage": {
+    "status": "partial",
+    "reasons": [
+      {
+        "code": "candidate_limit_exceeded",
+        "stage": "candidate-select",
+        "target": "src/app/api/settings/route.ts",
+        "detail": "13 changed reviewable file(s) were not scanned because the limit is 20",
+        "affectsCompletion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "candidate-select",
+        "target": "src/app/api/settings/route.ts",
+        "detail": "candidate_limit_exceeded: 13 changed reviewable file(s) were not scanned because the limit is 20",
+        "affectsCompletion": true
+      }
+    ]
+  },
+  "source": {
+    "component": "zcode-hook",
+    "operationId": "Stop"
+  },
+  "revision": "cb6064b782123729fe962a38e01e63b6396f8ff3",
+  "diffHash": "c691e55d422165fcec1b52dc6e1673f4402807842e2bde5ec5b87740d791e08e",
+  "rulesVersion": "unavailable",
+  "sessionHash": "33c17d334c7b6edf36549f98bd6650657640dabcbce17f878130572b89a5a50e",
+  "reportRef": ".mimosa/reports/task-review-sess_03aa3efc-e776-45b4-8e4d-cf51fa32e6f2-20261104T055259524Z-51742-b425aac82c13.json",
+  "events": [
+    {
+      "eventId": "hook-36714d0880071b070f5aaa8232e609ba",
+      "findingId": "mimosa-d1dd8a54f9ca71a09040c602",
+      "type": "finding_blocked",
+      "at": "2026-11-04T05:26:24.048Z",
+      "identity": {
+        "projectRelativeFile": "src/lib/db/postgres.ts",
+        "ruleId": "security",
+        "codeEvidenceHash": "6749efffcf15f0144cc2f8773f5ac2047a9b3a335528f3c93b2174cb27cc6da7",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 17,
+      "endLine": 17,
+      "reasonCode": "deny",
+      "reportedToAgent": true,
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "evidenceHash": "6749efffcf15f0144cc2f8773f5ac2047a9b3a335528f3c93b2174cb27cc6da7"
+      },
+      "sequence": 0
+    },
+    {
+      "eventId": "hook-86dcdd3ab2684ef2b7b5401e63f19e9a",
+      "findingId": "mimosa-85fb64397798d00a2e546b65",
+      "type": "finding_blocked",
+      "at": "2026-11-04T05:26:24.048Z",
+      "identity": {
+        "projectRelativeFile": "src/lib/db/postgres.ts",
+        "ruleId": "security",
+        "codeEvidenceHash": "332e4f04dd0ae460bf3ddae6f6855d175b8ab4c962f9445bc10d02d42ed63648",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 24,
+      "endLine": 24,
+      "reasonCode": "deny",
+      "reportedToAgent": true,
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "evidenceHash": "332e4f04dd0ae460bf3ddae6f6855d175b8ab4c962f9445bc10d02d42ed63648"
+      },
+      "sequence": 1
+    },
+    {
+      "eventId": "hook-e2e75974b21f1f0b604e4fd1b747ba84",
+      "findingId": "mimosa-85fb64397798d00a2e546b65",
+      "type": "finding_blocked",
+      "at": "2026-11-04T05:26:52.763Z",
+      "identity": {
+        "projectRelativeFile": "src/lib/db/postgres.ts",
+        "ruleId": "security",
+        "codeEvidenceHash": "332e4f04dd0ae460bf3ddae6f6855d175b8ab4c962f9445bc10d02d42ed63648",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 27,
+      "endLine": 27,
+      "reasonCode": "deny",
+      "reportedToAgent": true,
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "evidenceHash": "332e4f04dd0ae460bf3ddae6f6855d175b8ab4c962f9445bc10d02d42ed63648"
+      },
+      "sequence": 2
+    },
+    {
+      "eventId": "hook-68f3b113096f64175fde803f6b3add2d",
+      "findingId": "mimosa-85fb64397798d00a2e546b65",
+      "type": "finding_blocked",
+      "at": "2026-11-04T05:27:53.994Z",
+      "identity": {
+        "projectRelativeFile": "src/lib/db/postgres.ts",
+        "ruleId": "security",
+        "codeEvidenceHash": "332e4f04dd0ae460bf3ddae6f6855d175b8ab4c962f9445bc10d02d42ed63648",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 24,
+      "endLine": 24,
+      "reasonCode": "deny",
+      "reportedToAgent": true,
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "evidenceHash": "332e4f04dd0ae460bf3ddae6f6855d175b8ab4c962f9445bc10d02d42ed63648"
+      },
+      "sequence": 3
+    },
+    {
+      "eventId": "hook-9dedb43409115d19583abff1689239a0",
+      "findingId": "mimosa-32b188c31e0d6731d894d62f",
+      "type": "finding_blocked",
+      "at": "2026-11-04T05:28:03.677Z",
+      "identity": {
+        "projectRelativeFile": "src/lib/db/index.ts",
+        "ruleId": "security",
+        "codeEvidenceHash": "a7c9e3914e87d1d58018ce2ee5d896240b8c1723a322a818adaac17a7bb4c6eb",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 4,
+      "endLine": 4,
+      "reasonCode": "deny",
+      "reportedToAgent": true,
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "evidenceHash": "a7c9e3914e87d1d58018ce2ee5d896240b8c1723a322a818adaac17a7bb4c6eb"
+      },
+      "sequence": 4
+    },
+    {
+      "eventId": "hook-f61ee58d38d42cd082a7ad235eaa3b52",
+      "findingId": "mimosa-32b188c31e0d6731d894d62f",
+      "type": "finding_blocked",
+      "at": "2026-11-04T05:28:14.182Z",
+      "identity": {
+        "projectRelativeFile": "src/lib/db/index.ts",
+        "ruleId": "security",
+        "codeEvidenceHash": "a7c9e3914e87d1d58018ce2ee5d896240b8c1723a322a818adaac17a7bb4c6eb",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 23,
+      "endLine": 23,
+      "reasonCode": "deny",
+      "reportedToAgent": true,
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "evidenceHash": "a7c9e3914e87d1d58018ce2ee5d896240b8c1723a322a818adaac17a7bb4c6eb"
+      },
+      "sequence": 5
+    },
+    {
+      "eventId": "hook-c9e4ea19cfce35b978f775bf9dba70fb",
+      "findingId": "mimosa-af9d052fac0653e94505271a",
+      "type": "finding_blocked",
+      "at": "2026-11-04T05:28:14.182Z",
+      "identity": {
+        "projectRelativeFile": "src/lib/db/index.ts",
+        "ruleId": "security",
+        "codeEvidenceHash": "df91d6f414c5d822e14af7ac9018e0dc98f0f9700d46dd156b1b17d8471cbb9d",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 154,
+      "endLine": 154,
+      "reasonCode": "deny",
+      "reportedToAgent": true,
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "evidenceHash": "df91d6f414c5d822e14af7ac9018e0dc98f0f9700d46dd156b1b17d8471cbb9d"
+      },
+      "sequence": 6
+    },
+    {
+      "eventId": "hook-0941fc02532e91eba4d1146f2aef96a9",
+      "findingId": "mimosa-32b188c31e0d6731d894d62f",
+      "type": "static_fix_verified",
+      "at": "2026-11-04T05:28:35.312Z",
+      "identity": {
+        "projectRelativeFile": "src/lib/db/index.ts",
+        "ruleId": "security",
+        "codeEvidenceHash": "a7c9e3914e87d1d58018ce2ee5d896240b8c1723a322a818adaac17a7bb4c6eb",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 23,
+      "endLine": 23,
+      "reasonCode": "static_rescan_passed",
+      "reportedToAgent": false,
+      "evidence": {
+        "kind": "static_scan",
+        "boundary": "observed",
+        "producer": "deterministic",
+        "evidenceHash": "a7c9e3914e87d1d58018ce2ee5d896240b8c1723a322a818adaac17a7bb4c6eb"
+      },
+      "sequence": 7
+    },
+    {
+      "eventId": "hook-a79df50846a14c6eb83a889037940594",
+      "findingId": "mimosa-af9d052fac0653e94505271a",
+      "type": "static_fix_verified",
+      "at": "2026-11-04T05:28:35.312Z",
+      "identity": {
+        "projectRelativeFile": "src/lib/db/index.ts",
+        "ruleId": "security",
+        "codeEvidenceHash": "df91d6f414c5d822e14af7ac9018e0dc98f0f9700d46dd156b1b17d8471cbb9d",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 154,
+      "endLine": 154,
+      "reasonCode": "static_rescan_passed",
+      "reportedToAgent": false,
+      "evidence": {
+        "kind": "static_scan",
+        "boundary": "observed",
+        "producer": "deterministic",
+        "evidenceHash": "df91d6f414c5d822e14af7ac9018e0dc98f0f9700d46dd156b1b17d8471cbb9d"
+      },
+      "sequence": 8
+    },
+    {
+      "eventId": "hook-aa208115cf292fdb5c509ce534510331",
+      "findingId": "mimosa-d1dd8a54f9ca71a09040c602",
+      "type": "static_fix_verified",
+      "at": "2026-11-04T05:28:50.091Z",
+      "identity": {
+        "projectRelativeFile": "src/lib/db/postgres.ts",
+        "ruleId": "security",
+        "codeEvidenceHash": "6749efffcf15f0144cc2f8773f5ac2047a9b3a335528f3c93b2174cb27cc6da7",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 17,
+      "endLine": 17,
+      "reasonCode": "static_rescan_passed",
+      "reportedToAgent": false,
+      "evidence": {
+        "kind": "static_scan",
+        "boundary": "observed",
+        "producer": "deterministic",
+        "evidenceHash": "6749efffcf15f0144cc2f8773f5ac2047a9b3a335528f3c93b2174cb27cc6da7"
+      },
+      "sequence": 9
+    },
+    {
+      "eventId": "hook-ed2df8e27bebe677c67b809c0b6d9a69",
+      "findingId": "mimosa-85fb64397798d00a2e546b65",
+      "type": "static_fix_verified",
+      "at": "2026-11-04T05:28:50.091Z",
+      "identity": {
+        "projectRelativeFile": "src/lib/db/postgres.ts",
+        "ruleId": "security",
+        "codeEvidenceHash": "332e4f04dd0ae460bf3ddae6f6855d175b8ab4c962f9445bc10d02d42ed63648",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 24,
+      "endLine": 24,
+      "reasonCode": "static_rescan_passed",
+      "reportedToAgent": false,
+      "evidence": {
+        "kind": "static_scan",
+        "boundary": "observed",
+        "producer": "deterministic",
+        "evidenceHash": "332e4f04dd0ae460bf3ddae6f6855d175b8ab4c962f9445bc10d02d42ed63648"
+      },
+      "sequence": 10
+    }
+  ],
+  "observedFindingIds": [],
+  "verifiedFiles": [
+    {
+      "file": "src/lib/db/index.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "src/lib/db/sqlite.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "src/lib/db/postgres.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "src/lib/store.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "src/lib/cache.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "src/lib/memory.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "src/lib/apiToken.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "src/lib/gates.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "src/app/api/admin/has-users/route.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "src/app/api/admin/config/route.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "src/app/api/admin/tokens/route.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "src/app/api/admin/users/route.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "src/app/api/auth/login/route.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "src/app/api/auth/register/route.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "src/app/api/auth/tokens/route.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "src/app/api/me/usage/route.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "src/app/api/memory/route.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "src/app/api/models/route.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "src/app/api/notebook/route.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "src/app/api/progress/route.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    }
+  ],
+  "recordedAt": "2026-11-04T05:52:59.727Z"
+}

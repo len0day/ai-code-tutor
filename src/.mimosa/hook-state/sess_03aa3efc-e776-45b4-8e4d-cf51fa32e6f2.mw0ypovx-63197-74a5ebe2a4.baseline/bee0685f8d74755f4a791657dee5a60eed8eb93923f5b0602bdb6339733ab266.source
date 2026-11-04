@@ -1,0 +1,253 @@
+import "server-only";
+import { DatabaseSync } from "node:sqlite";
+import fs from "node:fs";
+import path from "node:path";
+
+/**
+ * SQLite 数据库层（node:sqlite，零外部依赖）。
+ * 为云服务器部署设计：单文件 data/app.db，所有查询使用参数绑定。
+ * 首次运行自动建表，并把升级前的 JSON 数据一次性迁移入库。
+ */
+
+const DATA_DIR = path.join(process.cwd(), "data");
+const DB_FILE = path.join(DATA_DIR, "app.db");
+
+let db: DatabaseSync | null = null;
+
+function getDb(): DatabaseSync {
+  if (db) return db;
+  fs.mkdirSync(DATA_DIR, { recursive: true });
+  db = new DatabaseSync(DB_FILE);
+  db.prepare("PRAGMA journal_mode = WAL").run();
+  initSchema();
+  migrateFromJson();
+  return db;
+}
+
+const SCHEMA: string[] = [
+  `CREATE TABLE IF NOT EXISTS users (
+    id TEXT PRIMARY KEY,
+    username TEXT UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL,
+    salt TEXT NOT NULL,
+    role TEXT NOT NULL DEFAULT 'user',
+    disabled INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL
+  )`,
+  `CREATE TABLE IF NOT EXISTS user_progress (
+    user_id TEXT NOT NULL,
+    lesson_id TEXT NOT NULL,
+    completed INTEGER NOT NULL DEFAULT 0,
+    quiz_scores TEXT NOT NULL DEFAULT '[]',
+    interview_scores TEXT NOT NULL DEFAULT '[]',
+    wrong_question_ids TEXT NOT NULL DEFAULT '[]',
+    visited_at TEXT,
+    completed_at TEXT,
+    PRIMARY KEY (user_id, lesson_id)
+  )`,
+  `CREATE TABLE IF NOT EXISTS user_stats (user_id TEXT PRIMARY KEY, xp INTEGER NOT NULL DEFAULT 0, streak INTEGER NOT NULL DEFAULT 0, last_study_date TEXT)`,
+  `CREATE TABLE IF NOT EXISTS wrong_questions (id TEXT NOT NULL, user_id TEXT NOT NULL, payload TEXT NOT NULL, resolved INTEGER NOT NULL DEFAULT 0, added_at TEXT NOT NULL, PRIMARY KEY (user_id, id))`,
+  `CREATE TABLE IF NOT EXISTS favorites (id TEXT NOT NULL, user_id TEXT NOT NULL, payload TEXT NOT NULL, added_at TEXT NOT NULL, PRIMARY KEY (user_id, id))`,
+  `CREATE TABLE IF NOT EXISTS notes (user_id TEXT NOT NULL, lesson_id TEXT NOT NULL, lang TEXT NOT NULL, content TEXT NOT NULL, updated_at TEXT NOT NULL, PRIMARY KEY (user_id, lesson_id))`,
+  `CREATE TABLE IF NOT EXISTS memory_chats (user_id TEXT NOT NULL, lesson_id TEXT NOT NULL, messages TEXT NOT NULL, updated_at TEXT NOT NULL, PRIMARY KEY (user_id, lesson_id))`,
+  `CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT NOT NULL)`,
+  `CREATE TABLE IF NOT EXISTS content_cache (cache_key TEXT PRIMARY KEY, task TEXT NOT NULL, lang TEXT, lesson_id TEXT, content TEXT NOT NULL, created_at TEXT NOT NULL)`,
+  `CREATE TABLE IF NOT EXISTS ai_usage (user_id TEXT NOT NULL, date TEXT NOT NULL, count INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (user_id, date))`,
+  `CREATE TABLE IF NOT EXISTS course_unlocks (user_id TEXT NOT NULL, lang TEXT NOT NULL, unlocked_at TEXT NOT NULL, PRIMARY KEY (user_id, lang))`,
+  `CREATE TABLE IF NOT EXISTS app_config (key TEXT PRIMARY KEY, value TEXT NOT NULL)`,
+  `CREATE TABLE IF NOT EXISTS token_usage (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    task TEXT NOT NULL,
+    model TEXT NOT NULL,
+    lang TEXT,
+    prompt_tokens INTEGER NOT NULL DEFAULT 0,
+    completion_tokens INTEGER NOT NULL DEFAULT 0,
+    total_tokens INTEGER NOT NULL DEFAULT 0,
+    estimated INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL
+  )`,
+];
+
+function initSchema() {
+  const d = getDb();
+  for (const sql of SCHEMA) {
+    d.prepare(sql).run();
+  }
+}
+
+// ---- JSON → SQLite 一次性迁移 ----
+let migrated = false;
+
+function migrateFromJson() {
+  if (migrated) return;
+  migrated = true;
+  const d = getDb();
+
+  const legacy = (name: string) => path.join(DATA_DIR, name);
+  const exists = (f: string) => fs.existsSync(f);
+  const readAny = <T,>(f: string, fb: T): T => {
+    try {
+      return JSON.parse(fs.readFileSync(f, "utf-8")) as T;
+    } catch {
+      return fb;
+    }
+  };
+  const markMigrated = (file: string) => {
+    try {
+      fs.renameSync(file, `${file}.migrated`);
+    } catch {
+      /* 重命名失败无碍：导入以空表为前提，不会重复导入 */
+    }
+  };
+
+  // 1) 用户
+  const usersFile = legacy("users.json");
+  if (exists(usersFile)) {
+    const data = readAny<{ users: Array<Record<string, unknown>> }>(usersFile, { users: [] });
+    const row = d.prepare("SELECT COUNT(*) AS c FROM users").get() as { c: number };
+    if (row.c === 0) {
+      const ins = d.prepare(
+        "INSERT OR REPLACE INTO users (id, username, password_hash, salt, role, disabled, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)"
+      );
+      for (const u of data.users) {
+        const r = u as {
+          id: string;
+          username: string;
+          passwordHash: string;
+          salt: string;
+          role: string;
+          disabled: boolean;
+          createdAt: string;
+        };
+        ins.run(r.id, r.username, r.passwordHash, r.salt, r.role, r.disabled ? 1 : 0, r.createdAt);
+      }
+    }
+    markMigrated(usersFile);
+  }
+
+  // 2) 每用户学习数据（users-data/{uid}/ 下的 JSON）
+  const usersDataDir = legacy("users-data");
+  if (fs.existsSync(usersDataDir)) {
+    for (const uid of fs.readdirSync(usersDataDir)) {
+      const dir = path.join(usersDataDir, uid);
+      if (!fs.statSync(dir).isDirectory()) continue;
+
+      const progressFile = path.join(dir, "progress.json");
+      if (exists(progressFile)) {
+        const p = readAny<{
+          lessons: Record<string, Record<string, unknown>>;
+          xp: number;
+          streak: number;
+          lastStudyDate?: string;
+        }>(progressFile, { lessons: {}, xp: 0, streak: 0 });
+        const insP = d.prepare(
+          "INSERT OR REPLACE INTO user_progress (user_id, lesson_id, completed, quiz_scores, interview_scores, wrong_question_ids, visited_at, completed_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+        );
+        for (const [lid, lp] of Object.entries(p.lessons)) {
+          insP.run(
+            uid,
+            lid,
+            lp.completed ? 1 : 0,
+            JSON.stringify(lp.quizScores ?? []),
+            JSON.stringify(lp.interviewScores ?? []),
+            JSON.stringify(lp.wrongQuestionIds ?? []),
+            (lp.visitedAt as string) ?? null,
+            (lp.completedAt as string) ?? null
+          );
+        }
+        d.prepare(
+          "INSERT OR REPLACE INTO user_stats (user_id, xp, streak, last_study_date) VALUES (?, ?, ?, ?)"
+        ).run(uid, p.xp ?? 0, p.streak ?? 0, p.lastStudyDate ?? null);
+        markMigrated(progressFile);
+      }
+
+      const nbFile = path.join(dir, "notebook.json");
+      if (exists(nbFile)) {
+        const nb = readAny<{
+          wrongQuestions: Array<Record<string, unknown>>;
+          favorites: Array<Record<string, unknown>>;
+          notes: Record<string, { lang: string; content: string; updatedAt: string }>;
+        }>(nbFile, { wrongQuestions: [], favorites: [], notes: {} });
+        const insW = d.prepare(
+          "INSERT OR REPLACE INTO wrong_questions (id, user_id, payload, resolved, added_at) VALUES (?, ?, ?, ?, ?)"
+        );
+        for (const w of nb.wrongQuestions) {
+          const wr = w as {
+            id: string;
+            resolved?: boolean;
+            addedAt?: string;
+            [key: string]: unknown;
+          };
+          const { resolved, ...rest } = wr;
+          insW.run(
+            wr.id,
+            uid,
+            JSON.stringify(rest),
+            resolved ? 1 : 0,
+            wr.addedAt ?? new Date().toISOString()
+          );
+        }
+        const insF = d.prepare(
+          "INSERT OR REPLACE INTO favorites (id, user_id, payload, added_at) VALUES (?, ?, ?, ?)"
+        );
+        for (const f of nb.favorites) {
+          const fr = f as { id: string; addedAt: string };
+          insF.run(fr.id, uid, JSON.stringify(fr), fr.addedAt);
+        }
+        const insN = d.prepare(
+          "INSERT OR REPLACE INTO notes (user_id, lesson_id, lang, content, updated_at) VALUES (?, ?, ?, ?, ?)"
+        );
+        for (const [lid, n] of Object.entries(nb.notes)) {
+          insN.run(uid, lid, n.lang, n.content, n.updatedAt);
+        }
+        markMigrated(nbFile);
+      }
+
+      const memFile = path.join(dir, "memory.json");
+      if (exists(memFile)) {
+        const mem = readAny<{
+          chats: Record<string, { messages: unknown[]; updatedAt: string }>;
+        }>(memFile, { chats: {} });
+        const ins = d.prepare(
+          "INSERT OR REPLACE INTO memory_chats (user_id, lesson_id, messages, updated_at) VALUES (?, ?, ?, ?)"
+        );
+        for (const [lid, chat] of Object.entries(mem.chats)) {
+          ins.run(uid, lid, JSON.stringify(chat.messages), chat.updatedAt);
+        }
+        markMigrated(memFile);
+      }
+    }
+  }
+
+  // 3) AI 全局配置
+  const settingsFile = legacy("settings.json");
+  if (exists(settingsFile)) {
+    const s = readAny<Record<string, string | number>>(settingsFile, {});
+    const ins = d.prepare("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)");
+    for (const [k, v] of Object.entries(s)) {
+      ins.run(k, String(v));
+    }
+    markMigrated(settingsFile);
+  }
+
+  // 4) 内容缓存
+  const cacheFile = legacy("cache.json");
+  if (exists(cacheFile)) {
+    const c = readAny<{
+      entries: Record<string, { task: string; lang?: string; lessonId?: string; content: unknown; createdAt: string }>;
+    }>(cacheFile, { entries: {} });
+    const ins = d.prepare(
+      "INSERT OR REPLACE INTO content_cache (cache_key, task, lang, lesson_id, content, created_at) VALUES (?, ?, ?, ?, ?, ?)"
+    );
+    for (const [key, e] of Object.entries(c.entries)) {
+      ins.run(key, e.task, e.lang ?? null, e.lessonId ?? null, JSON.stringify(e.content), e.createdAt);
+    }
+    markMigrated(cacheFile);
+  }
+}
+
+/** 获取（并惰性初始化）数据库实例 */
+export function database(): DatabaseSync {
+  return getDb();
+}

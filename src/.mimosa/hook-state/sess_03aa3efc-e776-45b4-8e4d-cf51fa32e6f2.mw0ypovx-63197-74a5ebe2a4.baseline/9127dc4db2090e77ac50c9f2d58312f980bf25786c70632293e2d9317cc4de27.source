@@ -1,0 +1,103 @@
+"use client";
+
+import { useState } from "react";
+import Markdown from "./Markdown";
+import ReasoningBlock from "./ReasoningBlock";
+import SpeakButton from "./SpeakButton";
+import { streamAi } from "@/lib/client";
+import type { Lesson } from "@/lib/types";
+
+interface Props {
+  lang: string;
+  lesson: Lesson;
+}
+
+const SAMPLE = `// 把你想审查的代码粘贴到这里
+// 例如本课示例代码，或你自己写的练习`;
+
+export default function CodeReview({ lang, lesson }: Props) {
+  const [code, setCode] = useState("");
+  const [result, setResult] = useState("");
+  const [reasoning, setReasoning] = useState("");
+  const [streaming, setStreaming] = useState(false);
+  const [error, setError] = useState("");
+
+  const review = async () => {
+    if (!code.trim() || streaming) return;
+    setResult("");
+    setReasoning("");
+    setError("");
+    setStreaming(true);
+    try {
+      await streamAi(
+        { task: "code-review", lang, lessonId: lesson.id, code },
+        {
+          onContent: (delta) => setResult((prev) => prev + delta),
+          onReasoning: (delta) => setReasoning((prev) => prev + delta),
+        }
+      );
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "审查失败");
+    } finally {
+      setStreaming(false);
+    }
+  };
+
+  return (
+    <div className="p-4 space-y-4">
+      <div>
+        <div className="flex items-center justify-between mb-2">
+          <label className="text-sm font-medium text-slate-600">
+            粘贴{lang}代码，AI 逐行讲解 + 找 Bug + 给改进建议
+          </label>
+          {lesson.example && (
+            <button
+              onClick={() => setCode(lesson.example!.code)}
+              className="text-xs text-indigo-600 hover:underline"
+            >
+              填入本课示例
+            </button>
+          )}
+        </div>
+        <textarea
+          value={code}
+          onChange={(e) => setCode(e.target.value)}
+          rows={10}
+          placeholder={SAMPLE}
+          spellCheck={false}
+          className="w-full font-mono text-xs bg-slate-900 text-slate-100 border border-slate-700 rounded-xl p-3.5 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+        />
+      </div>
+
+      <button
+        onClick={review}
+        disabled={streaming || !code.trim()}
+        className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white text-sm font-medium py-2.5 rounded-xl transition-colors"
+      >
+        {streaming ? "AI 审查中…" : "开始审查"}
+      </button>
+
+      {error && (
+        <p className="text-sm text-red-500 bg-red-50 rounded-lg px-4 py-3">{error}</p>
+      )}
+
+      {(reasoning || streaming) && (
+        <ReasoningBlock reasoning={reasoning} thinking={streaming && !result} />
+      )}
+
+      {result && (
+        <div className="border border-border rounded-xl p-4 bg-white">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0 flex-1">
+              <Markdown content={result} />
+            </div>
+            {!streaming && (
+              <SpeakButton id={`review-${lesson.id}`} text={result} compact />
+            )}
+          </div>
+          {streaming && <span className="streaming-cursor" />}
+        </div>
+      )}
+    </div>
+  );
+}

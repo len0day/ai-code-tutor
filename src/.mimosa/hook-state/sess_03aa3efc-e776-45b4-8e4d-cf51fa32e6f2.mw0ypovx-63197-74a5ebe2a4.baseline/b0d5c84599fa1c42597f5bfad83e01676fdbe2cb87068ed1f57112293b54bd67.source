@@ -1,0 +1,374 @@
+"use client";
+
+import type {
+  ChatMessage,
+  LeetCodeProblem,
+  Notebook,
+  Progress,
+  PublicSettings,
+  ProviderId,
+} from "@/lib/types";
+import { LC_LANGS } from "@/lib/ai/presets";
+
+// ---- Settings ----
+export async function fetchSettings(): Promise<PublicSettings> {
+  const res = await fetch("/api/settings");
+  return res.json();
+}
+
+export interface SaveSettingsPayload {
+  provider: ProviderId;
+  apiKey?: string; // 留空 = 保留旧 Key
+  baseUrl?: string;
+  model?: string;
+  temperature?: number;
+}
+
+export async function saveSettings(payload: SaveSettingsPayload) {
+  const res = await fetch("/api/settings", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) throw new Error((await res.json()).error ?? "保存失败");
+  return res.json();
+}
+
+export interface TestResult {
+  ok: boolean;
+  error?: string;
+  reply?: string;
+  model?: string;
+}
+
+export async function testSettings(
+  payload: SaveSettingsPayload & { persist?: boolean }
+): Promise<TestResult> {
+  const res = await fetch("/api/settings/test", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  return res.json();
+}
+
+// ---- Progress ----
+export async function fetchProgress(): Promise<Progress> {
+  const res = await fetch("/api/progress");
+  return res.json();
+}
+
+type ProgressOp =
+  | { type: "visit"; lessonId: string }
+  | { type: "complete"; lessonId: string }
+  | { type: "quizResult"; lessonId: string; score: number; wrongIds?: string[] }
+  | { type: "interviewResult"; lessonId: string; score: number }
+  | { type: "reset" };
+
+export async function postProgress(op: ProgressOp): Promise<Progress> {
+  const res = await fetch("/api/progress", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(op),
+  });
+  return res.json();
+}
+
+// ---- Notebook（错题本 / 收藏 / 笔记） ----
+export async function fetchNotebook(): Promise<Notebook> {
+  const res = await fetch("/api/notebook");
+  return res.json();
+}
+
+export interface WrongQuestionInput {
+  lessonId: string;
+  lang: string;
+  source: "quiz" | "interview";
+  kind: "choice" | "code" | "interview";
+  question: string;
+  options?: string[];
+  answerIndex?: number;
+  explanation?: string;
+  idealAnswer?: string;
+  userAnswer?: string | number;
+}
+
+export async function addWrongQuestion(
+  item: WrongQuestionInput
+): Promise<void> {
+  await fetch("/api/notebook", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ type: "addWrong", item }),
+  });
+}
+
+export async function toggleFavorite(item: {
+  lessonId: string;
+  lang: string;
+  kind: string;
+  title: string;
+  content?: string;
+}): Promise<boolean> {
+  const res = await fetch("/api/notebook", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ type: "addFavorite", item }),
+  });
+  const data = await res.json();
+  return Boolean(data.added);
+}
+
+export async function removeFavorite(id: string): Promise<void> {
+  await fetch("/api/notebook", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ type: "removeFavorite", id }),
+  });
+}
+
+export async function toggleResolved(id: string): Promise<void> {
+  await fetch("/api/notebook", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ type: "toggleResolved", id }),
+  });
+}
+
+export async function removeWrong(id: string): Promise<void> {
+  await fetch("/api/notebook", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ type: "removeWrong", id }),
+  });
+}
+
+export async function saveNote(
+  lessonId: string,
+  lang: string,
+  content: string
+): Promise<void> {
+  await fetch("/api/notebook", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ type: "saveNote", lessonId, lang, content }),
+  });
+}
+
+export async function removeNote(lessonId: string): Promise<void> {
+  await fetch("/api/notebook", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ type: "removeNote", lessonId }),
+  });
+}
+
+// ---- 题库（LeetCode + HackerRank） ----
+export type BankSource = "leetcode" | "hackerrank";
+
+export interface BankProblem {
+  id: string;
+  title: string;
+  url: string;
+  difficulty: "Easy" | "Medium" | "Hard";
+  acRate: number | null;
+  source: BankSource;
+}
+
+export async function fetchLeetCodeProblems(body: {
+  tags?: string[];
+  search?: string;
+  difficulty?: string;
+  limit?: number;
+}): Promise<{ problems: LeetCodeProblem[]; total: number; source: string }> {
+  const res = await fetch("/api/leetcode", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error ?? "LeetCode 题库暂不可达");
+  return data;
+}
+
+export async function fetchHackerRankProblems(body: {
+  track: string;
+  search?: string;
+  limit?: number;
+}): Promise<{ problems: BankProblem[]; source: string }> {
+  const res = await fetch("/api/hackerrank", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error ?? "HackerRank 题库暂不可达");
+  return data;
+}
+
+/** 课程语言 → HackerRank track（无对应为 undefined） */
+export const HR_TRACKS: Record<string, string> = {
+  python: "python",
+  java: "java",
+  javascript: "algorithms",
+  typescript: "algorithms",
+  linux: "shell",
+};
+
+/** 该语言可用的题库源 */
+export function availableBanks(lang: string): BankSource[] {
+  const banks: BankSource[] = [];
+  if (LC_LANGS.has(lang)) banks.push("leetcode");
+  if (HR_TRACKS[lang]) banks.push("hackerrank");
+  return banks;
+}
+
+/** 课程知识点 → LeetCode topic 标签（仅 LC 支持的语言才带语言标签） */
+export function lessonToLcTags(lang: string, title: string, summary: string): string[] {
+  const text = title + summary;
+  const map: Array<[RegExp, string]> = [
+    [/数组|列表|list|array/i, "array"],
+    [/字符串|string/i, "string"],
+    [/字典|哈希|映射|dict|hash|集合/i, "hash-table"],
+    [/链表|linked/i, "linked-list"],
+    [/栈|stack/i, "stack"],
+    [/队列|queue/i, "queue"],
+    [/树|tree/i, "tree"],
+    [/排序|sort/i, "sorting"],
+    [/二分|binary/i, "binary-search"],
+    [/递归|recursion/i, "recursion"],
+    [/动态规划/i, "dynamic-programming"],
+    [/贪心/i, "greedy"],
+    [/对象|类|面向对象|design/i, "design"],
+    [/正则|regex/i, "regex"],
+  ];
+  const tags = new Set<string>();
+  if (LC_LANGS.has(lang)) tags.add(lang);
+  for (const [re, tag] of map) {
+    if (re.test(text)) tags.add(tag);
+  }
+  return [...tags];
+}
+
+// ---- AI ----
+export interface AiChatMessage {
+  role: "user" | "assistant";
+  content: string;
+  /** 模型的思考过程（reasoning_content / <think>），展示时默认折叠 */
+  reasoning?: string;
+}
+
+export interface StreamHandlers {
+  onContent?: (text: string) => void;
+  onReasoning?: (text: string) => void;
+}
+
+/**
+ * 流式 AI 请求：解析标准 SSE（data: {...} 事件帧，content/reasoning 双通道），
+ * 返回完整文本。force = 跳过服务端缓存强制重新生成。
+ */
+export async function streamAi(
+  body: Record<string, unknown>,
+  handlers: StreamHandlers
+): Promise<{ content: string; reasoning: string }> {
+  const res = await fetch("/api/ai", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+
+  if (!res.ok) {
+    let msg = `请求失败（${res.status}）`;
+    try {
+      const data = await res.json();
+      if (data.error) msg = data.error;
+    } catch {
+      /* 非 JSON 响应 */
+    }
+    throw new Error(msg);
+  }
+
+  const reader = res.body!.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  let content = "";
+  let reasoning = "";
+
+  const handleEvent = (raw: string) => {
+    // 一个 SSE 事件可能含多行，拼接所有 data: 行
+    const data = raw
+      .split("\n")
+      .filter((l) => l.startsWith("data:"))
+      .map((l) => l.slice(5).trimStart())
+      .join("");
+    const trimmed = data.trim();
+    if (!trimmed || trimmed === "[DONE]") return;
+    try {
+      const ev = JSON.parse(trimmed) as { type: string; text: string };
+      if (ev.type === "content" && ev.text) {
+        content += ev.text;
+        handlers.onContent?.(ev.text);
+      } else if (ev.type === "reasoning" && ev.text) {
+        reasoning += ev.text;
+        handlers.onReasoning?.(ev.text);
+      }
+    } catch {
+      /* 忽略无法解析的事件 */
+    }
+  };
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    let idx: number;
+    while ((idx = buffer.indexOf("\n\n")) !== -1) {
+      const event = buffer.slice(0, idx);
+      buffer = buffer.slice(idx + 2);
+      handleEvent(event);
+    }
+  }
+  if (buffer.trim()) handleEvent(buffer);
+
+  return { content, reasoning };
+}
+
+// ---- 导师对话记忆（跨会话持久化） ----
+export async function fetchChat(lessonId: string): Promise<AiChatMessage[]> {
+  const res = await fetch(`/api/memory?lessonId=${encodeURIComponent(lessonId)}`);
+  const data = await res.json();
+  return ((data.messages ?? []) as ChatMessage[])
+    .filter((m) => m.role === "user" || m.role === "assistant")
+    .map((m) => ({ role: m.role as "user" | "assistant", content: m.content }));
+}
+
+export async function saveChatMemory(
+  lessonId: string,
+  messages: ChatMessage[]
+): Promise<void> {
+  await fetch("/api/memory", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ type: "save", lessonId, messages }),
+  });
+}
+
+export async function clearChatMemory(lessonId: string): Promise<void> {
+  await fetch("/api/memory", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ type: "clear", lessonId }),
+  });
+}
+
+/** 非流式 AI 请求（quiz / grade / path），解析 JSON，失败抛错 */
+export async function aiJson<T>(body: Record<string, unknown>): Promise<T> {
+  const res = await fetch("/api/ai", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error ?? "AI 请求失败");
+  return data as T;
+}

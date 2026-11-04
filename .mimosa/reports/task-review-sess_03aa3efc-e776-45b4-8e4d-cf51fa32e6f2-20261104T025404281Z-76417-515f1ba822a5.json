@@ -1,0 +1,469 @@
+{
+  "schema_version": "mimosa-task-review/v2",
+  "run_id": "20261104T025404281Z-76417-515f1ba822a5",
+  "run_status": "completed",
+  "errors": [],
+  "coverage": {
+    "schema_version": "mimosa-hook-coverage/v1",
+    "status": "complete",
+    "scope": "hook_observed_diff",
+    "baseline": {
+      "complete": true,
+      "captured_files": 78,
+      "candidate_limit": 5000,
+      "truncated": false,
+      "enumeration_error_count": 0,
+      "snapshot_error_count": 0,
+      "compensated_target_count": 17
+    },
+    "change_tracking": {
+      "touched_observed": 17,
+      "touched_retained": 17,
+      "truncated": false,
+      "bash_mutation": true,
+      "bash_discovered": 17,
+      "bash_discovery_limit": 80,
+      "bash_discovery_truncated": false
+    },
+    "candidates": {
+      "eligible_files": 17,
+      "selected_files": 17,
+      "limit": 20,
+      "truncated": false
+    },
+    "scanning": {
+      "required_files": 17,
+      "scanned_files": 17,
+      "skipped_files": 0,
+      "failed_files": 0,
+      "project_checks_required": 0,
+      "project_checks_completed": 0
+    },
+    "notification": {
+      "eligible_findings": 0,
+      "detailed_findings": 0,
+      "detail_limit": 3,
+      "truncated": false
+    },
+    "reason_counts": {},
+    "reasons": [],
+    "reasons_truncated": false
+  },
+  "generated_at": "2026-11-04T02:54:04.281Z",
+  "session_id": "sess_03aa3efc-e776-45b4-8e4d-cf51fa32e6f2",
+  "target": ".",
+  "revision": "cb6064b782123729fe962a38e01e63b6396f8ff3",
+  "rules_version": "unavailable",
+  "diff_hash": "8155e1dbb412ae41cab69cfcecd7c39b9dd240a779fcc507902ef50d2d615a83",
+  "diff": {
+    "algorithm": "sha256",
+    "changed_file_count": 17,
+    "changed_files": [
+      {
+        "file": "src/app/api/ai/route.ts",
+        "ranges": [
+          {
+            "start": 493,
+            "end": 524
+          }
+        ],
+        "before_hash": "2def3a6ba8523dd758beb28900fc590b6b5eb09f07cd1471688d115dfefb1719",
+        "after_hash": "5c280735b3e22c3a1178f0774121732921959d35b399fa5c8487e60dd43aa291"
+      },
+      {
+        "file": "src/app/api/progress/route.ts",
+        "ranges": [
+          {
+            "start": 10,
+            "end": 10
+          },
+          {
+            "start": 18,
+            "end": 24
+          },
+          {
+            "start": 93,
+            "end": 93
+          },
+          {
+            "start": 100,
+            "end": 100
+          },
+          {
+            "start": 108,
+            "end": 112
+          }
+        ],
+        "before_hash": "7f64da2dfbef4f32cb42dfd99b698556be295996601be10008cf9c124d431217",
+        "after_hash": "c866d0c6647f0bc93c5bd7c05502ac7436d4aadae03a6040603af5231c4ae9bf"
+      },
+      {
+        "file": "src/app/languages/[lang]/[lessonId]/page.tsx",
+        "ranges": [
+          {
+            "start": 7,
+            "end": 15
+          },
+          {
+            "start": 24,
+            "end": 25
+          },
+          {
+            "start": 54,
+            "end": 65
+          },
+          {
+            "start": 76,
+            "end": 82
+          },
+          {
+            "start": 169,
+            "end": 171
+          },
+          {
+            "start": 186,
+            "end": 188
+          },
+          {
+            "start": 292,
+            "end": 300
+          },
+          {
+            "start": 306,
+            "end": 310
+          },
+          {
+            "start": 390,
+            "end": 422
+          }
+        ],
+        "before_hash": "de72ed127cca06de99b1aab6976ff2d894245ecaac9f7bc5d3e49fd107fb3957",
+        "after_hash": "c812ad50fc2ac804a53f25d6a6f7ef1dfafcef1628631dbca33f12b5e7e2a5e1"
+      },
+      {
+        "file": "src/app/learn/[lang]/[lessonId]/page.tsx",
+        "ranges": [
+          {
+            "start": 10,
+            "end": 11
+          },
+          {
+            "start": 27,
+            "end": 28
+          },
+          {
+            "start": 64,
+            "end": 65
+          },
+          {
+            "start": 74,
+            "end": 97
+          },
+          {
+            "start": 239,
+            "end": 241
+          },
+          {
+            "start": 256,
+            "end": 258
+          },
+          {
+            "start": 346,
+            "end": 346
+          },
+          {
+            "start": 360,
+            "end": 368
+          },
+          {
+            "start": 374,
+            "end": 378
+          },
+          {
+            "start": 466,
+            "end": 466
+          },
+          {
+            "start": 475,
+            "end": 508
+          }
+        ],
+        "before_hash": "551348cceb7da17bd09721946037d8512f2547ada12a4735aa399aeb67943aae",
+        "after_hash": "464dd2e8a5406546eebfbeda4f5179649a432ee7c4c209f0f1d1a1204434a3ff"
+      },
+      {
+        "file": "src/app/learn/[lang]/page.tsx",
+        "ranges": [
+          {
+            "start": 116,
+            "end": 118
+          },
+          {
+            "start": 123,
+            "end": 129
+          },
+          {
+            "start": 131,
+            "end": 131
+          },
+          {
+            "start": 133,
+            "end": 135
+          },
+          {
+            "start": 140,
+            "end": 140
+          },
+          {
+            "start": 142,
+            "end": 144
+          },
+          {
+            "start": 147,
+            "end": 147
+          },
+          {
+            "start": 149,
+            "end": 149
+          },
+          {
+            "start": 156,
+            "end": 177
+          },
+          {
+            "start": 179,
+            "end": 181
+          }
+        ],
+        "before_hash": "02a9043aad01da59aef8a874a2c5000b3bcb456c1037e4409946454eb191ea66",
+        "after_hash": "7cbb0469b2a00907d2b1eae3c82d73cff6551811a19deea08f7d80569884e838"
+      },
+      {
+        "file": "src/app/report/page.tsx",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 219
+          }
+        ],
+        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after_hash": "99f83842a1b6eb1acb143bd172a386334c03f7dcc864bc23e6d53c34372d3095"
+      },
+      {
+        "file": "src/components/InterviewTab.tsx",
+        "ranges": [
+          {
+            "start": 38,
+            "end": 39
+          },
+          {
+            "start": 42,
+            "end": 42
+          },
+          {
+            "start": 191,
+            "end": 191
+          }
+        ],
+        "before_hash": "89b8f0f0930aff92302fc93b7af0a0a3b52d484e7fcae4537a62546c506bc62c",
+        "after_hash": "00441a4a8cd1d670d392b582a517348b0f7a1854e0b99a076b0457e110c1d02a"
+      },
+      {
+        "file": "src/components/LanguageRoleplay.tsx",
+        "ranges": [
+          {
+            "start": 6,
+            "end": 6
+          },
+          {
+            "start": 41,
+            "end": 42
+          },
+          {
+            "start": 58,
+            "end": 58
+          },
+          {
+            "start": 64,
+            "end": 68
+          },
+          {
+            "start": 128,
+            "end": 147
+          },
+          {
+            "start": 283,
+            "end": 323
+          }
+        ],
+        "before_hash": "a0e11aad2032fa8fa709b45444cf84037056f0c5b89fab1a87b7d21f0a638bd8",
+        "after_hash": "007f4c03056e4c677d023f14c285bfd934688d80cad623f366ae3f7a91747707"
+      },
+      {
+        "file": "src/components/LessonGateGuard.tsx",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 108
+          }
+        ],
+        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after_hash": "421c83f54288cb55c822fc215103b985926656a3911905de9c0b853da02c1091"
+      },
+      {
+        "file": "src/components/Nav.tsx",
+        "ranges": [
+          {
+            "start": 125,
+            "end": 127
+          }
+        ],
+        "before_hash": "26fe9fadf7bded91ea5986860084f9efaa8dd6105ea04c9172dd42f4b6f34304",
+        "after_hash": "fb98e23deb97b7500dc7534970a2a09ddc4511dc45c00030facc62296f2a968f"
+      },
+      {
+        "file": "src/components/QuizTab.tsx",
+        "ranges": [
+          {
+            "start": 39,
+            "end": 40
+          },
+          {
+            "start": 43,
+            "end": 43
+          },
+          {
+            "start": 143,
+            "end": 143
+          }
+        ],
+        "before_hash": "e959828ef26568b06b4b0ccce4bd2075a1d349b09c67bfb49a5f22939fe57b4f",
+        "after_hash": "c39531240993875334ab679d5989e106d5cb4973e3f8bdad74c4b32f27922ffa"
+      },
+      {
+        "file": "src/lib/client.ts",
+        "ranges": [
+          {
+            "start": 6,
+            "end": 6
+          },
+          {
+            "start": 360,
+            "end": 379
+          }
+        ],
+        "before_hash": "24eda1aa05af317a18d53d59664635901a50ca063347da27624eb49e89413946",
+        "after_hash": "67e5cccbc3a84b23eaed78615a879ec868abf5254a61cfa730a69c9b7ba9c6d3"
+      },
+      {
+        "file": "src/lib/db.ts",
+        "ranges": [
+          {
+            "start": 66,
+            "end": 76
+          }
+        ],
+        "before_hash": "b7b465a07f179555387cae53bff22e457fb38c625cae58f11d0d82badef967e2",
+        "after_hash": "a27a90fbde05bd6d465dea6dfb452906b01fcd7b00530d390dee9f39ae6804f9"
+      },
+      {
+        "file": "src/lib/gateConstants.ts",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 2
+          }
+        ],
+        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after_hash": "ca97a131c12812b8755dd590cfb4c2c181bd25bc38c8fb6d9e2258ea13d878e0"
+      },
+      {
+        "file": "src/lib/gates.ts",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 163
+          }
+        ],
+        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after_hash": "461723cfe14015f0c27ba2661de18dae80ad59ac69eca9f2d70920473dbaca74"
+      },
+      {
+        "file": "src/lib/prompts.ts",
+        "ranges": [
+          {
+            "start": 189,
+            "end": 197
+          }
+        ],
+        "before_hash": "110f4cd73a730fe54ca909b221431ec6c8250655b6e7a70d319adeb81b541fd8",
+        "after_hash": "609e7ace2733325d5d77bc1ed86fcd05f0b2bb18b5fc3831c114ca5e6bf34758"
+      },
+      {
+        "file": "src/lib/types.ts",
+        "ranges": [
+          {
+            "start": 38,
+            "end": 56
+          },
+          {
+            "start": 116,
+            "end": 116
+          }
+        ],
+        "before_hash": "9e90d302ef9b33ceda3b574c13c1ce8dc856e87126fb4b671818c99ac7846876",
+        "after_hash": "cc8a901e36879847c9076c461a3ee32fa67d9868822cbe51486fd91510427511"
+      }
+    ]
+  },
+  "timing": {
+    "started_at": "2026-11-04T02:54:03.506Z",
+    "completed_at": "2026-11-04T02:54:04.281Z",
+    "duration_ms": 775,
+    "measurement": "hook_wall_clock"
+  },
+  "tokens": {
+    "input": 0,
+    "output": 0,
+    "total": 0,
+    "model_calls": 0,
+    "measurement": "known-zero"
+  },
+  "telemetry": {
+    "schemaVersion": "mimosa-gate-telemetry/v1",
+    "profile": "gate",
+    "operation": "Stop",
+    "outcome": "complete",
+    "latencyMs": 775,
+    "peakMemoryBytes": 210157568,
+    "memoryMeasurement": "max-observed-process-rss",
+    "scannedFiles": 17,
+    "cache": {
+      "hits": 0,
+      "misses": 0,
+      "measurement": "not-applicable"
+    },
+    "denyCount": 0,
+    "tokens": {
+      "input": 0,
+      "output": 0,
+      "total": 0,
+      "modelCalls": 0,
+      "measurement": "known-zero"
+    }
+  },
+  "finding_count": 0,
+  "rewake_finding_count": 0,
+  "evidence_boundary": {
+    "scan": "candidate",
+    "static_fix_verification": "observed_static_only",
+    "runtime_verification": "not_performed"
+  },
+  "finding_events": [],
+  "findings": [],
+  "artifacts": {
+    "immutable_report": ".mimosa/reports/task-review-sess_03aa3efc-e776-45b4-8e4d-cf51fa32e6f2-20261104T025404281Z-76417-515f1ba822a5.json",
+    "latest_report": ".mimosa/reports/task-review-sess_03aa3efc-e776-45b4-8e4d-cf51fa32e6f2.json",
+    "history_summary": ".mimosa/history/run-20261104T025404281Z-76417-515f1ba822a5.json"
+  }
+}

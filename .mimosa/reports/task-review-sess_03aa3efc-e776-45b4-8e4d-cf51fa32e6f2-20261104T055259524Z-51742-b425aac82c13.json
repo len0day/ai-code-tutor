@@ -1,0 +1,1216 @@
+{
+  "schema_version": "mimosa-task-review/v2",
+  "run_id": "20261104T055259524Z-51742-b425aac82c13",
+  "run_status": "inconclusive",
+  "errors": [
+    {
+      "stage": "candidate-select",
+      "target": "src/app/api/settings/route.ts",
+      "reason": "candidate_limit_exceeded: 13 changed reviewable file(s) were not scanned because the limit is 20"
+    }
+  ],
+  "coverage": {
+    "schema_version": "mimosa-hook-coverage/v1",
+    "status": "partial",
+    "scope": "hook_observed_diff",
+    "baseline": {
+      "complete": true,
+      "captured_files": 84,
+      "candidate_limit": 5000,
+      "truncated": false,
+      "enumeration_error_count": 0,
+      "snapshot_error_count": 0,
+      "compensated_target_count": 33
+    },
+    "change_tracking": {
+      "touched_observed": 31,
+      "touched_retained": 31,
+      "truncated": false,
+      "bash_mutation": true,
+      "bash_discovered": 33,
+      "bash_discovery_limit": 80,
+      "bash_discovery_truncated": false
+    },
+    "candidates": {
+      "eligible_files": 33,
+      "selected_files": 20,
+      "limit": 20,
+      "truncated": true
+    },
+    "scanning": {
+      "required_files": 20,
+      "scanned_files": 20,
+      "skipped_files": 0,
+      "failed_files": 0,
+      "project_checks_required": 0,
+      "project_checks_completed": 0
+    },
+    "notification": {
+      "eligible_findings": 0,
+      "detailed_findings": 0,
+      "detail_limit": 3,
+      "truncated": false
+    },
+    "reason_counts": {
+      "candidate_limit_exceeded": 1,
+      "project_check_failed": 1
+    },
+    "reasons": [
+      {
+        "code": "candidate_limit_exceeded",
+        "stage": "candidate-select",
+        "target": "src/app/api/settings/route.ts",
+        "detail": "13 changed reviewable file(s) were not scanned because the limit is 20",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "candidate-select",
+        "target": "src/app/api/settings/route.ts",
+        "detail": "candidate_limit_exceeded: 13 changed reviewable file(s) were not scanned because the limit is 20",
+        "affects_completion": true
+      }
+    ],
+    "reasons_truncated": false
+  },
+  "generated_at": "2026-11-04T05:52:59.524Z",
+  "session_id": "sess_03aa3efc-e776-45b4-8e4d-cf51fa32e6f2",
+  "target": ".",
+  "revision": "cb6064b782123729fe962a38e01e63b6396f8ff3",
+  "rules_version": "unavailable",
+  "diff_hash": "c691e55d422165fcec1b52dc6e1673f4402807842e2bde5ec5b87740d791e08e",
+  "diff": {
+    "algorithm": "sha256",
+    "changed_file_count": 20,
+    "changed_files": [
+      {
+        "file": "src/app/api/admin/config/route.ts",
+        "ranges": [
+          {
+            "start": 12,
+            "end": 12
+          },
+          {
+            "start": 25,
+            "end": 29
+          }
+        ],
+        "before_hash": "4f135bb914c5160e1257b8f17a6c21a58485cd94b02870401f76318fa624c254",
+        "after_hash": "79c43ec4658127e9472cd62dec0018b563a42f5d5e660ef417be18f965fb82fb"
+      },
+      {
+        "file": "src/app/api/admin/has-users/route.ts",
+        "ranges": [
+          {
+            "start": 4,
+            "end": 4
+          },
+          {
+            "start": 6,
+            "end": 7
+          }
+        ],
+        "before_hash": "949ddfdfd9ac97ad646a631a2591ec13d011f7a85de5758719f389e1cfc1383a",
+        "after_hash": "7682eda68b01b823be6c94c53e0a75dd309163805d82372ce3e8d383504df05b"
+      },
+      {
+        "file": "src/app/api/admin/tokens/route.ts",
+        "ranges": [
+          {
+            "start": 22,
+            "end": 27
+          }
+        ],
+        "before_hash": "30bff496a6305e930ee19968c442c19d7628a549ddd2a001d0144ce0d21e9fa3",
+        "after_hash": "9a4da1c73cfa48bb376c36712ff3b12be95697587794d6dda4c8367392e14140"
+      },
+      {
+        "file": "src/app/api/admin/users/route.ts",
+        "ranges": [
+          {
+            "start": 28,
+            "end": 30
+          },
+          {
+            "start": 35,
+            "end": 35
+          },
+          {
+            "start": 38,
+            "end": 39
+          },
+          {
+            "start": 43,
+            "end": 43
+          },
+          {
+            "start": 52,
+            "end": 53
+          },
+          {
+            "start": 55,
+            "end": 55
+          },
+          {
+            "start": 58,
+            "end": 58
+          },
+          {
+            "start": 97,
+            "end": 97
+          },
+          {
+            "start": 110,
+            "end": 110
+          },
+          {
+            "start": 113,
+            "end": 113
+          },
+          {
+            "start": 117,
+            "end": 117
+          },
+          {
+            "start": 120,
+            "end": 120
+          },
+          {
+            "start": 127,
+            "end": 127
+          },
+          {
+            "start": 131,
+            "end": 131
+          },
+          {
+            "start": 135,
+            "end": 135
+          },
+          {
+            "start": 139,
+            "end": 139
+          }
+        ],
+        "before_hash": "425cf6b4e6b1030a790ab0aa4e09dd1224dca074a7da89e55b373cecde7706bf",
+        "after_hash": "92f57c70601860f280f667455568b81dd9daf7efa50f625018b9fdcede66bd6f"
+      },
+      {
+        "file": "src/app/api/auth/login/route.ts",
+        "ranges": [
+          {
+            "start": 16,
+            "end": 16
+          }
+        ],
+        "before_hash": "fe114bc7bef267176b98724c0f91564fd4ee962fcb3a9f42d6fa4003028436f9",
+        "after_hash": "852fc7b64b1e23cca1a0ea84ffd97dd7110d973c55632c2a74606332560f90a4"
+      },
+      {
+        "file": "src/app/api/auth/register/route.ts",
+        "ranges": [
+          {
+            "start": 31,
+            "end": 32
+          },
+          {
+            "start": 36,
+            "end": 36
+          },
+          {
+            "start": 39,
+            "end": 39
+          }
+        ],
+        "before_hash": "a44628d3f960a32c577497202d5efe47bd2ca241e178185df6f2d48c786b0880",
+        "after_hash": "86d2d09611a340a429fa6114ed93337cb75b55370bc2f4ef0eaa295f4feed497"
+      },
+      {
+        "file": "src/app/api/auth/tokens/route.ts",
+        "ranges": [
+          {
+            "start": 17,
+            "end": 17
+          },
+          {
+            "start": 30,
+            "end": 31
+          },
+          {
+            "start": 37,
+            "end": 38
+          },
+          {
+            "start": 42,
+            "end": 42
+          },
+          {
+            "start": 47,
+            "end": 47
+          }
+        ],
+        "before_hash": "71487ee71682095395461904ef8f51794ea1011a9c570d38f71b0d3294e30bce",
+        "after_hash": "8e1c4c296f8de8f797073dc9be050af995c5f0b0d20fb27d01571605ea7d4ee5"
+      },
+      {
+        "file": "src/app/api/me/usage/route.ts",
+        "ranges": [
+          {
+            "start": 18,
+            "end": 18
+          },
+          {
+            "start": 20,
+            "end": 26
+          },
+          {
+            "start": 34,
+            "end": 34
+          },
+          {
+            "start": 36,
+            "end": 36
+          }
+        ],
+        "before_hash": "0ac1656c9627858e4dfc1523223ffd3727aed2a28b6819917b6f85965c512665",
+        "after_hash": "3f511aeb25dbd4f859ac99d154de8de521e73dd5ffb7a346637242adae2e1a48"
+      },
+      {
+        "file": "src/app/api/memory/route.ts",
+        "ranges": [
+          {
+            "start": 12,
+            "end": 12
+          },
+          {
+            "start": 28,
+            "end": 28
+          },
+          {
+            "start": 34,
+            "end": 34
+          }
+        ],
+        "before_hash": "bb50b58df36ea7e15c9dbb89e6b43e6b6498dd65fdc2681a8ba3ba07559cfa10",
+        "after_hash": "fcc61d43c42f3931234bc91d4fa48c671fd87a85821ff258979c1968533421b5"
+      },
+      {
+        "file": "src/app/api/models/route.ts",
+        "ranges": [
+          {
+            "start": 59,
+            "end": 59
+          }
+        ],
+        "before_hash": "b9b09519cbfd60a561185fc76ac24c87c6b0bc834e6ad1913beaecde36207099",
+        "after_hash": "5da91ead8476013610559f851b8a535c42b5375cd1501d23f495ca0456392dfb"
+      },
+      {
+        "file": "src/app/api/notebook/route.ts",
+        "ranges": [
+          {
+            "start": 14,
+            "end": 14
+          },
+          {
+            "start": 45,
+            "end": 45
+          },
+          {
+            "start": 135,
+            "end": 135
+          }
+        ],
+        "before_hash": "c4321c4aab5058d090988c230d1c97faf6104b3871b96047dfa938dcbeb14e8c",
+        "after_hash": "5f0b0e5090fb6e0812b45fada519e68aaeabd1ba717ffe32aa2191285f991b0b"
+      },
+      {
+        "file": "src/app/api/progress/route.ts",
+        "ranges": [
+          {
+            "start": 18,
+            "end": 18
+          },
+          {
+            "start": 22,
+            "end": 22
+          },
+          {
+            "start": 47,
+            "end": 48
+          },
+          {
+            "start": 54,
+            "end": 56
+          },
+          {
+            "start": 68,
+            "end": 68
+          },
+          {
+            "start": 85,
+            "end": 85
+          },
+          {
+            "start": 96,
+            "end": 96
+          },
+          {
+            "start": 108,
+            "end": 108
+          },
+          {
+            "start": 111,
+            "end": 111
+          }
+        ],
+        "before_hash": "048150a1e49b56d424302bbe479ae5b2486fc2a37e10a42e9ceb9a6704895a75",
+        "after_hash": "972d7c04c27455b498aa74553ba5263e7b9163c4cf65089a514ea0bebba8d617"
+      },
+      {
+        "file": "src/lib/apiToken.ts",
+        "ranges": [
+          {
+            "start": 3,
+            "end": 3
+          },
+          {
+            "start": 23,
+            "end": 23
+          },
+          {
+            "start": 26,
+            "end": 26
+          },
+          {
+            "start": 29,
+            "end": 33
+          },
+          {
+            "start": 47,
+            "end": 47
+          },
+          {
+            "start": 49,
+            "end": 53
+          },
+          {
+            "start": 55,
+            "end": 58
+          },
+          {
+            "start": 62,
+            "end": 63
+          },
+          {
+            "start": 69,
+            "end": 73
+          },
+          {
+            "start": 83,
+            "end": 94
+          },
+          {
+            "start": 97,
+            "end": 101
+          }
+        ],
+        "before_hash": "c36c596dcf860d42bff0529847f6d92c20831703e7ea0cbac91e16b037f52ea8",
+        "after_hash": "3e3765d6459d6c16c1d3d9b1f863f8e66fc02dd80956da24462c6f693a4410e3"
+      },
+      {
+        "file": "src/lib/cache.ts",
+        "ranges": [
+          {
+            "start": 2,
+            "end": 2
+          },
+          {
+            "start": 5,
+            "end": 5
+          },
+          {
+            "start": 15,
+            "end": 19
+          },
+          {
+            "start": 28,
+            "end": 28
+          },
+          {
+            "start": 34,
+            "end": 53
+          },
+          {
+            "start": 56,
+            "end": 66
+          },
+          {
+            "start": 70,
+            "end": 76
+          },
+          {
+            "start": 86,
+            "end": 165
+          }
+        ],
+        "before_hash": "0c624ad1f400f7be39ea5004b767cabe187e0975e7cff60b3bdf02f101fa430b",
+        "after_hash": "0cf2240fca9900f40132ef373ad99ef43386f308c534538acd668387692cde46"
+      },
+      {
+        "file": "src/lib/db/index.ts",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 172
+          }
+        ],
+        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after_hash": "08668b4fc779644646ced008147c437e9e7a130f95804fc88d1704e476985689"
+      },
+      {
+        "file": "src/lib/db/postgres.ts",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 64
+          }
+        ],
+        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after_hash": "17994683e62b00e419eff555bd75cd5a0cfca6582b8ae8bbe564802e0d1e7ff0"
+      },
+      {
+        "file": "src/lib/db/sqlite.ts",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 68
+          }
+        ],
+        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after_hash": "ab79949a7ee314159fb44a5b25f41997ec593b2ac43c516a7319e7a43effced6"
+      },
+      {
+        "file": "src/lib/gates.ts",
+        "ranges": [
+          {
+            "start": 2,
+            "end": 2
+          },
+          {
+            "start": 14,
+            "end": 18
+          },
+          {
+            "start": 52,
+            "end": 60
+          },
+          {
+            "start": 68,
+            "end": 73
+          },
+          {
+            "start": 76,
+            "end": 76
+          },
+          {
+            "start": 81,
+            "end": 81
+          },
+          {
+            "start": 102,
+            "end": 103
+          },
+          {
+            "start": 108,
+            "end": 108
+          },
+          {
+            "start": 117,
+            "end": 117
+          },
+          {
+            "start": 122,
+            "end": 134
+          },
+          {
+            "start": 148,
+            "end": 148
+          },
+          {
+            "start": 151,
+            "end": 152
+          },
+          {
+            "start": 158,
+            "end": 168
+          },
+          {
+            "start": 189,
+            "end": 193
+          }
+        ],
+        "before_hash": "061fb65350736a8d912f245f8d7f6a052dcfe442ab677d68852fe01a408c36bb",
+        "after_hash": "c709cf275608e451d183a47a2e53939468d90dbec813bbe4141784af816c57bb"
+      },
+      {
+        "file": "src/lib/memory.ts",
+        "ranges": [
+          {
+            "start": 3,
+            "end": 3
+          },
+          {
+            "start": 6,
+            "end": 6
+          },
+          {
+            "start": 13,
+            "end": 17
+          },
+          {
+            "start": 27,
+            "end": 32
+          },
+          {
+            "start": 38,
+            "end": 41
+          },
+          {
+            "start": 44,
+            "end": 58
+          },
+          {
+            "start": 62,
+            "end": 74
+          },
+          {
+            "start": 77,
+            "end": 81
+          }
+        ],
+        "before_hash": "ccb75919e472a95de5c5bce70ca4d7c3fb9a0495534e1a24c8957f9bfaa76971",
+        "after_hash": "7bbaf91efd27456e9944e4f287f72860251030c20633363e05f7699b721adfa7"
+      },
+      {
+        "file": "src/lib/store.ts",
+        "ranges": [
+          {
+            "start": 4,
+            "end": 4
+          },
+          {
+            "start": 7,
+            "end": 8
+          },
+          {
+            "start": 22,
+            "end": 33
+          },
+          {
+            "start": 41,
+            "end": 41
+          },
+          {
+            "start": 44,
+            "end": 46
+          },
+          {
+            "start": 48,
+            "end": 54
+          },
+          {
+            "start": 56,
+            "end": 75
+          },
+          {
+            "start": 77,
+            "end": 77
+          },
+          {
+            "start": 80,
+            "end": 85
+          },
+          {
+            "start": 88,
+            "end": 93
+          },
+          {
+            "start": 96,
+            "end": 96
+          },
+          {
+            "start": 101,
+            "end": 101
+          },
+          {
+            "start": 104,
+            "end": 108
+          },
+          {
+            "start": 112,
+            "end": 125
+          },
+          {
+            "start": 131,
+            "end": 151
+          },
+          {
+            "start": 172,
+            "end": 175
+          },
+          {
+            "start": 177,
+            "end": 190
+          },
+          {
+            "start": 193,
+            "end": 207
+          },
+          {
+            "start": 211,
+            "end": 228
+          },
+          {
+            "start": 231,
+            "end": 231
+          },
+          {
+            "start": 233,
+            "end": 238
+          },
+          {
+            "start": 242,
+            "end": 247
+          },
+          {
+            "start": 251,
+            "end": 261
+          },
+          {
+            "start": 264,
+            "end": 268
+          },
+          {
+            "start": 271,
+            "end": 285
+          },
+          {
+            "start": 287,
+            "end": 287
+          },
+          {
+            "start": 290,
+            "end": 290
+          },
+          {
+            "start": 301,
+            "end": 304
+          },
+          {
+            "start": 315,
+            "end": 317
+          },
+          {
+            "start": 319,
+            "end": 323
+          },
+          {
+            "start": 334,
+            "end": 334
+          },
+          {
+            "start": 342,
+            "end": 345
+          },
+          {
+            "start": 353,
+            "end": 362
+          },
+          {
+            "start": 366,
+            "end": 367
+          },
+          {
+            "start": 369,
+            "end": 372
+          },
+          {
+            "start": 376,
+            "end": 376
+          },
+          {
+            "start": 378,
+            "end": 383
+          },
+          {
+            "start": 388,
+            "end": 392
+          },
+          {
+            "start": 396,
+            "end": 400
+          },
+          {
+            "start": 402,
+            "end": 406
+          },
+          {
+            "start": 409,
+            "end": 410
+          },
+          {
+            "start": 417,
+            "end": 417
+          },
+          {
+            "start": 421,
+            "end": 425
+          },
+          {
+            "start": 427,
+            "end": 432
+          },
+          {
+            "start": 453,
+            "end": 453
+          },
+          {
+            "start": 459,
+            "end": 465
+          },
+          {
+            "start": 469,
+            "end": 476
+          },
+          {
+            "start": 480,
+            "end": 511
+          },
+          {
+            "start": 513,
+            "end": 517
+          },
+          {
+            "start": 522,
+            "end": 522
+          },
+          {
+            "start": 525,
+            "end": 529
+          },
+          {
+            "start": 531,
+            "end": 534
+          },
+          {
+            "start": 538,
+            "end": 548
+          },
+          {
+            "start": 552,
+            "end": 553
+          },
+          {
+            "start": 560,
+            "end": 570
+          }
+        ],
+        "before_hash": "bceefb33ae48e52ed85384df862f25920c0e9e6b35045b8b12b3d072b667b192",
+        "after_hash": "3c90110fc4c175579bcbd3749146b36431bbb9e9b20833e015684797d6b85d19"
+      }
+    ]
+  },
+  "timing": {
+    "started_at": "2026-11-04T05:52:58.813Z",
+    "completed_at": "2026-11-04T05:52:59.524Z",
+    "duration_ms": 711,
+    "measurement": "hook_wall_clock"
+  },
+  "tokens": {
+    "input": 0,
+    "output": 0,
+    "total": 0,
+    "model_calls": 0,
+    "measurement": "known-zero"
+  },
+  "telemetry": {
+    "schemaVersion": "mimosa-gate-telemetry/v1",
+    "profile": "gate",
+    "operation": "Stop",
+    "outcome": "partial/INCONCLUSIVE",
+    "latencyMs": 711,
+    "peakMemoryBytes": 200081408,
+    "memoryMeasurement": "max-observed-process-rss",
+    "scannedFiles": 20,
+    "cache": {
+      "hits": 0,
+      "misses": 0,
+      "measurement": "not-applicable"
+    },
+    "denyCount": 0,
+    "tokens": {
+      "input": 0,
+      "output": 0,
+      "total": 0,
+      "modelCalls": 0,
+      "measurement": "known-zero"
+    }
+  },
+  "finding_count": 0,
+  "rewake_finding_count": 0,
+  "evidence_boundary": {
+    "scan": "candidate",
+    "static_fix_verification": "observed_static_only",
+    "runtime_verification": "not_performed"
+  },
+  "finding_events": [
+    {
+      "finding_id": "mimosa-d1dd8a54f9ca71a09040c602",
+      "file": "src/lib/db/postgres.ts",
+      "line": 17,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "证书校验缺失",
+      "status": "blocked",
+      "decision": "deny",
+      "at": "2026-11-04T05:26:24.048Z",
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "6749efffcf15f0144cc2f8773f5ac2047a9b3a335528f3c93b2174cb27cc6da7",
+        "runtime_oracle": false
+      }
+    },
+    {
+      "finding_id": "mimosa-85fb64397798d00a2e546b65",
+      "file": "src/lib/db/postgres.ts",
+      "line": 24,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "SQL 注入",
+      "status": "blocked",
+      "decision": "deny",
+      "at": "2026-11-04T05:26:24.048Z",
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "332e4f04dd0ae460bf3ddae6f6855d175b8ab4c962f9445bc10d02d42ed63648",
+        "runtime_oracle": false
+      }
+    },
+    {
+      "finding_id": "mimosa-85fb64397798d00a2e546b65",
+      "file": "src/lib/db/postgres.ts",
+      "line": 27,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "SQL 注入",
+      "status": "blocked",
+      "decision": "deny",
+      "at": "2026-11-04T05:26:52.763Z",
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "332e4f04dd0ae460bf3ddae6f6855d175b8ab4c962f9445bc10d02d42ed63648",
+        "runtime_oracle": false
+      }
+    },
+    {
+      "finding_id": "mimosa-85fb64397798d00a2e546b65",
+      "file": "src/lib/db/postgres.ts",
+      "line": 24,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "SQL 注入",
+      "status": "blocked",
+      "decision": "deny",
+      "at": "2026-11-04T05:27:53.994Z",
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "332e4f04dd0ae460bf3ddae6f6855d175b8ab4c962f9445bc10d02d42ed63648",
+        "runtime_oracle": false
+      }
+    },
+    {
+      "finding_id": "mimosa-32b188c31e0d6731d894d62f",
+      "file": "src/lib/db/index.ts",
+      "line": 4,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "命令注入",
+      "status": "blocked",
+      "decision": "deny",
+      "at": "2026-11-04T05:28:03.677Z",
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "a7c9e3914e87d1d58018ce2ee5d896240b8c1723a322a818adaac17a7bb4c6eb",
+        "runtime_oracle": false
+      }
+    },
+    {
+      "finding_id": "mimosa-32b188c31e0d6731d894d62f",
+      "file": "src/lib/db/index.ts",
+      "line": 23,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "命令注入",
+      "status": "blocked",
+      "decision": "deny",
+      "at": "2026-11-04T05:28:14.182Z",
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "a7c9e3914e87d1d58018ce2ee5d896240b8c1723a322a818adaac17a7bb4c6eb",
+        "runtime_oracle": false
+      }
+    },
+    {
+      "finding_id": "mimosa-af9d052fac0653e94505271a",
+      "file": "src/lib/db/index.ts",
+      "line": 154,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "命令注入",
+      "status": "blocked",
+      "decision": "deny",
+      "at": "2026-11-04T05:28:14.182Z",
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "df91d6f414c5d822e14af7ac9018e0dc98f0f9700d46dd156b1b17d8471cbb9d",
+        "runtime_oracle": false
+      }
+    },
+    {
+      "finding_id": "mimosa-32b188c31e0d6731d894d62f",
+      "file": "src/lib/db/index.ts",
+      "line": 23,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "命令注入",
+      "status": "fixed_candidate",
+      "decision": "repair_observed",
+      "at": "2026-11-04T05:28:35.312Z",
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "a7c9e3914e87d1d58018ce2ee5d896240b8c1723a322a818adaac17a7bb4c6eb",
+        "candidate_before_evidence_hash": "a7c9e3914e87d1d58018ce2ee5d896240b8c1723a322a818adaac17a7bb4c6eb",
+        "post_change_evidence_hash_at_previous_location": "f2fdbb69e292f130cfff27aa44bbcd3ee0a40ccab9fb060958d6bea5d35cb94d",
+        "runtime_oracle": false,
+        "verification": {
+          "method": "mimosa-posttool-static-rescan",
+          "finding_absent": true,
+          "runtime_oracle": false
+        }
+      }
+    },
+    {
+      "finding_id": "mimosa-32b188c31e0d6731d894d62f",
+      "file": "src/lib/db/index.ts",
+      "line": 23,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "命令注入",
+      "status": "static_verified",
+      "decision": "static_rescan_passed",
+      "at": "2026-11-04T05:28:35.312Z",
+      "evidence": {
+        "kind": "static_scan",
+        "boundary": "observed",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "a7c9e3914e87d1d58018ce2ee5d896240b8c1723a322a818adaac17a7bb4c6eb",
+        "candidate_before_evidence_hash": "a7c9e3914e87d1d58018ce2ee5d896240b8c1723a322a818adaac17a7bb4c6eb",
+        "post_change_evidence_hash_at_previous_location": "f2fdbb69e292f130cfff27aa44bbcd3ee0a40ccab9fb060958d6bea5d35cb94d",
+        "runtime_oracle": false,
+        "verification": {
+          "method": "mimosa-posttool-static-rescan",
+          "finding_absent": true,
+          "runtime_oracle": false
+        }
+      }
+    },
+    {
+      "finding_id": "mimosa-af9d052fac0653e94505271a",
+      "file": "src/lib/db/index.ts",
+      "line": 154,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "命令注入",
+      "status": "fixed_candidate",
+      "decision": "repair_observed",
+      "at": "2026-11-04T05:28:35.312Z",
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "df91d6f414c5d822e14af7ac9018e0dc98f0f9700d46dd156b1b17d8471cbb9d",
+        "candidate_before_evidence_hash": "df91d6f414c5d822e14af7ac9018e0dc98f0f9700d46dd156b1b17d8471cbb9d",
+        "post_change_evidence_hash_at_previous_location": "e9b8dae0713a10b4578c96793638c3d9a959dd0d407b1a49bdc2fabdaf861ea1",
+        "runtime_oracle": false,
+        "verification": {
+          "method": "mimosa-posttool-static-rescan",
+          "finding_absent": true,
+          "runtime_oracle": false
+        }
+      }
+    },
+    {
+      "finding_id": "mimosa-af9d052fac0653e94505271a",
+      "file": "src/lib/db/index.ts",
+      "line": 154,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "命令注入",
+      "status": "static_verified",
+      "decision": "static_rescan_passed",
+      "at": "2026-11-04T05:28:35.312Z",
+      "evidence": {
+        "kind": "static_scan",
+        "boundary": "observed",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "df91d6f414c5d822e14af7ac9018e0dc98f0f9700d46dd156b1b17d8471cbb9d",
+        "candidate_before_evidence_hash": "df91d6f414c5d822e14af7ac9018e0dc98f0f9700d46dd156b1b17d8471cbb9d",
+        "post_change_evidence_hash_at_previous_location": "e9b8dae0713a10b4578c96793638c3d9a959dd0d407b1a49bdc2fabdaf861ea1",
+        "runtime_oracle": false,
+        "verification": {
+          "method": "mimosa-posttool-static-rescan",
+          "finding_absent": true,
+          "runtime_oracle": false
+        }
+      }
+    },
+    {
+      "finding_id": "mimosa-d1dd8a54f9ca71a09040c602",
+      "file": "src/lib/db/postgres.ts",
+      "line": 17,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "证书校验缺失",
+      "status": "fixed_candidate",
+      "decision": "repair_observed",
+      "at": "2026-11-04T05:28:50.091Z",
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "6749efffcf15f0144cc2f8773f5ac2047a9b3a335528f3c93b2174cb27cc6da7",
+        "candidate_before_evidence_hash": "6749efffcf15f0144cc2f8773f5ac2047a9b3a335528f3c93b2174cb27cc6da7",
+        "post_change_evidence_hash_at_previous_location": "29576b54e255e3c948eea5b5904fa38b81682fdd3cbd9ae841ff0e7bd80d394c",
+        "runtime_oracle": false,
+        "verification": {
+          "method": "mimosa-posttool-static-rescan",
+          "finding_absent": true,
+          "runtime_oracle": false
+        }
+      }
+    },
+    {
+      "finding_id": "mimosa-d1dd8a54f9ca71a09040c602",
+      "file": "src/lib/db/postgres.ts",
+      "line": 17,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "证书校验缺失",
+      "status": "static_verified",
+      "decision": "static_rescan_passed",
+      "at": "2026-11-04T05:28:50.091Z",
+      "evidence": {
+        "kind": "static_scan",
+        "boundary": "observed",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "6749efffcf15f0144cc2f8773f5ac2047a9b3a335528f3c93b2174cb27cc6da7",
+        "candidate_before_evidence_hash": "6749efffcf15f0144cc2f8773f5ac2047a9b3a335528f3c93b2174cb27cc6da7",
+        "post_change_evidence_hash_at_previous_location": "29576b54e255e3c948eea5b5904fa38b81682fdd3cbd9ae841ff0e7bd80d394c",
+        "runtime_oracle": false,
+        "verification": {
+          "method": "mimosa-posttool-static-rescan",
+          "finding_absent": true,
+          "runtime_oracle": false
+        }
+      }
+    },
+    {
+      "finding_id": "mimosa-85fb64397798d00a2e546b65",
+      "file": "src/lib/db/postgres.ts",
+      "line": 24,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "SQL 注入",
+      "status": "fixed_candidate",
+      "decision": "repair_observed",
+      "at": "2026-11-04T05:28:50.091Z",
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "332e4f04dd0ae460bf3ddae6f6855d175b8ab4c962f9445bc10d02d42ed63648",
+        "candidate_before_evidence_hash": "332e4f04dd0ae460bf3ddae6f6855d175b8ab4c962f9445bc10d02d42ed63648",
+        "post_change_evidence_hash_at_previous_location": "bdaa2126c5982742c44cb3bc21fb62ef1e3c61202ef1cd8fe8e47dea6329e3ab",
+        "runtime_oracle": false,
+        "verification": {
+          "method": "mimosa-posttool-static-rescan",
+          "finding_absent": true,
+          "runtime_oracle": false
+        }
+      }
+    },
+    {
+      "finding_id": "mimosa-85fb64397798d00a2e546b65",
+      "file": "src/lib/db/postgres.ts",
+      "line": 24,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "SQL 注入",
+      "status": "static_verified",
+      "decision": "static_rescan_passed",
+      "at": "2026-11-04T05:28:50.091Z",
+      "evidence": {
+        "kind": "static_scan",
+        "boundary": "observed",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "332e4f04dd0ae460bf3ddae6f6855d175b8ab4c962f9445bc10d02d42ed63648",
+        "candidate_before_evidence_hash": "332e4f04dd0ae460bf3ddae6f6855d175b8ab4c962f9445bc10d02d42ed63648",
+        "post_change_evidence_hash_at_previous_location": "bdaa2126c5982742c44cb3bc21fb62ef1e3c61202ef1cd8fe8e47dea6329e3ab",
+        "runtime_oracle": false,
+        "verification": {
+          "method": "mimosa-posttool-static-rescan",
+          "finding_absent": true,
+          "runtime_oracle": false
+        }
+      }
+    }
+  ],
+  "findings": [],
+  "artifacts": {
+    "immutable_report": ".mimosa/reports/task-review-sess_03aa3efc-e776-45b4-8e4d-cf51fa32e6f2-20261104T055259524Z-51742-b425aac82c13.json",
+    "latest_report": ".mimosa/reports/task-review-sess_03aa3efc-e776-45b4-8e4d-cf51fa32e6f2.json",
+    "history_summary": ".mimosa/history/run-20261104T055259524Z-51742-b425aac82c13.json"
+  }
+}

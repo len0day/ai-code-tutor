@@ -1,0 +1,311 @@
+{
+  "schema_version": "mimosa-task-review/v2",
+  "run_id": "20261103T173057395Z-64062-9133f5d7da27",
+  "run_status": "completed",
+  "errors": [],
+  "coverage": {
+    "schema_version": "mimosa-hook-coverage/v1",
+    "status": "complete",
+    "scope": "hook_observed_diff",
+    "baseline": {
+      "complete": true,
+      "captured_files": 49,
+      "candidate_limit": 5000,
+      "truncated": false,
+      "enumeration_error_count": 0,
+      "snapshot_error_count": 0,
+      "compensated_target_count": 11
+    },
+    "change_tracking": {
+      "touched_observed": 11,
+      "touched_retained": 11,
+      "truncated": false,
+      "bash_mutation": false,
+      "bash_discovered": 0,
+      "bash_discovery_limit": 80,
+      "bash_discovery_truncated": false
+    },
+    "candidates": {
+      "eligible_files": 11,
+      "selected_files": 11,
+      "limit": 20,
+      "truncated": false
+    },
+    "scanning": {
+      "required_files": 11,
+      "scanned_files": 11,
+      "skipped_files": 0,
+      "failed_files": 0,
+      "project_checks_required": 0,
+      "project_checks_completed": 0
+    },
+    "notification": {
+      "eligible_findings": 0,
+      "detailed_findings": 0,
+      "detail_limit": 3,
+      "truncated": false
+    },
+    "reason_counts": {},
+    "reasons": [],
+    "reasons_truncated": false
+  },
+  "generated_at": "2026-11-03T17:30:57.395Z",
+  "session_id": "sess_03aa3efc-e776-45b4-8e4d-cf51fa32e6f2",
+  "target": ".",
+  "revision": "cb6064b782123729fe962a38e01e63b6396f8ff3",
+  "rules_version": "unavailable",
+  "diff_hash": "323b4f05924859711fccf6695bf2b75a2be95059e8109b949c1b8bcf841d427e",
+  "diff": {
+    "algorithm": "sha256",
+    "changed_file_count": 11,
+    "changed_files": [
+      {
+        "file": "src/app/api/tts/route.ts",
+        "ranges": [
+          {
+            "start": 3,
+            "end": 3
+          },
+          {
+            "start": 12,
+            "end": 12
+          },
+          {
+            "start": 25,
+            "end": 29
+          }
+        ],
+        "before_hash": "0038eb620f6bc71da8a618ebdad75f7acaf11b92e8c9cb118ac47197ec6187f3",
+        "after_hash": "2ff26ffdb8df25a4cff133505eed7382b8f992c6b0e7056f69545f0229a7a8ae"
+      },
+      {
+        "file": "src/app/learn/[lang]/[lessonId]/page.tsx",
+        "ranges": [
+          {
+            "start": 277,
+            "end": 279
+          },
+          {
+            "start": 284,
+            "end": 290
+          },
+          {
+            "start": 303,
+            "end": 303
+          }
+        ],
+        "before_hash": "f01bb5c44519d3bb3d885359fccbf3558ae82e3f1024c1e0aca802d9aa1a0ad6",
+        "after_hash": "31457352db60ba3101da5a89ae792a750387db8032faa600e5d50f0e5b40f603"
+      },
+      {
+        "file": "src/components/InterviewTab.tsx",
+        "ranges": [
+          {
+            "start": 241,
+            "end": 241
+          },
+          {
+            "start": 408,
+            "end": 408
+          }
+        ],
+        "before_hash": "ebac4c1556c8be472ce4869cc92c1ca0227ba41ceaba1cadcb3509a439d6cc98",
+        "after_hash": "3feaa9dc42255b4dd59db042f3112921e31eba97361a17e2fd7f743acb43460e"
+      },
+      {
+        "file": "src/components/QuizTab.tsx",
+        "ranges": [
+          {
+            "start": 223,
+            "end": 223
+          },
+          {
+            "start": 280,
+            "end": 280
+          }
+        ],
+        "before_hash": "53c1d97c2de88d5bf4112fb1353e2275c93c91d88baf1fbb0a437693e7c47c41",
+        "after_hash": "5637010b972ea5d5ef000432865de84c95d761389aa50d0a0ce22c27a5267543"
+      },
+      {
+        "file": "src/components/SpeakButton.tsx",
+        "ranges": [
+          {
+            "start": 30,
+            "end": 31
+          },
+          {
+            "start": 36,
+            "end": 36
+          },
+          {
+            "start": 52,
+            "end": 52
+          }
+        ],
+        "before_hash": "255608127ba95f2564d9f0e4bb8433ebff6bc15e88234f4fd0653bae87c054aa",
+        "after_hash": "15473a102f3c1876286acd8aa898836e6f2fc5b100970e325b347db389efd2be"
+      },
+      {
+        "file": "src/data/courses/index.ts",
+        "ranges": [
+          {
+            "start": 9,
+            "end": 9
+          },
+          {
+            "start": 19,
+            "end": 19
+          },
+          {
+            "start": 30,
+            "end": 30
+          }
+        ],
+        "before_hash": "ecae0e2019f1e12d8a280965939dc2006c5dd93bbb7a0119353cf975ee16f313",
+        "after_hash": "9f5268ebd4d8d6a0425d63b5f0a471ad1d7e8bad9b1819576412f80fd9bb2b6c"
+      },
+      {
+        "file": "src/data/courses/japanese.ts",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 586
+          }
+        ],
+        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after_hash": "ea95ba4be83bf7358fca864efca0c7f1db32ba53532fb77b69ac81453a54fa9e"
+      },
+      {
+        "file": "src/lib/ai/presets.ts",
+        "ranges": [
+          {
+            "start": 69,
+            "end": 69
+          },
+          {
+            "start": 72,
+            "end": 77
+          }
+        ],
+        "before_hash": "49179d1e6f86b97955db155ccff7b61d314e1ebd9dd4675c08798d443d09244c",
+        "after_hash": "f1fda533c03a5bdfe2865b87596de003907857a87771744e8a5a2619c2d94897"
+      },
+      {
+        "file": "src/lib/prompts.ts",
+        "ranges": [
+          {
+            "start": 11,
+            "end": 11
+          },
+          {
+            "start": 13,
+            "end": 14
+          },
+          {
+            "start": 55,
+            "end": 56
+          },
+          {
+            "start": 60,
+            "end": 60
+          },
+          {
+            "start": 63,
+            "end": 63
+          },
+          {
+            "start": 98,
+            "end": 98
+          },
+          {
+            "start": 101,
+            "end": 102
+          }
+        ],
+        "before_hash": "cd76592b06314835b19dd59e3a7dcf21cbd2f7a8d358948fd7c7f4d66505fca0",
+        "after_hash": "b230d55eb39b3db9182ac63b1f7b92a9fe4d21305dd9fca6228c373ab39fdb98"
+      },
+      {
+        "file": "src/lib/ttsClient.ts",
+        "ranges": [
+          {
+            "start": 38,
+            "end": 38
+          },
+          {
+            "start": 51,
+            "end": 51
+          }
+        ],
+        "before_hash": "e8466d535cf49565214c9f618f0e55bf1dbda70700132d6c652e3381c455c2da",
+        "after_hash": "19eebcda601c58a48ffed6c6b672dcf9bf7391c9930f29f4e540c407e61fa046"
+      },
+      {
+        "file": "src/lib/types.ts",
+        "ranges": [
+          {
+            "start": 48,
+            "end": 49
+          },
+          {
+            "start": 78,
+            "end": 79
+          }
+        ],
+        "before_hash": "38637b090827c079f4e55e5d975e7ab61871b0310771e4b9422435bc5978b630",
+        "after_hash": "cbf7e2574f749563ed0259b7b17a36e3952d50a64c05dd5f367fe839a625e64a"
+      }
+    ]
+  },
+  "timing": {
+    "started_at": "2026-11-03T17:30:56.733Z",
+    "completed_at": "2026-11-03T17:30:57.395Z",
+    "duration_ms": 662,
+    "measurement": "hook_wall_clock"
+  },
+  "tokens": {
+    "input": 0,
+    "output": 0,
+    "total": 0,
+    "model_calls": 0,
+    "measurement": "known-zero"
+  },
+  "telemetry": {
+    "schemaVersion": "mimosa-gate-telemetry/v1",
+    "profile": "gate",
+    "operation": "Stop",
+    "outcome": "complete",
+    "latencyMs": 662,
+    "peakMemoryBytes": 194838528,
+    "memoryMeasurement": "max-observed-process-rss",
+    "scannedFiles": 11,
+    "cache": {
+      "hits": 0,
+      "misses": 0,
+      "measurement": "not-applicable"
+    },
+    "denyCount": 0,
+    "tokens": {
+      "input": 0,
+      "output": 0,
+      "total": 0,
+      "modelCalls": 0,
+      "measurement": "known-zero"
+    }
+  },
+  "finding_count": 0,
+  "rewake_finding_count": 0,
+  "evidence_boundary": {
+    "scan": "candidate",
+    "static_fix_verification": "observed_static_only",
+    "runtime_verification": "not_performed"
+  },
+  "finding_events": [],
+  "findings": [],
+  "artifacts": {
+    "immutable_report": ".mimosa/reports/task-review-sess_03aa3efc-e776-45b4-8e4d-cf51fa32e6f2-20261103T173057395Z-64062-9133f5d7da27.json",
+    "latest_report": ".mimosa/reports/task-review-sess_03aa3efc-e776-45b4-8e4d-cf51fa32e6f2.json",
+    "history_summary": ".mimosa/history/run-20261103T173057395Z-64062-9133f5d7da27.json"
+  }
+}

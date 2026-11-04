@@ -1,0 +1,734 @@
+import type { Course } from "@/lib/types";
+
+export const typescriptCourse: Course = {
+  lang: "typescript",
+  name: "TypeScript",
+  emoji: "🔷",
+  tagline: "JS 的超集，静态类型让大型项目可维护，前端后端通吃",
+  gradient: "from-blue-600 to-indigo-600",
+  levels: [
+    {
+      id: "1",
+      name: "入门",
+      description: "从零开始：类型思维、基础标注与函数类型",
+      lessons: [
+        {
+          id: "ts-1-1",
+          title: "初识 TypeScript 与类型思维",
+          summary: "TS = JS + 类型系统，错误在编译期暴露而不是上线后。",
+          keyPoints: [
+            "TS 是 JS 超集：合法 JS 都是合法 TS，.ts 编译（擦除类型）成 .js",
+            "核心收益：IDE 智能补全 + 重构安心 + 把运行时错误提前到编码时",
+            "tsc app.ts 编译；npm tsx app.ts 直接运行；VSCode 原生支持",
+            "类型标注是「文档」：告诉同事和未来的你每个参数是什么",
+          ],
+          example: {
+            code: `// JS 里的隐患
+function add(a, b) { return a + b; }
+add(1, "2");   // "12" 不报错，上线才炸
+
+// TS 里编译期就拦截
+function addTs(a: number, b: number): number {
+  return a + b;
+}
+addTs(1, 2);       // ✅ 3
+// addTs(1, "2");  // ❌ 编译错误: 不能将 string 赋给 number
+`,
+          },
+        },
+        {
+          id: "ts-1-2",
+          title: "基础类型标注",
+          summary: "string/number/boolean 与任意类型的边界：any 是逃生门少用。",
+          keyPoints: [
+            "let name: string = \"小明\"；数字 number 不分整型浮点",
+            "类型推断：let x = 1 自动推为 number，简单变量可省标注",
+            "union 联合类型：let id: string | number，缩小后才能用对应方法",
+            "any 放弃检查（传染性极强），unknown 安全版必须先收窄",
+          ],
+          example: {
+            code: `let msg: string = "hello";
+let count: number = 42;
+let ok: boolean = true;
+let ids: (string | number)[] = [1, "a", 2];
+
+function formatId(id: string | number): string {
+  // 收窄后才能调用对应方法
+  if (typeof id === "string") return id.toUpperCase();
+  return id.toFixed(0);
+}
+
+let data: unknown = JSON.parse("{}");
+if (typeof data === "object" && data !== null) {
+  console.log("是对象");
+}
+`,
+          },
+        },
+        {
+          id: "ts-1-3",
+          title: "数组、元组与枚举",
+          summary: "数组统一元素类型，元组定长定型，枚举给魔法数字一个名字。",
+          keyPoints: [
+            "number[] 或 Array<number>；readonly number[] 只读数组",
+            "元组 [string, number]：每个位置类型可不同，如键值对、坐标",
+            "enum Status { Active, Done }；字符串枚举 enum S { A = \"a\" } 更可读",
+            "const object + as const 是枚举的现代替代品（类型+值二合一）",
+          ],
+          example: {
+            code: `let nums: number[] = [1, 2, 3];
+let pair: [string, number] = ["年龄", 18];
+pair[0].toUpperCase();   // 每个位置有自己的类型
+
+enum OrderStatus { Pending, Paid, Shipped }
+let s: OrderStatus = OrderStatus.Paid;
+
+// 现代写法：as const 对象
+const STATUS = {
+  pending: "待支付",
+  paid: "已支付",
+} as const;
+type StatusKey = keyof typeof STATUS;   // "pending" | "paid"
+`,
+          },
+        },
+        {
+          id: "ts-1-4",
+          title: "函数类型",
+          summary: "参数与返回值都可标注，函数本身也是一种类型。",
+          keyPoints: [
+            "function f(a: number): string；返回 void 表示无返回值",
+            "箭头函数类型：const f = (a: number): string => ...",
+            "函数类型别名：type Handler = (e: string) => void",
+            "可选参数 a?: number（即 number | undefined）、默认值 a = 1、剩余 ...rest: number[]",
+          ],
+          example: {
+            code: `type MathOp = (a: number, b: number) => number;
+
+const add: MathOp = (a, b) => a + b;
+const mul: MathOp = (a, b) => a * b;
+
+function calc(op: MathOp, x: number, y: number): number {
+  return op(x, y);
+}
+console.log(calc(add, 1, 2));   // 3
+
+function greet(name: string, prefix: string = "你好"): string {
+  return prefix + ", " + name;
+}
+greet("小明");          // 参数类型全部被检查
+`,
+          },
+        },
+        {
+          id: "ts-1-5",
+          title: "接口 interface",
+          summary: "interface 描述对象的形状，是 TS 里最常用的组织工具。",
+          keyPoints: [
+            "interface User { name: string; age?: number }，? 可选属性",
+            "readonly id: number 只读；[key: string]: unknown 索引签名",
+            "方法与属性写法等价：greet(): void 或 greet: () => void",
+            "extends 继承扩展；同名接口自动合并（declaration merging）",
+          ],
+          example: {
+            code: `interface Person {
+  readonly id: number;
+  name: string;
+  age?: number;                    // 可选
+  greet(): void;
+}
+
+interface Student extends Person {
+  school: string;
+}
+
+const s: Student = {
+  id: 1,
+  name: "小明",
+  school: "一中",
+  greet() { console.log("我是" + this.name); },
+};
+// s.id = 2;  // ❌ 只读
+`,
+          },
+        },
+        {
+          id: "ts-1-6",
+          title: "类型收窄与联合类型",
+          summary: "TS 会沿代码分支自动收窄类型，判空检查后自然安全。",
+          keyPoints: [
+            "typeof / instanceof / in / 字面量 === 都是收窄手段",
+            "真值收窄：if (user) 排除 null/undefined",
+            "可辨识联合：kind 字段 + switch 全覆盖（ exhausted check）",
+            "never 类型兜底：default 分支赋 never 可强制穷举检查",
+          ],
+          example: {
+            code: `type Shape =
+  | { kind: "circle"; r: number }
+  | { kind: "rect"; w: number; h: number };
+
+function area(shape: Shape): number {
+  switch (shape.kind) {          // 可辨识联合收窄
+    case "circle":
+      return Math.PI * shape.r ** 2;   // 这里 shape 是圆
+    case "rect":
+      return shape.w * shape.h;
+    default: {
+      const _exhaustive: never = shape; // 忘写分支时编译报错
+      return _exhaustive;
+    }
+  }
+}
+`,
+          },
+        },
+      ],
+    },
+    {
+      id: "2",
+      name: "初级",
+      description: "泛型、类与高级类型：写出可复用的类型安全代码",
+      lessons: [
+        {
+          id: "ts-2-1",
+          title: "类型别名与字面量类型",
+          summary: "type 给任何类型起名字，字面量类型把值本身变成类型。",
+          keyPoints: [
+            "type Point = { x: number; y: number }，与 interface 大部分场景互换",
+            "字面量类型：type Dir = \"up\" | \"down\"，比 boolean 更语义化",
+            "type 可表达联合、元组、条件类型（interface 做不到）",
+            "实用模板：type Size = \"sm\" | \"md\" | \"lg\" 约束 UI 组件参数",
+          ],
+          example: {
+            code: `type Direction = "up" | "down" | "left" | "right";
+
+function move(dir: Direction, steps: number): void {
+  console.log(\`向\${dir}走\${steps}步\`);
+}
+move("up", 3);
+// move("斜着", 1);   // ❌ 不在字面量联合中
+
+type Point = { x: number; y: number };
+type Label = string | number;
+type Tagged = [Label, Point];
+`,
+          },
+        },
+        {
+          id: "ts-2-2",
+          title: "泛型入门",
+          summary: "泛型 = 类型的函数：一处定义，处处安全复用。",
+          keyPoints: [
+            "function identity<T>(v: T): T，调用时 T 由实参推断",
+            "泛型约束 <T extends { id: number }>，保证 T 至少有 id",
+            "多个参数 <K, V>；默认类型 <T = string>",
+            "数组方法全是泛型：arr.map、filter 的回调参数自动推断",
+          ],
+          example: {
+            code: `function first<T>(arr: T[]): T | undefined {
+  return arr[0];
+}
+const n = first([1, 2, 3]);        // n: number
+const s = first(["a", "b"]);       // s: string
+
+// 泛型约束
+function pluck<T, K extends keyof T>(items: T[], key: K): T[K][] {
+  return items.map((it) => it[key]);
+}
+const names = pluck([{ name: "小明" }, { name: "小红" }], "name");
+// names: string[]
+`,
+          },
+        },
+        {
+          id: "ts-2-3",
+          title: "类与访问修饰符",
+          summary: "TS 类在 JS 类之上加了 public/private/protected 与参数属性。",
+          keyPoints: [
+            "public 默认、private 仅本类、protected 本类+子类",
+            "参数属性：constructor(private name: string) 自动生成字段，免手写赋值",
+            "implements 接口约束类形状；abstract 抽象类不能实例化",
+            "字段初始化器、getter/setter、static 静态成员",
+          ],
+          example: {
+            code: `interface Describable {
+  describe(): string;
+}
+
+class Account implements Describable {
+  protected balance = 0;
+
+  constructor(private readonly owner: string) {}   // 参数属性
+
+  deposit(amount: number): this {          // 返回 this 支持链式调用
+    this.balance += amount;
+    return this;
+  }
+
+  describe(): string {
+    return \`\${this.owner} 余额 \${this.balance}\`;
+  }
+}
+
+const acc = new Account("小明").deposit(100).deposit(50);
+console.log(acc.describe());   // 小明 余额 150
+`,
+          },
+        },
+        {
+          id: "ts-2-4",
+          title: "接口继承与 implements",
+          summary: "interface 之间 extends、类实现 implements，组合出灵活的形状体系。",
+          keyPoints: [
+            "interface A extends B, C 多继承，形状不断叠加",
+            "class implements A, B 可同时实现多个接口",
+            "接口只约束「形状」，编译后消失；抽象类可含实现逻辑",
+            "Index 签名 [k: string]: T 兼容动态数据（如 API 响应）",
+          ],
+          example: {
+            code: `interface HasId { id: number }
+interface Timestamped { createdAt: Date }
+interface Auditable extends HasId, Timestamped {
+  updatedBy?: string;
+}
+
+class Post implements Auditable {
+  id = 1;
+  createdAt = new Date();
+  title = "Hello";
+}
+
+const p = new Post();
+const audit: Auditable = p;    // 结构兼容即可赋值
+console.log(audit.id, audit.createdAt);
+`,
+          },
+        },
+        {
+          id: "ts-2-5",
+          title: "交叉类型与类型断言",
+          summary: "& 合并多个类型，as 告诉编译器「我比你懂」，但别滥用。",
+          keyPoints: [
+            "type A & B = 两者形状的交集，常用于 mixin 组合",
+            "as 断言：双重断言 as unknown as T 是最后的无奈之举",
+            "as const 把对象锁成只读字面量类型",
+            "非空断言 value! ：确信不为 null/undefined 才用",
+          ],
+          example: {
+            code: `interface Loggable { log(): void }
+interface Serializable { serialize(): string }
+
+type Composed = Loggable & Serializable;
+
+const input = document.querySelector("#app")!;   // 非空断言
+const el = input as HTMLInputElement;             // 具体元素断言
+el.value = "hello";
+
+const config = {
+  host: "localhost",
+  port: 8080,
+} as const;
+// config.port = 9090;  // ❌ 只读
+type Host = typeof config.host;   // "localhost"
+`,
+          },
+        },
+        {
+          id: "ts-2-6",
+          title: "unknown / any / never",
+          summary: "三种「边界类型」：any 放弃治疗、unknown 谨慎收窄、never 不可能有值。",
+          keyPoints: [
+            "any 关闭检查可互相赋值；unknown 只进不出必须收窄后使用",
+            "unknown 是 any 的安全替身：接收外部数据（JSON.parse、catch 的 err）",
+            "never 是空集：抛异常/死循环函数返回 never",
+            "never 用于穷举检查（switch default）与条件类型排除分支",
+          ],
+          example: {
+            code: `function parse(data: string): unknown {
+  return JSON.parse(data);
+}
+
+const v = parse("{\\"a\\":1}");
+// v.a;  ❌ unknown 不能直接用
+if (typeof v === "object" && v !== null && "a" in v) {
+  console.log((v as { a: number }).a);
+}
+
+function fail(msg: string): never {
+  throw new Error(msg);      // 永不正常返回
+}
+`,
+          },
+        },
+      ],
+    },
+    {
+      id: "3",
+      name: "中级",
+      description: "类型体操预备、工具类型与编译配置",
+      lessons: [
+        {
+          id: "ts-3-1",
+          title: "索引访问与 keyof",
+          summary: "keyof 取键联合，T[K] 取值类型，从已有类型派生新类型。",
+          keyPoints: [
+            "keyof User => \"name\" | \"age\" 键的联合类型",
+            "User[\"name\"] 取属性值类型（索引访问类型）",
+            "type Props = typeof config 把「值」变「类型」",
+            "组合：type ValueOf<T> = T[keyof T]",
+          ],
+          example: {
+            code: `interface User {
+  name: string;
+  age: number;
+  email: string;
+}
+
+type UserKeys = keyof User;             // "name" | "age" | "email"
+type AgeType = User["age"];             // number
+type NameOrEmail = User["name" | "email"];  // string
+
+function getProp<T, K extends keyof T>(obj: T, key: K): T[K] {
+  return obj[key];       // 返回类型自动精确
+}
+const u: User = { name: "小明", age: 18, email: "a@b.c" };
+const age = getProp(u, "age");          // age: number
+`,
+          },
+        },
+        {
+          id: "ts-3-2",
+          title: "映射类型与 Partial / Pick",
+          summary: "[K in keyof T] 遍历改造每个属性，内置工具类型的实现原理。",
+          keyPoints: [
+            "type MyPartial<T> = { [K in keyof T]?: T[K] } 逐个变可选",
+            "-? 去可选、-readonly 去只读（修饰符加减法）",
+            "Pick<T, K> 挑键、Omit<T, K> 排除键、Record<K, V> 造字典",
+            "as 重映射：{ [K in keyof T as \`get\${K}\`]: ... } 改键名",
+          ],
+          example: {
+            code: `interface Todo {
+  title: string;
+  done: boolean;
+}
+
+type TodoDraft = Partial<Todo>;              // 全部可选
+type TodoView = Pick<Todo, "title">;         // 只有 title
+type TodoWithoutDone = Omit<Todo, "done">;
+type StatusMap = Record<"a" | "b", Todo>;    // { a: Todo; b: Todo }
+
+// 手写一个 Readonly
+type MyReadonly<T> = { readonly [K in keyof T]: T[K] };
+
+const draft: TodoDraft = { title: "学 TS" };   // done 省略
+`,
+          },
+        },
+        {
+          id: "ts-3-3",
+          title: "条件类型与 infer",
+          summary: "类型世界的 if/else：A extends B ? X : Y，infer 捕获未知类型。",
+          keyPoints: [
+            "type IsString<T> = T extends string ? true : false",
+            "分布式条件类型：作用于联合类型时逐个分发",
+            "infer R 在 extends 中「捕获」类型：Array<T> 里的 T",
+            "经典应用：UnpackPromise、ReturnType 的实现原理",
+          ],
+          example: {
+            code: `type ElementType<T> = T extends (infer U)[] ? U : never;
+type A = ElementType<string[]>;      // string
+type B = ElementType<number>;        // never
+
+type Unwrap<T> = T extends Promise<infer V> ? V : T;
+type C = Unwrap<Promise<number>>;    // number
+
+type MyReturnType<T> = T extends (...args: any[]) => infer R ? R : never;
+function f() { return { ok: true }; }
+type R = MyReturnType<typeof f>;     // { ok: boolean }
+`,
+          },
+        },
+        {
+          id: "ts-3-4",
+          title: "内置工具类型全集",
+          summary: "Partial/Pick 系列之外，还有处理函数与联合的利器。",
+          keyPoints: [
+            "Required<T> 全必填、Readonly<T> 全只读、NonNullable<T> 去 null",
+            "Parameters<T> / ReturnType<T> / Awaited<T> 解构函数与 Promise",
+            "Exclude<T, U> 联合排除、Extract<T, U> 联合提取",
+            "Record + keyof 组合是配置表/映射表的万能写法",
+          ],
+          example: {
+            code: `interface User { name: string; age?: number }
+
+type UpdateUser = Partial<User>;                  // 都可省
+type LockedUser = Required<User>;                 // age 必填
+type CreateUser = Omit<User, "age">;
+
+type Handler = (req: Request) => Response;
+type Req = Parameters<Handler>[0];                // Request
+type Res = ReturnType<Handler>;                   // Response
+
+type T = "a" | "b" | "c";
+type OnlyAB = Exclude<T, "c">;                    // "a" | "b"
+
+const handlers: Record<string, () => void> = {
+  save: () => {},
+  load: () => {},
+};
+`,
+          },
+        },
+        {
+          id: "ts-3-5",
+          title: "声明文件与第三方类型",
+          summary: "declare 描述无类型的 JS 模块，@types 包让生态类型开箱即用。",
+          keyPoints: [
+            ".d.ts 只放类型不实现；declare module \"xxx\" 给无类型库补声明",
+            "Most npm 包自带类型或配 @types/xxx（如 @types/node）",
+            "declare global 扩展全局（如给 Window 加自定义字段）",
+            "类型来源优先级：包内 types 字段 > @types > any",
+          ],
+          example: {
+            code: `// global.d.ts
+declare global {
+  interface Window {
+    __APP_VERSION__: string;
+  }
+}
+export {};
+
+// types/legacy-lib.d.ts —— 给无类型 JS 库补声明
+declare module "legacy-lib" {
+  export function init(opts: { debug?: boolean }): void;
+  export const version: string;
+}
+
+// 业务代码里就能获得完整提示
+import { init } from "legacy-lib";
+init({ debug: true });
+`,
+          },
+        },
+        {
+          id: "ts-3-6",
+          title: "tsconfig 编译选项详解",
+          summary: "strict 是底线，module/target 决定产物形态，paths 解决模块别名。",
+          keyPoints: [
+            "\"strict\": true 一揽子严格检查（noImplicitAny、strictNullChecks…）",
+            "target 决定编译后 JS 版本，module 决定模块系统（ESNext/NodeNext）",
+            "paths + baseUrl 配 @/ 别名，需配合打包器同步配置",
+            "skipLibCheck 提速编译；include/exclude 控制范围",
+          ],
+          example: {
+            code: `{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,   // 索引访问自动加 undefined
+    "baseUrl": ".",
+    "paths": { "@/*": ["./src/*"] },
+    "outDir": "dist",
+    "skipLibCheck": true
+  },
+  "include": ["src"]
+}
+`,
+          },
+        },
+      ],
+    },
+    {
+      id: "4",
+      name: "高级",
+      description: "模板字面量、协变逆变与类型体操实战",
+      lessons: [
+        {
+          id: "ts-4-1",
+          title: "模板字面量类型",
+          summary: "字符串也能做类型运算：拼接、提取、模式匹配。",
+          keyPoints: [
+            "type Greeting = \\`hello \\${string}\\` 约定字符串前缀",
+            "联合类型插入模板会自动排列组合出所有可能",
+            "配合 as 重映射批量改键：camelCase → getter 名",
+            "内置大写小写：Uppercase<K>、Lowercase<K>、Capitalize<K>",
+          ],
+          example: {
+            code: `type Event = "click" | "focus" | "blur";
+type HandlerMap = {
+  [K in \`on\${Capitalize<Event>}\`]: (e: unknown) => void;
+};
+// { onClick: ...; onFocus: ...; onBlur: ... }
+
+type Route = \`/user/\${number}/post/\${number}\`;
+const ok: Route = "/user/1/post/2";     // ✅
+// const bad: Route = "/user/x/post/2"; // ❌
+
+type ExtractId<T> = T extends \`/user/\${infer Id}/post/\${infer P}\` ? Id : never;
+type Id = ExtractId<Route>;             // number
+`,
+          },
+        },
+        {
+          id: "ts-4-2",
+          title: "协变逆变与严格函数类型",
+          summary: "子类型方向决定能否赋值：协变保输出、逆变护输入。",
+          keyPoints: [
+            "协变：Dog extends Animal → Dog[] 可赋给 Animal[]（输出位置）",
+            "逆变：接受 Animal 的函数可赋给接受 Dog 的（参数位置，strictFunctionTypes 下）",
+            "记法 PECS：Producer extends, Consumer super",
+            "实际影响：回调参数类型想「更宽」才安全，写反了运行时炸",
+          ],
+          example: {
+            code: `class Animal { name = "动物" }
+class Dog extends Animal { bark() {} }
+
+// 协变：数组（生产者）
+const dogs: Dog[] = [];
+const animals: Animal[] = dogs;        // ✅
+
+// 逆变：回调参数（消费者）
+type Handler<T> = (item: T) => void;
+
+const animalHandler: Handler<Animal> = (a) => console.log(a.name);
+const dogHandler: Handler<Dog> = animalHandler;   // ✅ 逆变方向安全
+
+// const bad: Handler<Animal> = ((d: Dog) => d.bark()) as Handler<Animal>;
+// 运行时收到 Animal 调 bark() 就崩 —— 严格模式会在编译期拦截
+`,
+          },
+        },
+        {
+          id: "ts-4-3",
+          title: "声明合并与模块增强",
+          summary: "同名 interface 自动合并，给第三方库「打补丁」的官方姿势。",
+          keyPoints: [
+            "同名 interface 字段合并；同名 type 会报错（唯一例外）",
+            "模块增强：declare module \"包名\" 追加类型",
+            "扩展 Express Request、Window 等全局或第三方类型",
+            "谨慎使用：改第三方类型是后门，升级库时记得复查",
+          ],
+          example: {
+            code: `// 合并
+interface Window { title: string }
+interface Window { version: number }
+// Window 同时有 title 和 version
+
+// 模块增强：给 Express 的 Request 加 user
+import "express";
+declare module "express-serve-static-core" {
+  interface Request {
+    userId?: string;
+  }
+}
+
+// 业务中间件里
+// req.userId = "u-123";   ✅ 有类型提示
+`,
+          },
+        },
+        {
+          id: "ts-4-4",
+          title: "装饰器",
+          summary: "@decorator 给类与成员包一层，AOP 风格的横切关注点神器。",
+          keyPoints: [
+            "TS 5+ 原生装饰器：类、方法、字段、getter/setter、参数",
+            "装饰器工厂 @log(verbose) 传配置的惯用法",
+            "方法装饰器可拦截/替换实现：日志、性能、权限校验",
+            "NestJS/Angular 的依赖注入全靠装饰器驱动",
+          ],
+          example: {
+            code: `function log(target: unknown, key: string, desc: PropertyDescriptor) {
+  const original = desc.value;
+  desc.value = function (...args: unknown[]) {
+    console.log(\`调用 \${key} 参数:\`, args);
+    const result = original.apply(this, args);
+    console.log(\`\${key} 返回:\`, result);
+    return result;
+  };
+}
+
+class MathService {
+  @log
+  add(a: number, b: number) { return a + b; }
+}
+
+new MathService().add(1, 2);
+// 调用 add 参数: [1, 2]
+// add 返回: 3
+`,
+          },
+        },
+        {
+          id: "ts-4-5",
+          title: "类型体操实战",
+          summary: "把前 23 课的类型知识串起来：DeepPartial、Paths、类型安全的 getField。",
+          keyPoints: [
+            "递归类型：DeepPartial<T> 深层全部可选（配置合并刚需）",
+            "模板字面量 + infer 提取路径：\"a.b.c\" 的点路径取值",
+            "条件类型 + never 过滤：只保留函数类型的键",
+            "适度原则：能跑通的类型体操才值得写，可读性优先",
+          ],
+          example: {
+            code: `// 深层可选
+type DeepPartial<T> = {
+  [K in keyof T]?: T[K] extends object ? DeepPartial<T[K]> : T[K];
+};
+
+// 过滤出函数类型的键
+type FnKeys<T> = { [K in keyof T]: T[K] extends Function ? K : never }[keyof T];
+type Fns = FnKeys<{ a: () => void; b: number }>;   // "a"
+
+// 点路径取值类型
+type PathVal<T, P extends string> =
+  P extends \`\${infer Head}.\${infer Rest}\`
+    ? Head extends keyof T ? PathVal<T[Head], Rest> : never
+    : P extends keyof T ? T[P] : never;
+type V = PathVal<{ user: { age: number } }, "user.age">;  // number
+`,
+          },
+        },
+        {
+          id: "ts-4-6",
+          title: "综合项目：类型安全 API 客户端",
+          summary: "综合运用 23 课：泛型 + 收窄 + 工具类型，造一个 URL 路径与响应全类型安全的请求层。",
+          keyPoints: [
+            "路由表 const routes + as const 推导全部路径字面量",
+            "泛型请求函数 request<T>(path) 返回 Promise<T>",
+            "映射类型把路由表变成「路径 → 响应类型」映射",
+            "模板字面量类型约束动态路径参数，拼错编译报错",
+          ],
+          example: {
+            code: `interface User { id: number; name: string }
+interface Post { id: number; title: string; userId: number }
+
+const routes = {
+  user: (id: number) => \`/users/\${id}\` as const,
+  posts: \`/posts\` as const,
+} as const;
+
+type Routes = typeof routes;
+
+async function request<T>(path: string): Promise<T> {
+  const res = await fetch(path);
+  if (!res.ok) throw new Error(\`HTTP \${res.status}\`);
+  return res.json() as Promise<T>;
+}
+
+async function getUser(id: number): Promise<User> {
+  return request<User>(routes.user(id));   // 路径与类型双重安全
+}
+
+async function main() {
+  const user = await getUser(1);
+  console.log(user.name);
+}
+main();
+`,
+          },
+        },
+      ],
+    },
+  ],
+};

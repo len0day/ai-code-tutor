@@ -1,0 +1,466 @@
+"use client";
+
+import { useState } from "react";
+import Markdown from "./Markdown";
+import SpeakButton from "./SpeakButton";
+import ReasoningBlock from "./ReasoningBlock";
+import { addWrongQuestion, aiJson, postProgress, streamAi, toggleFavorite } from "@/lib/client";
+import type {
+  InterviewGradeResult,
+  InterviewQuestion,
+  InterviewReport,
+  Lesson,
+} from "@/lib/types";
+
+type Phase = "idle" | "guide" | "loading" | "asking" | "grading" | "feedback" | "report";
+
+const TYPE_LABEL: Record<string, string> = {
+  concept: "概念题",
+  scenario: "场景题",
+  coding: "编码题",
+};
+const DIFF_LABEL: Record<string, string> = {
+  easy: "★☆☆ 简单",
+  medium: "★★☆ 中等",
+  hard: "★★★ 困难",
+};
+
+function scoreColor(score: number): string {
+  if (score >= 85) return "text-emerald-600 bg-emerald-50 border-emerald-200";
+  if (score >= 70) return "text-blue-600 bg-blue-50 border-blue-200";
+  if (score >= 60) return "text-amber-600 bg-amber-50 border-amber-200";
+  return "text-red-600 bg-red-50 border-red-200";
+}
+
+interface Props {
+  lang: string;
+  lesson: Lesson;
+}
+
+export default function InterviewTab({ lang, lesson }: Props) {
+  const [phase, setPhase] = useState<Phase>("idle");
+  const [guide, setGuide] = useState("");
+  const [guideReasoning, setGuideReasoning] = useState("");
+  const [guideLoading, setGuideLoading] = useState(false);
+  const [questions, setQuestions] = useState<InterviewQuestion[]>([]);
+  const [qIndex, setQIndex] = useState(0);
+  const [answer, setAnswer] = useState("");
+  const [grade, setGrade] = useState<InterviewGradeResult | null>(null);
+  const [grades, setGrades] = useState<InterviewGradeResult[]>([]);
+  const [report, setReport] = useState<InterviewReport | null>(null);
+  const [favMap, setFavMap] = useState<Record<string, boolean>>({});
+  const [fromCache, setFromCache] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const reset = () => {
+    setQuestions([]);
+    setQIndex(0);
+    setAnswer("");
+    setGrade(null);
+    setGrades([]);
+    setReport(null);
+    setError("");
+  };
+
+  // ---------- 模式一：AI 讲解高频面试题 ----------
+  const showGuide = async () => {
+    if (guideLoading) return;
+    setPhase("guide");
+    if (guide) return; // 已生成过，直接展示
+    setGuideLoading(true);
+    setError("");
+    try {
+      await streamAi(
+        { task: "interview-guide", lang, lessonId: lesson.id },
+        {
+          onContent: (d) => setGuide((p) => p + d),
+          onReasoning: (d) => setGuideReasoning((p) => p + d),
+        }
+      );
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "生成失败");
+    } finally {
+      setGuideLoading(false);
+    }
+  };
+
+  // ---------- 模式二：模拟面试 ----------
+  const startInterview = async (force = false) => {
+    setLoading(true);
+    reset();
+    setFromCache(false);
+    setPhase("loading");
+    try {
+      const data = await aiJson<{ questions: InterviewQuestion[]; cached?: boolean }>({
+        task: "interview-questions",
+        lang,
+        lessonId: lesson.id,
+        force,
+      });
+      const qs = data.questions.filter(
+        (q) => typeof q?.question === "string" && Array.isArray(q?.referencePoints)
+      );
+      if (qs.length === 0) throw new Error("生成的面试题无效，请重试");
+      setQuestions(qs);
+      setQIndex(0);
+      setFromCache(data.cached === true);
+      setPhase("asking");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "出题失败");
+      setPhase("idle");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const submitAnswer = async () => {
+    const q = questions[qIndex];
+    if (!q || !answer.trim()) return;
+    setPhase("grading");
+    setError("");
+    try {
+      const g = await aiJson<InterviewGradeResult>({
+        task: "interview-grade",
+        lang,
+        lessonId: lesson.id,
+        question: { question: q.question, referencePoints: q.referencePoints, type: q.type },
+        answer,
+      });
+      setGrade(g);
+      setGrades((p) => [...p, g]);
+      setPhase("feedback");
+      // 未通过（<60）的题自动进入错题本
+      if (!g.pass) {
+        await addWrongQuestion({
+          lessonId: lesson.id,
+          lang,
+          source: "interview",
+          kind: "interview",
+          question: q.question,
+          idealAnswer: g.idealAnswer || q.referencePoints.join("；"),
+          userAnswer: answer,
+        });
+      }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "评分失败");
+      setPhase("asking"); // 允许重新提交
+    }
+  };
+
+  const favoriteQuestion = async (q: InterviewQuestion) => {
+    const content = q.referencePoints.map((p) => `• ${p}`).join("\n");
+    const added = await toggleFavorite({
+      lessonId: lesson.id,
+      lang,
+      kind: "interview-question",
+      title: q.question,
+      content,
+    });
+    setFavMap((p) => ({ ...p, [q.id]: added }));
+  };
+
+  const nextQuestion = async () => {
+    if (qIndex < questions.length - 1) {
+      setQIndex((i) => i + 1);
+      setAnswer("");
+      setGrade(null);
+      setPhase("asking");
+      return;
+    }
+    // 最后一题 → 生成面试报告
+    setLoading(true);
+    setPhase("loading");
+    try {
+      const items = questions.map((q, i) => ({
+        question: q.question,
+        answer: grades[i] ? "（见评分）" : "（未答）",
+        score: grades[i]?.score ?? 0,
+      }));
+      const r = await aiJson<InterviewReport>({
+        task: "interview-report",
+        lang,
+        lessonId: lesson.id,
+        items,
+      });
+      setReport(r);
+      setPhase("report");
+      await postProgress({ type: "interviewResult", lessonId: lesson.id, score: r.total });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "报告生成失败");
+      setPhase("feedback");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ================= 渲染 =================
+  if (phase === "idle") {
+    return (
+      <div className="p-5 space-y-5">
+        <div className="text-center pt-2">
+          <div className="text-4xl mb-2">🎤</div>
+          <p className="text-sm text-slate-500 leading-relaxed">
+            模拟真实技术面试：AI 面试官出 <b>5 道题</b>（概念 / 场景 / 编码），
+            逐题作答、即时打分点评，结束后生成带<strong className="text-indigo-600">录用建议</strong>的面试报告。
+          </p>
+        </div>
+        {error && (
+          <p className="text-sm text-red-500 bg-red-50 rounded-lg px-4 py-3">{error}</p>
+        )}
+        <button
+          onClick={() => startInterview(false)}
+          disabled={loading}
+          className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-medium py-3 rounded-xl transition-colors"
+        >
+          {loading ? "面试官正在准备题目…" : "🎤 开始模拟面试"}
+        </button>
+        <div className="flex items-center gap-3 text-xs text-slate-400">
+          <span className="flex-1 border-t border-border" />
+          或者
+          <span className="flex-1 border-t border-border" />
+        </div>
+        <button
+          onClick={showGuide}
+          className="w-full border-2 border-indigo-200 hover:bg-indigo-50 text-indigo-600 font-medium py-3 rounded-xl transition-colors"
+        >
+          📖 直接看 AI 讲解：本课高频面试题
+        </button>
+      </div>
+    );
+  }
+
+  // ---------- AI 讲解模式 ----------
+  if (phase === "guide") {
+    return (
+      <div className="p-4 space-y-3 overflow-y-auto">
+        <div className="flex items-center justify-between">
+          <h3 className="font-bold text-sm">📖 本课高频面试题与答案要点</h3>
+          <div className="flex items-center gap-1.5">
+            {guide && !guideLoading && (
+              <SpeakButton id={`guide-${lesson.id}`} text={guide} />
+            )}
+            <button
+              onClick={() => setPhase("idle")}
+              className="text-xs text-slate-400 hover:text-slate-600 px-2 py-1"
+            >
+              ← 返回
+            </button>
+          </div>
+        </div>
+        <ReasoningBlock reasoning={guideReasoning} thinking={guideLoading && !guide} />
+        {error && (
+          <p className="text-sm text-red-500 bg-red-50 rounded-lg px-4 py-3">{error}</p>
+        )}
+        {guide ? (
+          <div className="text-sm">
+            <Markdown content={guide} />
+            {guideLoading && <span className="streaming-cursor" />}
+          </div>
+        ) : (
+          <p className="text-sm text-slate-400">AI 正在整理本课的面试高频题…</p>
+        )}
+      </div>
+    );
+  }
+
+  // ---------- 面试报告 ----------
+  if (phase === "report" && report) {
+    return (
+      <div className="p-5 space-y-4 overflow-y-auto">
+        <div className="text-center">
+          <div className="text-sm text-slate-500 mb-1">模拟面试结束 · 面试报告</div>
+          <div className={`inline-block text-4xl font-extrabold px-6 py-2 rounded-2xl border ${scoreColor(report.total)}`}>
+            {report.total}
+          </div>
+          <div className="mt-2 text-sm font-medium">{report.level}</div>
+          {report.recommendation && (
+            <div className="mt-1 text-xs text-slate-500">
+              录用建议：<b className="text-indigo-600">{report.recommendation}</b>
+            </div>
+          )}
+        </div>
+
+        {report.summary && (
+          <p className="text-sm text-slate-600 leading-relaxed bg-slate-50 rounded-xl p-3.5">
+            {report.summary}
+          </p>
+        )}
+
+        {!!report.strengths?.length && (
+          <div>
+            <div className="text-sm font-medium mb-1.5">💪 亮点</div>
+            <ul className="space-y-1">
+              {report.strengths.map((s, i) => (
+                <li key={i} className="text-sm text-slate-600 flex gap-2">
+                  <span className="text-emerald-500">✓</span>
+                  {s}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        {!!report.improvements?.length && (
+          <div>
+            <div className="text-sm font-medium mb-1.5">🎯 待改进</div>
+            <ul className="space-y-1">
+              {report.improvements.map((s, i) => (
+                <li key={i} className="text-sm text-slate-600 flex gap-2">
+                  <span className="text-amber-500">▲</span>
+                  {s}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* 逐题回顾 */}
+        <div>
+          <div className="text-sm font-medium mb-1.5">📋 逐题得分</div>
+          <div className="space-y-1.5">
+            {questions.map((q, i) => (
+              <div key={q.id} className="flex items-center gap-2 text-sm bg-slate-50 rounded-lg px-3 py-2">
+                <span className="text-xs text-slate-400 w-8">Q{i + 1}</span>
+                <span className="flex-1 truncate">{q.question}</span>
+                <span className={`text-xs font-bold px-2 py-0.5 rounded-md border ${scoreColor(grades[i]?.score ?? 0)}`}>
+                  {grades[i]?.score ?? 0}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {error && (
+          <p className="text-sm text-red-500 bg-red-50 rounded-lg px-4 py-3">{error}</p>
+        )}
+
+        <button
+          onClick={() => startInterview(true)}
+          className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 rounded-xl transition-colors"
+        >
+          🎤 再来一场（换新题）
+        </button>
+      </div>
+    );
+  }
+
+  // ---------- 逐题问答流程 ----------
+  const q = questions[qIndex];
+  if (!q) return null;
+
+  return (
+    <div className="p-4 space-y-4 overflow-y-auto">
+      {/* 进度条 */}
+      <div>
+        {fromCache && (
+          <p className="text-xs text-slate-400 bg-slate-50 border border-border rounded-lg px-3 py-2 mb-2">
+            ♻️ 本套面试题复用了缓存（不再调用 AI）——结束后点「再来一场（换新题）」可重新生成
+          </p>
+        )}
+        <div className="flex items-center justify-between text-xs text-slate-400 mb-1.5">
+          <span>
+            第 <b className="text-indigo-600">{qIndex + 1}</b> / {questions.length} 题
+          </span>
+          <button
+            onClick={() => setPhase("idle")}
+            className="hover:text-slate-600"
+            title="放弃本次面试"
+          >
+            退出面试
+          </button>
+        </div>
+        <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+          <div
+            className="h-full bg-indigo-500 rounded-full transition-all"
+            style={{ width: `${((qIndex + (phase === "feedback" ? 1 : 0)) / questions.length) * 100}%` }}
+          />
+        </div>
+      </div>
+
+      {/* 题目卡片 */}
+      <div className="border border-border rounded-xl p-4 bg-white">
+        <div className="flex items-center gap-2 mb-2.5">
+          <span className="text-xs bg-indigo-50 text-indigo-600 border border-indigo-100 px-2 py-0.5 rounded-full">
+            {TYPE_LABEL[q.type] ?? "面试题"}
+          </span>
+          <span className="text-xs text-slate-400">{DIFF_LABEL[q.difficulty] ?? ""}</span>
+          <button
+            onClick={() => favoriteQuestion(q)}
+            title={favMap[q.id] ? "已收藏，点击取消" : "收藏本题"}
+            className={`ml-auto text-sm transition-colors ${
+              favMap[q.id] ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+            }`}
+          >
+            {favMap[q.id] ? "★" : "☆"}
+          </button>
+        </div>
+        <p className="font-medium leading-relaxed">{q.question}</p>
+      </div>
+
+      {phase === "asking" || phase === "grading" ? (
+        <>
+          <textarea
+            value={answer}
+            onChange={(e) => setAnswer(e.target.value)}
+            disabled={phase === "grading"}
+            rows={q.type === "coding" ? 10 : 6}
+            placeholder={
+              q.type === "coding" ? "// 直接作答：代码 / 命令 / 例句皆可（可简要口述思路）" : "像面对面面试一样，口语化作答…"
+            }
+            spellCheck={false}
+            className={`w-full text-sm rounded-xl p-3.5 border focus:outline-none focus:ring-2 focus:ring-indigo-200 ${
+              q.type === "coding"
+                ? "font-mono text-xs bg-slate-900 text-slate-100 border-slate-700"
+                : "bg-white border-border"
+            }`}
+          />
+          {error && (
+            <p className="text-sm text-red-500 bg-red-50 rounded-lg px-4 py-3">{error}</p>
+          )}
+          <button
+            onClick={submitAnswer}
+            disabled={phase === "grading" || !answer.trim()}
+            className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 text-white text-sm font-medium py-2.5 rounded-xl transition-colors"
+          >
+            {phase === "grading" ? "面试官评分中…" : "提交回答"}
+          </button>
+        </>
+      ) : null}
+
+      {/* 点评 */}
+      {phase === "feedback" && grade && (
+        <div className="space-y-3">
+          <div className={`rounded-xl border p-4 ${scoreColor(grade.score)}`}>
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium">面试官评分</span>
+              <span className="text-2xl font-extrabold">{grade.score}</span>
+            </div>
+          </div>
+          <div className="bg-slate-50 rounded-xl p-4 text-sm">
+            <div className="font-medium mb-1">🗣 面试官点评</div>
+            <Markdown content={grade.feedback} />
+          </div>
+          {grade.idealAnswer && (
+            <details className="border border-border rounded-xl bg-white">
+              <summary className="text-sm font-medium px-4 py-2.5 cursor-pointer select-none text-slate-600 hover:text-indigo-600">
+                📌 看面试官的参考答案
+              </summary>
+              <div className="px-4 pb-3.5 text-sm text-slate-600 border-t border-border pt-3">
+                <Markdown content={grade.idealAnswer} />
+              </div>
+            </details>
+          )}
+          {error && (
+            <p className="text-sm text-red-500 bg-red-50 rounded-lg px-4 py-3">{error}</p>
+          )}
+          <button
+            onClick={nextQuestion}
+            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium py-2.5 rounded-xl transition-colors"
+          >
+            {qIndex < questions.length - 1 ? "下一题 →" : "查看面试报告 →"}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}

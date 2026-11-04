@@ -1,0 +1,534 @@
+import type { Course } from "@/lib/types";
+
+export const linuxCourse: Course = {
+  lang: "linux",
+  name: "Linux",
+  emoji: "🐧",
+  tagline: "服务器通用语言：常用命令、脚本与管理实操",
+  gradient: "from-slate-600 to-zinc-800",
+  levels: [
+    {
+      id: "1",
+      name: "入门",
+      description: "从零开始：终端、文件导航与基本操作",
+      lessons: [
+        {
+          id: "linux-1-1",
+          title: "终端与 Shell 基础",
+          summary: "Shell 是命令的解释器，终端是那扇窗；一切从提示符开始。",
+          keyPoints: [
+            "常见 Shell：bash / zsh；提示符里通常有 用户@主机:路径",
+            "$ 开头是普通用户，# 开头是 root——复制命令先看提示符",
+            "Tab 补全、↑↓ 翻历史、Ctrl+C 终止、Ctrl+L 清屏是肌肉记忆",
+            "命令格式：命令 [选项] 参数，如 ls -l /var/log",
+          ],
+          example: {
+            code: `whoami        # 当前用户
+pwd           # 当前目录（Print Working Directory）
+uname -a      # 系统与内核信息
+echo "$SHELL" # 当前用的哪个 Shell
+`,
+          },
+        },
+        {
+          id: "linux-1-2",
+          title: "文件与目录导航",
+          summary: "cd / ls / pwd 三件套 + Linux 一切皆文件的目录观。",
+          keyPoints: [
+            "绝对路径以 / 开头；相对路径 . 当前 .. 上一级 ~ 家目录",
+            "ls -l 长格式（权限/大小/时间），-a 含隐藏文件（. 开头），-h 人类可读",
+            "重要目录：/etc 配置、/var 日志、/home 家目录、/tmp 临时",
+            "Linux 目录是树，没有 C 盘 D 盘，一切从根 / 出发",
+          ],
+          example: {
+            code: `cd /var/log && ls -lh
+cd ~            # 回家
+cd -            # 回上一个目录
+ls -la          # 含隐藏文件的详细列表
+tree -L 2       # 两层目录树（需安装 tree）
+`,
+          },
+        },
+        {
+          id: "linux-1-3",
+          title: "文件操作：cp / mv / rm / mkdir",
+          summary: "增删改查四件套，rm 没有回收站，下手要稳。",
+          keyPoints: [
+            "mkdir -p a/b/c 一次建多级；touch 建空文件或更新时间戳",
+            "cp -r 目录复制；mv 移动兼改名",
+            "rm 删除不可恢复！rm -rf 是最高危命令，路径要核对再回车",
+            "通配符：*.log 匹配所有日志，? 单字符，[abc] 字符集",
+          ],
+          example: {
+            code: `mkdir -p project/src
+touch project/src/main.py
+cp project/src/main.py main.py.bak
+mv main.py.bak project/          # 移动
+rm project/src/main.py           # 删除单文件
+rm -ri project/                  # 交互式递归删除，先确认
+`,
+          },
+        },
+        {
+          id: "linux-1-4",
+          title: "查看文件内容",
+          summary: "cat 全量、less 翻页、head/tail 掐头去尾，看日志靠 tail -f。",
+          keyPoints: [
+            "cat 小文件；less 大文件（/ 搜索、q 退出、G 跳底部）",
+            "head -n 20 前 20 行；tail -n 20 后 20 行",
+            "tail -f app.log 实时跟踪日志——排查线上问题第一招",
+            "wc -l 统计行数；file 看文件类型；stat 看元信息",
+          ],
+          example: {
+            code: `cat /etc/os-release
+less +F app.log          # 类似 tail -f，可随时 Ctrl+C 搜索
+tail -f /var/log/syslog
+wc -l access.log         # 多少行请求
+`,
+          },
+        },
+        {
+          id: "linux-1-5",
+          title: "用户与 sudo 权限入门",
+          summary: "Linux 是多用户系统，sudo 是受控的提权通道。",
+          keyPoints: [
+            "whoami 当前用户；id 看 uid/gid/所属组",
+            "普通用户权限不足时加 sudo（需在 sudoers 名单）",
+            "adduser/useradd 建用户，passwd 改密码，usermod -aG 加组",
+            "su - user 切换用户；root 无所不能，日常别用 root 干活",
+          ],
+          example: {
+            code: `whoami && id
+sudo apt update          # 提权执行
+sudo adduser deploy
+sudo usermod -aG sudo deploy   # 给 deploy 加 sudo 权限
+su - deploy              # 切换用户
+`,
+          },
+        },
+        {
+          id: "linux-1-6",
+          title: "帮助文档：遇到命令不会查这里",
+          summary: "man / --help / tldr，自举能力比背命令重要。",
+          keyPoints: [
+            "man 命令 打开手册（q 退出，/ 搜索），man man 先看说明书",
+            "命令 --help 快速看选项摘要，比 man 轻量",
+            "which/whereis 找命令位置；type 判断是内建还是外部命令",
+            "history 看历史；Ctrl+R 反向搜索历史命令",
+          ],
+          example: {
+            code: `man rsync          # 完整手册
+grep --help | head -20
+which python3
+type cd            # cd is a shell builtin
+history | tail -10
+`,
+          },
+        },
+      ],
+    },
+    {
+      id: "2",
+      name: "初级",
+      description: "权限、软件包、进程与文本处理",
+      lessons: [
+        {
+          id: "linux-2-1",
+          title: "权限体系：chmod / chown",
+          summary: "rwx 三组九位是 Linux 安全的地基。",
+          keyPoints: [
+            "权限三段：属主/属组/其他人，各 r(4) w(2) x(1)",
+            "chmod 755 = rwxr-xr-x；644 = rw-r--r--（常用文件/目录配比）",
+            "chown user:group file 改属主；目录的 x 权限是「进入」",
+            "脚本要执行必须 +x；危险操作前 ls -l 核对属主",
+          ],
+          example: {
+            code: `ls -l deploy.sh      # -rw-r--r--  无法执行
+chmod +x deploy.sh   # 加执行权限
+chmod 600 ~/.ssh/id_ed25519   # 私钥必须 600
+sudo chown www-data:www-data /var/www/html -R
+`,
+          },
+        },
+        {
+          id: "linux-2-2",
+          title: "包管理器：apt / yum",
+          summary: "装软件找包管理器，别手动下载乱放。",
+          keyPoints: [
+            "Debian/Ubuntu 用 apt；CentOS/RHEL 用 yum/dnf",
+            "apt update 更新索引 → apt upgrade 升级 → apt install/remove",
+            "apt search 关键词、apt show 包名 先看再装",
+            "源文件在 /etc/apt/sources.list，换国内源提速",
+          ],
+          example: {
+            code: `sudo apt update
+sudo apt install -y nginx htop
+apt show nginx | head -10
+sudo apt remove --purge nginx   # 连配置一起删
+`,
+          },
+        },
+        {
+          id: "linux-2-3",
+          title: "进程管理：ps / top / kill",
+          summary: "找到吃资源的进程并安全地结束它。",
+          keyPoints: [
+            "ps aux 快照；ps -ef | grep nginx 精确查找",
+            "top 实时（P 按 CPU 排序 M 按内存）；htop 是增强版",
+            "kill PID 发 SIGTERM（优雅退出）；kill -9 强杀（最后手段）",
+            "killall 按名杀；nohup cmd & 后台运行不挂断",
+          ],
+          example: {
+            code: `ps aux | grep node
+top -o %CPU            # 按 CPU 排序
+kill 12345             # 先礼貌
+kill -9 12345          # 再强硬
+nohup ./server.sh > out.log 2>&1 &
+`,
+          },
+        },
+        {
+          id: "linux-2-4",
+          title: "管道与重定向",
+          summary: "| 串联命令，> >> 重定向输出，Unix 哲学的灵魂。",
+          keyPoints: [
+            "cmd1 | cmd2：前者的输出作为后者的输入",
+            "> 覆盖写文件、>> 追加写；2> 收错误、2>&1 合并错误",
+            "< 读文件输入；tee 屏幕与文件各来一份",
+            "管道组合是 Shell 强大的根源：查、滤、排、算一条流",
+          ],
+          example: {
+            code: `cat access.log | grep "500" | wc -l          # 500 错误次数
+ps aux | sort -rk 3 | head -5                 # CPU 前 5 进程
+./build.sh > build.log 2>&1                   # 全部输出落盘
+echo "done $(date)" >> deploy.history
+`,
+          },
+        },
+        {
+          id: "linux-2-5",
+          title: "grep：文本搜索主力",
+          summary: "在文件海洋里精准捞针：正则 + 常用选项。",
+          keyPoints: [
+            "grep pattern file；-i 忽略大小写、-n 显示行号、-r 递归目录",
+            "-v 反选（排除）、-c 计数、-E 扩展正则、-A3/-B3 带上下文",
+            "配合管道最常用：cat f | grep error",
+            "正则速记：^行首 $行尾 .任意字符 *重复；别忘转义点号",
+          ],
+          example: {
+            code: `grep -n "ERROR" app.log
+grep -rn "TODO" src/                 # 递归找代码里的 TODO
+grep -c "GET /api" access.log
+grep -A 3 "Exception" server.log     # 异常后 3 行上下文
+`,
+          },
+        },
+        {
+          id: "linux-2-6",
+          title: "压缩与打包：tar / gzip",
+          summary: "tar 打包（归档），gzip 压缩，备份传输必备。",
+          keyPoints: [
+            "tar -czvf x.tar.gz 目录：c 创建 z gzip 压缩 v 显示 f 文件名",
+            "tar -xzvf x.tar.gz -C /目标 解压；-t 只看不解",
+            "常用扩展名：.tar.gz / .tgz 一样；.tar.bz2 换 j 选项",
+            "单独压缩文件用 gzip/gunzip；zip 更跨平台",
+          ],
+          example: {
+            code: `tar -czvf backup-$(date +%F).tar.gz /var/www/html
+tar -xzvf backup-2026-11-04.tar.gz -C /tmp/restore
+tar -tzf backup-2026-11-04.tar.gz | head     # 预览
+`,
+          },
+        },
+      ],
+    },
+    {
+      id: "3",
+      name: "中级",
+      description: "脚本、远程管理与系统服务",
+      lessons: [
+        {
+          id: "linux-3-1",
+          title: "sed 与 awk 文本处理",
+          summary: "sed 流编辑器改文本，awk 按列取数加工。",
+          keyPoints: [
+            "sed 's/旧/新/g' 替换；-i 直接改文件（先备份！sed -i.bak）",
+            "sed -n '10,20p' 只打印 10~20 行",
+            "awk '{print $1}' 按空白取第一列；-F, 指定分隔符",
+            "awk 可统计：awk '{s+=$1} END {print s}' 求和",
+          ],
+          example: {
+            code: `sed 's/DEBUG/INFO/g' app.log > app.new.log
+sed -i.bak 's/localhost/db.prod/' config.yml
+
+awk '{print $1, $7}' access.log            # IP 与路径
+awk -F, '{sum+=$2} END {print sum}' data.csv
+ps aux | awk 'NR>1 {cpu+=$3} END {print cpu}'
+`,
+          },
+        },
+        {
+          id: "linux-3-2",
+          title: "Shell 脚本入门",
+          summary: "把重复操作写成 .sh：变量、条件与循环。",
+          keyPoints: [
+            "首行 #!/bin/bash（shebang）；chmod +x 后 ./run.sh 执行",
+            "变量 NAME=value（等号两边无空格），引用 \"$NAME\" 加引号防空格炸裂",
+            "if [ \"$a\" -gt 5 ]; then … fi；方括号内必须有空格",
+            "for f in *.log; do … done 遍历；$? 上一命令退出码，0 为成功",
+          ],
+          example: {
+            code: `#!/bin/bash
+set -e                     # 出错即退出
+
+TARGET="$1"
+if [ -z "$TARGET" ]; then
+  echo "用法: $0 <目标目录>"; exit 1
+fi
+
+for f in "$TARGET"/*.log; do
+  echo "压缩 $f"
+  gzip "$f"
+done
+echo "完成，共处理 $(ls "$TARGET" | wc -l) 个文件"
+`,
+          },
+        },
+        {
+          id: "linux-3-3",
+          title: "SSH 远程连接与免密",
+          summary: "远程管理的生命线：ssh 登录、scp 传文件、密钥免密。",
+          keyPoints: [
+            "ssh user@host；-p 指定端口；首次连接确认指纹",
+            "ssh-keygen -t ed25519 生成密钥对，ssh-copy-id 推公钥实现免密",
+            "scp file user@host:/path 与 rsync -avz 增量同步（大目录首选）",
+            "~/.ssh/config 给常用主机起别名，一劳永逸",
+          ],
+          example: {
+            code: `ssh-keygen -t ed25519 -C "len@mac"
+ssh-copy-id deploy@10.0.0.5
+
+# ~/.ssh/config
+# Host prod
+#   HostName 10.0.0.5
+#   User deploy
+#   Port 22
+ssh prod                     # 免密直连
+rsync -avz ./dist/ prod:/var/www/app/
+`,
+          },
+        },
+        {
+          id: "linux-3-4",
+          title: "systemd 服务管理",
+          summary: "systemctl 管理服务的启停与开机自启，日志归 journalctl。",
+          keyPoints: [
+            "systemctl start/stop/restart/status 服务名",
+            "enable/disable 开机自启开关；is-active/is-enabled 查状态",
+            "自己写服务：/etc/systemd/system/xxx.service（ExecStart/Restart=always）",
+            "改了 service 文件要 systemctl daemon-reload",
+          ],
+          example: {
+            code: `sudo systemctl status nginx
+sudo systemctl enable --now nginx     # 自启 + 立即启动
+
+# 自定义服务 myapp.service
+# [Service] ExecStart=/opt/app/server.js  Restart=always  User=deploy
+sudo systemctl daemon-reload
+sudo systemctl enable --now myapp
+journalctl -u myapp -f
+`,
+          },
+        },
+        {
+          id: "linux-3-5",
+          title: "定时任务 cron",
+          summary: "五个时间字段安排一切周期性工作。",
+          keyPoints: [
+            "crontab -e 编辑，-l 查看；五个字段：分 时 日 月 周",
+            "速记：*/5 * * * * 每 5 分钟；0 3 * * * 每天凌晨 3 点",
+            "定时任务环境变量精简，路径写绝对路径，输出重定向到日志",
+            "systemd timer 是 cron 的现代替代（支持依赖与错峰）",
+          ],
+          example: {
+            code: `crontab -e
+# 每天 03:00 备份网站，日志落盘
+0 3 * * * /usr/local/bin/backup.sh >> /var/log/backup.log 2>&1
+# 每 5 分钟健康检查
+*/5 * * * * /usr/local/bin/healthcheck.sh
+
+crontab -l
+`,
+          },
+        },
+        {
+          id: "linux-3-6",
+          title: "磁盘与内存查看",
+          summary: "df 看文件系统，du 查目录大小，free 看内存。",
+          keyPoints: [
+            "df -h 各挂载点使用率；**磁盘 100% 是线上头号事故**",
+            "du -sh 目录 查总大小；du -h --max-depth=1 逐层定位大目录",
+            "free -h 看内存；available 才是真正可用（buff/cache 可回收）",
+            "find / -size +500M 找大文件；lsof | grep deleted 找已删未释放",
+          ],
+          example: {
+            code: `df -h
+du -sh /var/log
+du -h --max-depth=1 /var | sort -rh | head -5
+free -h
+find /var -size +200M -type f 2>/dev/null
+`,
+          },
+        },
+      ],
+    },
+    {
+      id: "4",
+      name: "高级",
+      description: "网络、日志与生产排查",
+      lessons: [
+        {
+          id: "linux-4-1",
+          title: "网络排查工具箱",
+          summary: "curl / ss / ping / nslookup，网络问题按层排查。",
+          keyPoints: [
+            "curl -I 看响应头；-v 看全过程；-o /dev/null -w 测耗时",
+            "ss -tlnp 看端口监听与进程（netstat 现代替代）",
+            "ping 测连通、traceroute 看路径、dig/nslookup 查 DNS",
+            "排查顺序：端口监听？→ 本地通？→ 对端通？→ DNS 对？",
+          ],
+          example: {
+            code: `curl -sI https://example.com | head -5
+curl -o /dev/null -s -w "DNS:%{time_namelookup} 连接:%{time_connect} 总:%{time_total}\\n" https://example.com
+ss -tlnp | grep 3000          # 谁在监听 3000
+ping -c 4 db.internal
+dig +short api.example.com
+`,
+          },
+        },
+        {
+          id: "linux-4-2",
+          title: "防火墙与端口安全",
+          summary: "ufw 简单好用；原则：默认拒绝，按需放行。",
+          keyPoints: [
+            "ufw allow 22/tcp；ufw enable 启用；ufw status verbose 查看",
+            "开放前先放 SSH 端口，否则把自己锁外面",
+            "iptables 是底层引擎，ufw/nftables 是友好前端",
+            "数据库等敏感服务只对内网/指定 IP 放行",
+          ],
+          example: {
+            code: `sudo ufw default deny incoming
+sudo ufw allow 22/tcp         # 先保住 SSH！
+sudo ufw allow 80,443/tcp
+sudo ufw allow from 10.0.0.0/24 to any port 5432   # 只放内网访问 PG
+sudo ufw enable
+sudo ufw status numbered
+`,
+          },
+        },
+        {
+          id: "linux-4-3",
+          title: "日志分析与 journalctl",
+          summary: "日志是服务器的病历本：分级、检索、跟踪。",
+          keyPoints: [
+            "journalctl -u 服务名 按服务看；-f 跟踪；--since \"1 hour ago\"",
+            "-p err 只看错误级；--disk-usage 看日志占用；--vacuum-size=1G 清理",
+            "传统日志 /var/log 下：auth 登录、syslog 系统、应用各自目录",
+            "logrotate 自动轮转防撑爆磁盘（配置在 /etc/logrotate.d/）",
+          ],
+          example: {
+            code: `journalctl -u nginx --since today -p warning
+journalctl -f -u myapp
+journalctl --disk-usage
+sudo journalctl --vacuum-size=500M
+
+grep "Failed password" /var/log/auth.log | wc -l   # 爆破尝试
+`,
+          },
+        },
+        {
+          id: "linux-4-4",
+          title: "性能排查思路与工具",
+          summary: "CPU/内存/IO/网络四象限定位法，工具只是手段。",
+          keyPoints: [
+            "先看负载：uptime 的 load 与核数比；vmstat 看 CPU 类型（us 高=应用，wa 高=IO）",
+            "CPU：top → 找进程 → pidstat -p PID 1 看线程",
+            "内存：free + ps aux --sort=-rss；iostat -x 看 IO 等待",
+            "一口气命令：vmstat 1、iostat -x 1、pidstat 1，观察三个窗口再下结论",
+          ],
+          example: {
+            code: `uptime
+vmstat 1 5               # us 用户态 / wa IO等待
+iostat -x 1 3            # %util 接近100 = 磁盘瓶颈
+pidstat -p $(pgrep -f server.js) 1
+ps aux --sort=-rss | head -5
+`,
+          },
+        },
+        {
+          id: "linux-4-5",
+          title: "Shell 脚本进阶",
+          summary: "函数、信号捕获与调试，让脚本上得了生产。",
+          keyPoints: [
+            "set -euo pipefail：出错即停、未定义变量报错、管道错误透传",
+            "函数封装：backup() { … }；局部变量 local",
+            "trap 'cleanup' EXIT 退出时清理临时文件/恢复状态",
+            "bash -x 脚本 调试逐行执行；shellcheck 静态检查必备",
+          ],
+          example: {
+            code: `#!/bin/bash
+set -euo pipefail
+
+TMP=$(mktemp -d)
+trap 'rm -rf "$TMP"' EXIT      # 无论成败都清理
+
+backup() {
+  local dest="$1"
+  tar -czf "$dest/app.tar.gz" /var/www/app
+  echo "备份完成: $dest ($(du -sh "$dest" | cut -f1))"
+}
+
+backup "/backups"
+`,
+          },
+        },
+        {
+          id: "linux-4-6",
+          title: "综合项目：服务器巡检脚本",
+          summary: "综合 23 课：一键巡检磁盘/内存/CPU/服务/证书并出报告。",
+          keyPoints: [
+            "巡检项：磁盘使用率、内存可用、负载、关键服务状态、错误日志增量",
+            "阈值判断 + 非零退出码，方便接入监控告警",
+            "输出人话报告（时间戳+结论），落盘并可选邮件/钉钉通知",
+            "挂 cron 每天执行，这就是最小可用的运维自动化",
+          ],
+          example: {
+            code: `#!/bin/bash
+set -euo pipefail
+REPORT="/var/log/patrol-$(date +%F).log"
+
+section() { echo -e "\\n== $1 ==" | tee -a "$REPORT"; }
+
+section "磁盘"
+df -h --output=source,pcent | tail -n +2 | while read -r src pct; do
+  used=\${pct//%/}
+  [ "$used" -ge 85 ] && echo "⚠️ $src 已用 \${pct}" || echo "✓ $src \${pct}"
+done | tee -a "$REPORT"
+
+section "内存"
+free -h | tee -a "$REPORT"
+
+section "服务"
+for svc in nginx myapp; do
+  systemctl is-active --quiet "$svc" \\
+    && echo "✓ $svc 运行中" || echo "⛔ $svc 已停止"
+done | tee -a "$REPORT"
+
+echo "巡检完成 $(date)" | tee -a "$REPORT"
+`,
+          },
+        },
+      ],
+    },
+  ],
+};

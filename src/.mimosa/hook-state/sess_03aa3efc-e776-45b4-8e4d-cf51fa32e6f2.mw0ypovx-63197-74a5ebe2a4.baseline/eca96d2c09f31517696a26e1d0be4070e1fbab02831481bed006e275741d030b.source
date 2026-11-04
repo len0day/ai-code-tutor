@@ -1,0 +1,27 @@
+import type { Metadata } from "next";
+import { ReactNode, Suspense } from "react";
+import Nav from "@/components/Nav";
+import "./globals.css";
+import "highlight.js/styles/github-dark.css";
+
+export const metadata: Metadata = {
+  title: "CodeTutor AI · 编程语言快速学习",
+  description:
+    "用 AI 导师快速学习 Python / Java / JavaScript / TypeScript：内置从入门到进阶课程，AI 对话辅导、练习测验、代码审查与个性化学习路径。",
+};
+
+export default function RootLayout({ children }: { children: ReactNode }) {
+  return (
+    <html lang="zh-CN" className="h-full antialiased">
+      <body className="min-h-full flex flex-col">
+        <Suspense fallback={<header className="h-14 border-b border-border" />}>
+          <Nav />
+        </Suspense>
+        <main className="flex-1 w-full max-w-6xl mx-auto px-4 py-8">{children}</main>
+        <footer className="border-t border-border py-6 text-center text-sm text-slate-400">
+          CodeTutor AI · 本地运行 · 数据保存在本机 data/ 目录
+        </footer>
+      </body>
+    </html>
+  );
+}

@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "mimosa-finding-history/v1",
+  "runId": "20261104T055259524Z-51742-b425aac82c13",
+  "runStatus": "inconclusive",
+  "errors": [
+    "candidate-select:src/app/api/settings/route.ts: candidate_limit_exceeded: 13 changed reviewable file(s) were not scanned because the limit is 20"
+  ],
+  "target": ".",
+  "revision": "cb6064b782123729fe962a38e01e63b6396f8ff3",
+  "diffHash": "c691e55d422165fcec1b52dc6e1673f4402807842e2bde5ec5b87740d791e08e",
+  "rulesVersion": "unavailable",
+  "recordedAt": "2026-11-04T05:52:59.524Z",
+  "timing": {
+    "startedAt": "2026-11-04T05:52:58.813Z",
+    "completedAt": "2026-11-04T05:52:59.524Z",
+    "durationMs": 711
+  },
+  "tokens": {
+    "input": 0,
+    "output": 0,
+    "total": 0,
+    "modelCalls": 0,
+    "measurement": "known-zero"
+  },
+  "findings": {
+    "total": 4,
+    "bySeverity": {
+      "high": 4
+    },
+    "byStatus": {
+      "static_verified": 4
+    }
+  },
+  "coverage": {
+    "status": "partial",
+    "reasonCounts": {
+      "candidate_limit_exceeded": 1,
+      "project_check_failed": 1
+    }
+  },
+  "evidenceBoundary": "static_only",
+  "immutableReport": ".mimosa/reports/task-review-sess_03aa3efc-e776-45b4-8e4d-cf51fa32e6f2-20261104T055259524Z-51742-b425aac82c13.json"
+}

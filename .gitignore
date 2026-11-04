@@ -39,3 +39,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# 本地数据（含 API Key 与学习进度，不要提交）
+/data/
+data/
+
+# 会话签名密钥
+auth-secret.json
