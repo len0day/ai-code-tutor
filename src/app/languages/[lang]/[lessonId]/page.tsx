@@ -23,6 +23,7 @@ import ReasoningBlock from "@/components/ReasoningBlock";
 import SpeakButton from "@/components/SpeakButton";
 import LessonGateGuard, { GateBadge } from "@/components/LessonGateGuard";
 import { PASS_SCORE } from "@/lib/gateConstants";
+import "../../book.css";
 
 type Tab = "tutor" | "quiz" | "roleplay";
 
@@ -171,19 +172,19 @@ function LanguageLesson({ me }: { me: ReturnType<typeof useRequireUser> }) {
       {/* 闯关守卫：未解锁 → 预览模式 */}
       <LessonGateGuard lang={lang} lessonId={lessonId} progress={progress} />
 
-      {/* 顶部 */}
+      {/* 顶部：书页页眉 */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="text-sm text-slate-400">
-          <Link href="/languages" className="hover:text-rose-500">
+          <Link href="/languages" className="hover:text-rose-500 hand-note">
             🌸 语言学习增值包
           </Link>
           <span className="mx-2">/</span>
-          <span>
-            {course.name} · L{level.id} {level.name}
+          <span className="serif-title">
+            {course.name} · 第{["一", "二", "三", "四"][Number(level.id) - 1] ?? level.id}章
           </span>
           <span className="mx-2">/</span>
           <span className="text-slate-600">
-            {index + 1} / {total}
+            第 {index + 1} 页 / 共 {total} 页
           </span>
           <span className="ml-2">
             <GateBadge gate={progress?.gates?.[lang]?.[lessonId]} />
@@ -203,20 +204,30 @@ function LanguageLesson({ me }: { me: ReturnType<typeof useRequireUser> }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* 左列：内容 */}
-        <div className="space-y-5">
-          <header>
-            <h1 className="text-2xl font-extrabold">{lesson.title}</h1>
-            <p className="text-slate-500 mt-1.5 leading-relaxed">{lesson.summary}</p>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 book-stage">
+        {/* 左列：书页内容 */}
+        <div className="space-y-5 page-enter" key={lessonId}>
+          <header className="text-center pb-2">
+            <p className="hand-note text-sm">第 {index + 1} 页</p>
+            <h1 className="text-3xl serif-title font-bold mt-1">{lesson.title}</h1>
+            <div className="flex items-center justify-center gap-2 mt-3" aria-hidden="true">
+              <span className="h-px w-12 bg-amber-900/25 dark:bg-amber-100/20" />
+              <span className="text-rose-500 text-xs">❦</span>
+              <span className="h-px w-12 bg-amber-900/25 dark:bg-amber-100/20" />
+            </div>
+            <p className="text-slate-500 mt-3 leading-relaxed max-w-md mx-auto">
+              {lesson.summary}
+            </p>
           </header>
 
-          <section className="bg-card border border-border rounded-2xl p-5">
-            <h2 className="font-bold mb-3">📌 本课知识点</h2>
-            <ul className="space-y-2">
+          <section className="paper book-page rounded-r-xl rounded-l-sm p-6 pl-8">
+            <h2 className="serif-title font-bold mb-3 text-amber-900/80 dark:text-amber-200/80">
+              ✦ 本课要点
+            </h2>
+            <ul className="space-y-2.5">
               {lesson.keyPoints.map((kp, i) => (
                 <li key={i} className="flex gap-2.5 text-sm leading-relaxed">
-                  <span className="shrink-0 w-5 h-5 rounded-full bg-rose-50 text-rose-600 text-xs grid place-items-center font-bold mt-0.5">
+                  <span className="shrink-0 w-5 h-5 rounded-full bg-rose-100 text-rose-600 text-xs grid place-items-center font-bold mt-0.5">
                     {i + 1}
                   </span>
                   <span>{kp}</span>
@@ -226,9 +237,11 @@ function LanguageLesson({ me }: { me: ReturnType<typeof useRequireUser> }) {
           </section>
 
           {lesson.example && (
-            <section className="bg-card border border-border rounded-2xl p-5">
+            <section className="paper book-page rounded-r-xl rounded-l-sm p-6 pl-8">
               <div className="flex items-center justify-between mb-3 gap-2">
-                <h2 className="font-bold">🗣 例句与读音</h2>
+                <h2 className="serif-title font-bold text-amber-900/80 dark:text-amber-200/80">
+                  ✦ 例句与读音
+                </h2>
                 <div className="flex items-center gap-1.5">
                   <SpeakButton
                     id={`example-ja-${lesson.id}`}
@@ -247,18 +260,20 @@ function LanguageLesson({ me }: { me: ReturnType<typeof useRequireUser> }) {
                 </div>
               </div>
               {lesson.example.note && (
-                <p className="text-xs text-slate-400 mb-2">{lesson.example.note}</p>
+                <p className="hand-note text-sm mb-2">{lesson.example.note}</p>
               )}
-              <div className="whitespace-pre-wrap text-sm leading-loose bg-rose-50/50 dark:bg-rose-950/20 border border-rose-100 dark:border-rose-900/40 rounded-xl p-4">
+              <div className="whitespace-pre-wrap text-sm leading-loose">
                 {lesson.example.code}
               </div>
             </section>
           )}
 
           {/* 语言精讲（语言课专属的内容生成方式） */}
-          <section className="bg-card border border-border rounded-2xl p-5">
+          <section className="paper book-page rounded-r-xl rounded-l-sm p-6 pl-8">
             <div className="flex items-center justify-between mb-1 gap-2">
-              <h2 className="font-bold">👩‍🏫 语言精讲</h2>
+              <h2 className="serif-title font-bold text-amber-900/80 dark:text-amber-200/80">
+                ✦ 语言精讲
+              </h2>
               <div className="flex items-center gap-1.5">
                 {teach && !teaching && (
                   <>
@@ -299,9 +314,8 @@ function LanguageLesson({ me }: { me: ReturnType<typeof useRequireUser> }) {
                 🔒 本课未解锁，AI 精讲暂不可用（通过上一课后开放）
               </p>
             )}
-            <p className="text-xs text-slate-400 mb-2">
-              与编程课的「深入讲解」不同：这里由语言老师讲
-              <b>语法要点 + 单词表 + 句子拆解 + 常见错误 + 随堂练习</b>
+            <p className="hand-note text-sm mb-2">
+              与编程课的「深入讲解」不同：这里由语言老师讲 语法要点 + 单词表 + 句子拆解 + 常见错误 + 随堂练习
             </p>
             {teachReasoning && (
               <ReasoningBlock reasoning={teachReasoning} thinking={teaching && !teach} />
@@ -322,18 +336,18 @@ function LanguageLesson({ me }: { me: ReturnType<typeof useRequireUser> }) {
             )}
           </section>
 
-          <section className="bg-card border border-border rounded-2xl p-5">
+          <section className="paper book-page rounded-r-xl rounded-l-sm p-6 pl-8">
             <div className="flex items-center justify-between mb-2">
-              <h2 className="font-bold">📝 我的笔记</h2>
+              <h2 className="serif-title font-bold">✦ 页边笔记</h2>
               <div className="flex items-center gap-2">
                 {noteSavedAt && (
-                  <span className="text-xs text-emerald-500">✓ 已保存 {noteSavedAt}</span>
+                  <span className="text-xs text-emerald-600">✓ 已保存 {noteSavedAt}</span>
                 )}
                 <button
                   onClick={handleSaveNote}
-                  className="text-sm bg-slate-800 hover:bg-slate-700 text-white px-3.5 py-1.5 rounded-lg transition-colors"
+                  className="hand-note text-sm bg-rose-600 hover:bg-rose-700 text-white px-3.5 py-1.5 rounded-lg transition-colors"
                 >
-                  保存笔记
+                  保存
                 </button>
               </div>
             </div>
@@ -341,8 +355,8 @@ function LanguageLesson({ me }: { me: ReturnType<typeof useRequireUser> }) {
               value={noteDraft}
               onChange={(e) => setNoteDraft(e.target.value)}
               rows={4}
-              placeholder="记录易混语法、单词记忆法、造句…"
-              className="w-full text-sm bg-amber-50/40 border border-amber-100 rounded-xl p-3.5 focus:outline-none focus:ring-2 focus:ring-amber-200 leading-relaxed"
+              placeholder="像在书页边上写批注：易混语法、单词记忆法、造句…"
+              className="w-full text-sm bg-transparent border-0 border-b-2 border-dashed border-amber-900/25 dark:border-amber-100/20 focus:outline-none focus:border-rose-400 leading-loose resize-none px-1"
             />
           </section>
 
@@ -350,9 +364,9 @@ function LanguageLesson({ me }: { me: ReturnType<typeof useRequireUser> }) {
             {prev ? (
               <Link
                 href={`/languages/${lang}/${prev.id}`}
-                className="text-sm text-slate-500 hover:text-rose-600 bg-card border border-border rounded-xl px-4 py-2.5"
+                className="hand-note text-sm text-slate-500 hover:text-rose-600 paper book-page rounded-lg px-4 py-2.5"
               >
-                ← {prev.title}
+                ← 上一页
               </Link>
             ) : (
               <span />
