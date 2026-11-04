@@ -159,10 +159,20 @@ export const SCHEMA_STATEMENTS: string[] = [
 
 let instance: Db | null = null;
 
+/** 校验数据库连接串：仅允许 PostgreSQL 协议（防误配/注入非预期协议） */
+function validateDatabaseUrl(url: string): void {
+  if (!/^postgres(ql)?:\/\//i.test(url)) {
+    throw new Error(
+      "DATABASE_URL 仅支持 postgresql:// 或 postgres:// 协议（示例：postgresql://user:pass@host:5432/db）"
+    );
+  }
+}
+
 /** 获取数据库实例：DATABASE_URL 存在 → PostgreSQL，否则 SQLite */
 export async function getDb(): Promise<Db> {
   if (instance) return instance;
   const url = process.env.DATABASE_URL?.trim();
+  if (url) validateDatabaseUrl(url);
   const created = url ? await createPostgresDb(url) : await createSqliteDb();
   for (const statement of SCHEMA_STATEMENTS) {
     await created.runRaw(statement);

@@ -18,5 +18,24 @@ services:
       timeout: 5s
       retries: 5
 
+  app:
+    build: .
+    container_name: codetutor-app
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-codetutor}:${POSTGRES_PASSWORD:-change-me-in-production}@postgres:5432/${POSTGRES_DB:-codetutor}
+      CORS_ORIGINS: ${CORS_ORIGINS:-}
+    ports:
+      - "3000:3000"
+    volumes:
+      # 密钥与 SQLite（如未启用 PG）持久化
+      - appdata:/app/data
+    command: >
+      sh -c "npm run build && npm start"
+
 volumes:
   pgdata:
+  appdata:

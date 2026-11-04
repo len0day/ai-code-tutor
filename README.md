@@ -158,6 +158,17 @@ npm run dev
 - **数据层全部 async**：调用必须 `await`。漏写不会被 TypeScript 拦截（Promise 与普通值比较不报错），但会表现为 `[object Promise]`、空对象或静默失效
 - 因此仓库内置**构建闸门**：`npm run build` 前自动执行 `scripts/check-async-calls.mjs`，扫描全部数据层调用点，发现漏 `await` 即**阻断构建**（也可单独运行 `npm run check:await`）
 
+## 🚀 部署到云服务器
+
+完整流程见 **[docs/DEPLOY.md](docs/DEPLOY.md)**：云服务器选购 → 域名/备案 → HTTPS → systemd 守护 → 备份 → 安全清单，全程约 1~2 小时（域名备案除外）。
+
+**Docker 一键部署**（含 PostgreSQL）：
+
+```bash
+docker compose up -d --build   # 应用 + PostgreSQL 一起起
+# 访问 http://服务器IP:3000，注册首个账号（管理员）
+```
+
 ## 智能缓存与记忆（存于数据库）
 
 - **🌗 主题三态**：浅色 / 深色 / 跟随系统，导航栏 ☀️/🌙/💻 一键循环切换，偏好保存在浏览器本地；首屏渲染前应用主题，深色下无白屏闪烁；代码块保持终端质感深色（明暗主题通用）
