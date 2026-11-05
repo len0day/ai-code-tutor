@@ -16,6 +16,8 @@ export function ChapterTree({
   lessonId,
   progress,
   flat,
+  /** 章节序号偏移（目录拆到两页时，右页从第三章起编号） */
+  chapterOffset = 0,
 }: {
   lang: string;
   lessonId: string;
@@ -24,6 +26,7 @@ export function ChapterTree({
     lesson: { id: string; title: string };
     level: { id: string; name: string };
   }>;
+  chapterOffset?: number;
 }) {
   const grouped = useMemo(() => {
     const map = new Map<
@@ -49,7 +52,7 @@ export function ChapterTree({
       {grouped.map(([levelId, group], gi) => (
         <div key={levelId}>
           <div className="serif-title text-xs font-semibold amber-head mb-1 tracking-wider">
-            第{cnNum[gi] ?? levelId}章 · {group.name}
+            第{cnNum[gi + chapterOffset] ?? levelId}章 · {group.name}
           </div>
           <ul className="space-y-0.5">
             {group.lessons.map((lesson, li) => {
