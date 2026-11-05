@@ -67,6 +67,9 @@ export const LANGUAGE_META: Record<
   docker: { name: "Docker/K8s", emoji: "🐳", gradient: "from-blue-500 to-cyan-500" },
   linux: { name: "Linux", emoji: "🐧", gradient: "from-slate-600 to-zinc-800" },
   japanese: { name: "日语", emoji: "🌸", gradient: "from-rose-500 to-pink-600" },
+  go: { name: "Go", emoji: "🐹", gradient: "from-cyan-500 to-sky-600" },
+  swift: { name: "Swift", emoji: "🍎", gradient: "from-orange-400 to-red-500" },
+  nextjs: { name: "Next.js", emoji: "▲", gradient: "from-neutral-700 to-neutral-900" },
 };
 
 /** TTS 语音映射：不同课程用合适的发音人 */
@@ -75,7 +78,7 @@ export const TTS_VOICE: Record<string, string> = {
 };
 export const DEFAULT_TTS_VOICE = "zh-CN-XiaoxiaoNeural";
 
-/** 有 LeetCode 题库的语言（其余课程隐藏 LC 推荐） */
+/** 有 LeetCode 题库的语言（其余课程隐藏 LC 推荐；Go/Swift 走 HackerRank） */
 export const LC_LANGS: ReadonlySet<string> = new Set([
   "python",
   "java",

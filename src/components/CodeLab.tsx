@@ -24,7 +24,7 @@ interface RunResult {
 }
 
 /** 可直接运行的语言（本机已内置解释器） */
-const RUNNABLE = new Set(["python", "javascript", "typescript"]);
+const RUNNABLE = new Set(["python", "javascript", "typescript", "nextjs", "go"]);
 
 const SAMPLE = `// 在这里动手写代码
 // 可以先点右上角「填入本课示例」有个起点

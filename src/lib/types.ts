@@ -65,7 +65,10 @@ export type LangId =
   | "html"
   | "docker"
   | "linux"
-  | "japanese";
+  | "japanese"
+  | "go"
+  | "swift"
+  | "nextjs";
 
 export interface LessonExample {
   code: string;

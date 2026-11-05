@@ -29,7 +29,7 @@ interface RunSpec {
   label: string;
 }
 
-/** 课程语言 → 执行方案（严格白名单） */
+/** 课程语言 → 执行方案（严格白名单）。Go 需要 module 环境：写入 go.mod */
 function specFor(lang: string): RunSpec | null {
   switch (lang) {
     case "python":
@@ -42,11 +42,19 @@ function specFor(lang: string): RunSpec | null {
       };
     case "javascript":
     case "typescript":
+    case "nextjs":
       return {
         cmd: "node",
         args: ["--max-old-space-size=128"],
         ext: "js",
         label: "Node.js",
+      };
+    case "go":
+      return {
+        cmd: "go",
+        args: ["run"],
+        ext: "go",
+        label: "Go",
       };
     default:
       return null;
@@ -86,6 +94,14 @@ export async function runCode(code: string, lang: string): Promise<RunResult> {
 
   try {
     fs.writeFileSync(file, code, "utf-8");
+    if (lang === "go") {
+      // go run 需要 module 环境
+      fs.writeFileSync(
+        path.join(dir, "go.mod"),
+        "module codetutor\n\ngo 1.22\n",
+        "utf-8"
+      );
+    }
 
     const { stdout, stderr, exitCode, timedOut } = await new Promise<{
       stdout: string;

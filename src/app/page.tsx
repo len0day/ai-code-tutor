@@ -22,6 +22,9 @@ const RING_COLORS: Record<string, [string, string]> = {
   docker: ["#3b82f6", "#06b6d4"],
   linux: ["#64748b", "#18181b"],
   japanese: ["#f43f5e", "#ec4899"],
+  go: ["#06b6d4", "#0284c7"],
+  swift: ["#fb923c", "#ef4444"],
+  nextjs: ["#52525b", "#18181b"],
 };
 
 function ProgressRing({
@@ -136,8 +139,8 @@ export default function Dashboard() {
           用 <span className="grad-text">AI 导师</span> 学编程、运维与外语
         </h1>
         <p className="mt-3 text-slate-500 max-w-2xl mx-auto">
-          Python · Java · JavaScript · TypeScript · HTML · Docker/K8s · Linux · 日语 —— 内置从入门到进阶的 192 节课，
-          AI 全程陪学：讲解、答疑、出题、批改、模拟面试、规划路径。
+          Python · Java · JavaScript · TypeScript · Go · Swift · Next.js · HTML · Docker · Linux · 日语 ——
+          内置从入门到进阶的 264 节课，AI 全程陪学：讲解、答疑、出题、批改、模拟面试、规划路径。
         </p>
         {configured === false && (
           <div className="mt-5 inline-flex items-center gap-2 bg-amber-50 border border-amber-200 text-amber-700 text-sm px-4 py-2 rounded-xl">

@@ -416,6 +416,9 @@ export const HR_TRACKS: Record<string, string> = {
   javascript: "algorithms",
   typescript: "algorithms",
   linux: "shell",
+  go: "general-programming",
+  swift: "general-programming",
+  nextjs: "algorithms",
 };
 
 /** 该语言可用的题库源 */
