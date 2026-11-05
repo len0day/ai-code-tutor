@@ -3,10 +3,12 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { Suspense, useEffect, useMemo, useState } from "react";
-import { getCourse } from "@/data/courses";
+import { getCourse, flatLessons } from "@/data/courses";
 import { fetchProgress } from "@/lib/client";
 import { useRequireUser } from "@/lib/useMe";
+import { ChapterTree } from "@/components/BookReader";
 import type { Progress } from "@/lib/types";
+import "../../languages/book.css";
 
 export default function CourseOutline() {
   const me = useRequireUser();
@@ -65,125 +67,66 @@ function OutlineContent({ me }: { me: ReturnType<typeof useRequireUser> }) {
         <Link href="/" className="text-sm text-slate-400 hover:text-slate-600">
           ← 返回首页
         </Link>
-        <div className="mt-3 flex items-start gap-4">
+      </header>
+
+      {/* 书本：封面 + 目录页 */}
+      <div className="book-spread paper rounded-r-xl rounded-l-lg border-x border-amber-900/10 dark:border-amber-100/10 shadow-lg">
+        {/* 左：书封 */}
+        <div className="book-page relative p-6 sm:p-8 flex flex-col justify-center items-center text-center">
           <div
-            className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${course.gradient} grid place-items-center text-4xl shrink-0`}
+            className={`w-20 h-20 rounded-2xl bg-gradient-to-br ${course.gradient} grid place-items-center text-4xl shadow-lg mb-4`}
           >
             {course.emoji}
           </div>
-          <div className="flex-1">
-            <h1 className="text-3xl font-extrabold">{course.name} 学习路线</h1>
-            <p className="text-slate-500 mt-1">{course.tagline}</p>
-          </div>
-        </div>
-        <div className="mt-5">
-          <div className="flex justify-between text-sm text-slate-500 mb-1.5">
-            <span>
-              已完成 {stats.done} / {stats.total} 课
-            </span>
-            <span>{pct}%</span>
-          </div>
-          <div className="h-2.5 bg-slate-100 rounded-full overflow-hidden">
-            <div
-              className={`h-full rounded-full bg-gradient-to-r ${course.gradient} transition-all`}
-              style={{ width: `${pct}%` }}
-            />
-          </div>
-        </div>
-      </header>
+          <h1 className="text-3xl serif-title font-bold">{course.name}</h1>
+          <p className="hand-note text-sm mt-1">{course.tagline}</p>
 
-      {/* 等级与课程 */}
-      {course.levels.map((level) => {
-        const levelDone = level.lessons.filter(
-          (l) => progress?.lessons[l.id]?.completed
-        ).length;
-        return (
-          <section key={level.id}>
-            <div className="flex items-baseline gap-3 mb-3">
-              <h2 className="text-xl font-bold">
-                <span className="text-indigo-500 mr-2">L{level.id}</span>
-                {level.name}
-              </h2>
-              <span className="text-sm text-slate-400">{level.description}</span>
-              <span className="ml-auto text-xs text-slate-400">
-                {levelDone}/{level.lessons.length}
+          <div className="w-full mt-6">
+            <div className="flex justify-between text-xs text-slate-500 mb-1.5">
+              <span>
+                已读 {stats.done} / {stats.total} 页
               </span>
+              <span className="tabular-nums">{pct}%</span>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {level.lessons.map((lesson, i) => {
-                const gate = progress?.gates?.[course.lang]?.[lesson.id];
-                const locked = gate ? !gate.unlocked : false;
-                const passed = gate?.passed ?? false;
-                return (
-                  <Link
-                    key={lesson.id}
-                    href={`/learn/${course.lang}/${lesson.id}`}
-                    title={
-                      locked
-                        ? "本课尚未解锁（可通过预览）"
-                        : passed
-                          ? "已通关"
-                          : undefined
-                    }
-                    className={`group flex items-start gap-3 rounded-xl border p-4 transition-all ${
-                      passed
-                        ? "border-emerald-200 bg-emerald-50/50"
-                        : locked
-                          ? "border-dashed border-slate-300 bg-slate-50/50 opacity-75 hover:opacity-100"
-                          : "border-border bg-card hover:border-indigo-300 hover:shadow-md"
-                    }`}
-                  >
-                    <span
-                      className={`shrink-0 w-6 h-6 rounded-full grid place-items-center text-xs font-bold mt-0.5 ${
-                        passed
-                          ? "bg-emerald-500 text-white"
-                          : locked
-                            ? "bg-slate-200 text-slate-500"
-                            : "bg-slate-100 text-slate-500 group-hover:bg-indigo-100 group-hover:text-indigo-600"
-                      }`}
-                    >
-                      {passed ? "✓" : locked ? "🔒" : i + 1}
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="font-medium block group-hover:text-indigo-700">
-                        {lesson.title}
-                      </span>
-                      <span className="text-sm text-slate-500 line-clamp-1 mt-0.5 block">
-                        {lesson.summary}
-                      </span>
-                      {gate && (
-                        <span className="mt-1.5 flex flex-wrap gap-1 text-[11px]">
-                          <span
-                            className={`px-1.5 py-0.5 rounded ${
-                              gate.quizPassed
-                                ? "bg-emerald-50 text-emerald-600"
-                                : "bg-slate-100 text-slate-400"
-                            }`}
-                          >
-                            测验 {gate.quizScore}
-                          </span>
-                          <span
-                            className={`px-1.5 py-0.5 rounded ${
-                              gate.interviewPassed
-                                ? "bg-emerald-50 text-emerald-600"
-                                : "bg-slate-100 text-slate-400"
-                            }`}
-                          >
-                            面试/场景 {gate.interviewScore}
-                          </span>
-                        </span>
-                      )}
-                    </span>
-                    {locked && (
-                      <span className="shrink-0 text-xs text-slate-400 mt-0.5">预览</span>
-                    )}
-                  </Link>
-                );
-              })}
+            <div className="h-2 bg-slate-100 dark:bg-card-2 rounded-full overflow-hidden">
+              <div
+                className={`h-full rounded-full bg-gradient-to-r ${course.gradient} transition-all`}
+                style={{ width: `${pct}%` }}
+              />
             </div>
-          </section>
-        );
-      })}
+          </div>
+
+          <p className="text-[11px] text-slate-400 mt-5 leading-relaxed">
+            💡 目录在右页，点击任意一节即可翻开。
+            <br />
+            🔒 标记的章节需先通过前置考核。
+          </p>
+        </div>
+
+        {/* 书脊 */}
+        <div
+          aria-hidden="true"
+          className="relative w-0 lg:w-3 border-x border-amber-900/10 dark:border-amber-100/10 bg-gradient-to-r from-transparent via-amber-900/10 to-transparent dark:via-black/30"
+        />
+
+        {/* 右：目录页 */}
+        <div className="book-page relative p-6 sm:p-8">
+          <div className="flex items-center justify-between border-b border-amber-900/15 dark:border-amber-100/10 pb-2.5 mb-3">
+            <span className="serif-title text-sm tracking-[0.3em] text-amber-900/70 dark:text-amber-200/70">
+              目 录
+            </span>
+            <span className="text-[11px] text-slate-400">
+              {course.levels.length} 章 · {stats.total} 页
+            </span>
+          </div>
+          <ChapterTree
+            lang={course.lang}
+            lessonId=""
+            progress={progress}
+            flat={flatLessons(course.lang)}
+          />
+        </div>
+      </div>
     </div>
   );
 }

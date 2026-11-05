@@ -140,7 +140,7 @@ export default function Dashboard() {
         </h1>
         <p className="mt-3 text-slate-500 max-w-2xl mx-auto">
           Python · Java · JavaScript · TypeScript · Go · Swift · Next.js · HTML · Docker · Linux · 日语 ——
-          内置从入门到进阶的 264 节课，AI 全程陪学：讲解、答疑、出题、批改、模拟面试、规划路径。
+          内置从入门到进阶的 259 节课，AI 全程陪学：讲解、答疑、出题、批改、模拟面试、规划路径。
         </p>
         {configured === false && (
           <div className="mt-5 inline-flex items-center gap-2 bg-amber-50 border border-amber-200 text-amber-700 text-sm px-4 py-2 rounded-xl">

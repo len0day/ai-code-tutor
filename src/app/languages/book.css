@@ -56,8 +56,18 @@
   );
 }
 
-/* ---------- 书本封面 ---------- */
-.book-cover {
+/* ---------- 双页对开 ---------- */
+.book-spread {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 1024px) {
+  .book-spread {
+    grid-template-columns: minmax(260px, 0.8fr) auto minmax(0, 1.6fr);
+  }
+}
+
+/* ---------- 书本封面 ---------- */.book-cover {
   position: relative;
   border-radius: 6px 14px 14px 6px;
   overflow: hidden;

@@ -25,6 +25,8 @@ import ProblemBank from "@/components/ProblemBank";
 import ReasoningBlock from "@/components/ReasoningBlock";
 import SpeakButton from "@/components/SpeakButton";
 import LessonGateGuard, { GateBadge } from "@/components/LessonGateGuard";
+import BookReader, { type BookSection } from "@/components/BookReader";
+import "../../../languages/book.css";
 import { PASS_SCORE } from "@/lib/gateConstants";
 
 type Tab = "tutor" | "quiz" | "review" | "interview";
@@ -222,8 +224,171 @@ function LessonContent({ me }: { me: ReturnType<typeof useRequireUser> }) {
     }
   };
 
-  const tabBtn = (id: Tab, label: string) => (
-    <button
+  /** 书的正文页：要点 / 示例代码 / 深入讲解 / 笔记 / 题库 */
+  const sections: BookSection[] = [
+    {
+      id: "points",
+      label: "要点",
+      icon: "✦",
+      content: (
+        <div className="space-y-2.5">
+          <p className="text-sm text-slate-500 leading-relaxed mb-3">
+            {lesson.summary}
+          </p>
+          {lesson.keyPoints.map((kp, i) => {
+            const fav = isKeyPointFav(kp);
+            return (
+              <div key={i} className="flex gap-2.5 text-sm leading-relaxed items-start">
+                <span className="shrink-0 w-5 h-5 rounded-full bg-rose-100 text-rose-600 text-xs grid place-items-center font-bold mt-0.5">
+                  {i + 1}
+                </span>
+                <span className="flex-1">{kp}</span>
+                <button
+                  onClick={() => toggleKeyPointFav(kp)}
+                  title={fav ? "取消收藏该知识点" : "收藏该知识点"}
+                  className={`shrink-0 text-xs mt-0.5 transition-colors ${
+                    fav ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                  }`}
+                >
+                  {fav ? "★" : "☆"}
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      ),
+    },
+    ...(lesson.example
+      ? [
+          {
+            id: "example",
+            label: "示例",
+            icon: "💻",
+            content: (
+              <div>
+                {lesson.example.note && (
+                  <p className="hand-note text-sm mb-2">{lesson.example.note}</p>
+                )}
+                <Markdown
+                  content={`\`\`\`${HL_LANG[lang] ?? lang}\n${lesson.example.code}\n\`\`\``}
+                />
+              </div>
+            ),
+          },
+        ]
+      : []),
+    {
+      id: "explain",
+      label: "讲解",
+      icon: "🤖",
+      content: (
+        <div className="space-y-3">
+          <div className="flex items-center justify-between gap-2">
+            <p className="hand-note text-sm">
+              AI 用类比、更多例子和常见坑帮你吃透本课
+            </p>
+            <div className="flex items-center gap-1.5 shrink-0">
+              {explain && !explaining && (
+                <SpeakButton
+                  id={`explain-${lesson.id}`}
+                  text={explain}
+                  lang={lang}
+                  compact
+                />
+              )}
+              <button
+                onClick={() => deepExplain(explain ? true : false)}
+                disabled={explaining || !unlocked}
+                title={
+                  unlocked
+                    ? explain
+                      ? "已有讲解：点击可忽略缓存重新生成"
+                      : "优先复用已有讲解，没有才调用 AI"
+                    : "本课尚未解锁，通过上一课后可用"
+                }
+                className="text-xs btn-primary disabled:opacity-40 text-white px-3 py-1.5 rounded-lg transition-colors"
+              >
+                {explaining ? "讲解中…" : explain ? "重新生成" : "生成讲解"}
+              </button>
+            </div>
+          </div>
+          {!unlocked && (
+            <p className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+              🔒 本课未解锁，AI 深入讲解暂不可用（通过上一课后开放）
+            </p>
+          )}
+          {(explainReasoning || explaining) && (
+            <ReasoningBlock
+              reasoning={explainReasoning}
+              thinking={explaining && !explain}
+            />
+          )}
+          {explainError && (
+            <p className="text-sm text-red-500 bg-red-50 rounded-lg px-3 py-2">
+              {explainError}
+            </p>
+          )}
+          {explain && <Markdown content={explain} />}
+          {explaining && explain && <span className="streaming-cursor" />}
+          {!explain && !explaining && !explainError && !explainReasoning && unlocked && (
+            <p className="text-sm text-slate-400">
+              点击「生成讲解」，AI 会用类比、更多例子和常见坑帮你吃透本课。
+            </p>
+          )}
+        </div>
+      ),
+    },
+    {
+      id: "notes",
+      label: "笔记",
+      icon: "📝",
+      content: (
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <span className="hand-note text-sm">记录你的理解、易错点、心得…</span>
+            <div className="flex items-center gap-2 shrink-0">
+              {noteSavedAt && (
+                <span className="text-xs text-emerald-600">✓ {noteSavedAt}</span>
+              )}
+              <button
+                onClick={handleSaveNote}
+                className="text-xs btn-primary text-white px-3 py-1.5 rounded-lg"
+              >
+                保存
+              </button>
+            </div>
+          </div>
+          <textarea
+            value={noteDraft}
+            onChange={(e) => setNoteDraft(e.target.value)}
+            rows={8}
+            placeholder="像在书页边上写批注…（可在「知识库 → 笔记」查看全部）"
+            className="w-full text-sm bg-transparent border-0 border-b-2 border-dashed border-amber-900/25 dark:border-amber-100/20 focus:outline-none focus:border-rose-400 leading-loose resize-none px-1"
+          />
+        </div>
+      ),
+    },
+    ...(availableBanks(lang).length > 0
+      ? [
+          {
+            id: "banks",
+            label: "题库",
+            icon: "🔗",
+            content: (
+              <ProblemBank
+                lang={lang}
+                lessonTitle={lesson.title}
+                lessonSummary={lesson.summary}
+                limit={5}
+                title="🔗 在线题库实战"
+              />
+            ),
+          },
+        ]
+      : []),
+  ];
+
+  const tabBtn = (id: Tab, label: string) => (    <button
       onClick={() => setTab(id)}
       className={`flex-1 py-2.5 text-sm font-medium transition-colors border-b-2 ${
         tab === id
@@ -290,181 +455,30 @@ function LessonContent({ me }: { me: ReturnType<typeof useRequireUser> }) {
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* 左列：课程内容 */}
-        <div className="space-y-5">
-          <header>
-            <h1 className="text-2xl font-extrabold">{lesson.title}</h1>
-            <p className="text-slate-500 mt-1.5 leading-relaxed">{lesson.summary}</p>
-          </header>
+      <div className="space-y-6 book-stage">
+        {/* 书本阅读器：双页对开（左目录 + 右正文），AI 面板在书下方 */}
+        <BookReader
+          lang={lang}
+          courseName={course.name}
+          courseEmoji={course.emoji}
+          lessonId={lessonId}
+          lessonTitle={lesson.title}
+          levelName={`${level.name} · L${level.id}`}
+          index={index}
+          total={total}
+          progress={progress}
+          sections={sections}
+        />
 
-          <section className="bg-card border border-border rounded-2xl p-5">
-            <h2 className="font-bold mb-3">📌 本课知识点</h2>
-            <ul className="space-y-2">
-              {lesson.keyPoints.map((kp, i) => {
-                const fav = isKeyPointFav(kp);
-                return (
-                  <li key={i} className="flex gap-2.5 text-sm leading-relaxed items-start">
-                    <span className="shrink-0 w-5 h-5 rounded-full bg-indigo-50 text-indigo-600 text-xs grid place-items-center font-bold mt-0.5">
-                      {i + 1}
-                    </span>
-                    <span className="flex-1">{kp}</span>
-                    <button
-                      onClick={() => toggleKeyPointFav(kp)}
-                      title={fav ? "取消收藏该知识点" : "收藏该知识点"}
-                      className={`shrink-0 text-xs mt-0.5 transition-colors ${
-                        fav ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                      }`}
-                    >
-                      {fav ? "★" : "☆"}
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-          </section>
-
-          {lesson.example && (
-            <section className="bg-card border border-border rounded-2xl p-5">
-              <div className="flex items-center justify-between mb-3">
-                <h2 className="font-bold">💻 示例代码</h2>
-                {lesson.example.note && (
-                  <span className="text-xs text-slate-400">{lesson.example.note}</span>
-                )}
-              </div>
-              <Markdown content={`\`\`\`${HL_LANG[lang] ?? lang}\n${lesson.example.code}\n\`\`\``} />
-            </section>
-          )}
-
-          {/* AI 深入讲解（未解锁课程禁用） */}
-          <section className="bg-card border border-border rounded-2xl p-5">
-            <div className="flex items-center justify-between mb-1">
-              <h2 className="font-bold">🤖 AI 深入讲解</h2>
-              <div className="flex items-center gap-2">
-                {explain && !explaining && (
-                  <SpeakButton
-                    id={`explain-${lesson.id}`}
-                    text={explain}
-                    lang={lang}
-                  />
-                )}
-                <button
-                  onClick={() => deepExplain(explain ? true : false)}
-                  disabled={explaining || !unlocked}
-                  title={
-                    unlocked
-                      ? explain
-                        ? "已有讲解：点击可忽略缓存重新生成"
-                        : "优先复用已有讲解，没有才调用 AI"
-                      : "本课尚未解锁，通过上一课后可用"
-                  }
-                  className="text-sm btn-primary disabled:opacity-40 text-white px-4 py-1.5 rounded-lg transition-colors"
-                >
-                  {explaining ? "讲解中…" : explain ? "重新生成" : "开始讲解"}
-                </button>
-              </div>
-            </div>
-            {!unlocked && (
-              <p className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mb-2">
-                🔒 本课未解锁，AI 深入讲解暂不可用（通过上一课后开放）
-              </p>
-            )}
-            {(explainReasoning || explaining) && (
-              <ReasoningBlock
-                reasoning={explainReasoning}
-                thinking={explaining && !explain}
-              />
-            )}
-            {explainError && (
-              <p className="text-sm text-red-500 bg-red-50 rounded-lg px-3 py-2 my-2">
-                {explainError}
-              </p>
-            )}
-            {explain && (
-              <div className="mt-2">
-                <Markdown content={explain} />
-              </div>
-            )}
-            {explaining && explain && <span className="streaming-cursor" />}
-            {!explain && !explaining && !explainError && !explainReasoning && (
-              <p className="text-sm text-slate-400">
-                点击「开始讲解」，AI 会用类比、更多例子和常见坑帮你吃透本课。
-              </p>
-            )}
-          </section>
-
-          {/* 我的笔记 */}
-          <section className="bg-card border border-border rounded-2xl p-5">
-            <div className="flex items-center justify-between mb-2">
-              <h2 className="font-bold">📝 我的笔记</h2>
-              <div className="flex items-center gap-2">
-                {noteSavedAt && (
-                  <span className="text-xs text-emerald-500">✓ 已保存 {noteSavedAt}</span>
-                )}
-                <button
-                  onClick={handleSaveNote}
-                  className="text-sm btn-primary text-white px-3.5 py-1.5 rounded-lg transition-colors"
-                >
-                  保存笔记
-                </button>
-              </div>
-            </div>
-            <textarea
-              value={noteDraft}
-              onChange={(e) => setNoteDraft(e.target.value)}
-              rows={5}
-              placeholder="记录你的理解、易错点、心得…（保存在本机，可在「知识库 → 笔记」查看全部）"
-              className="w-full text-sm bg-amber-50/40 border border-amber-100 rounded-xl p-3.5 focus:outline-none focus:ring-2 focus:ring-amber-200 focus:border-amber-300 leading-relaxed"
-            />
-          </section>
-
-          {/* 在线题库实战（有可用题库源的课程） */}
-          {availableBanks(lang).length > 0 && (
-            <section className="bg-card border border-border rounded-2xl p-5">
-              <ProblemBank
-                lang={lang}
-                lessonTitle={lesson.title}
-                lessonSummary={lesson.summary}
-                limit={5}
-                title="🔗 在线题库实战"
-              />
-            </section>
-          )}
-
-          {/* 上一课 / 下一课 */}
-          <div className="flex justify-between gap-3 pb-4">
-            {prev ? (
-              <Link
-                href={`/learn/${lang}/${prev.id}`}
-                className="text-sm text-slate-500 hover:text-indigo-600 bg-card border border-border rounded-xl px-4 py-2.5"
-              >
-                ← {prev.title}
-              </Link>
-            ) : (
-              <span />
-            )}
-            {next ? (
-              <Link
-                href={`/learn/${lang}/${next.id}`}
-                className="text-sm text-slate-500 hover:text-indigo-600 bg-card border border-border rounded-xl px-4 py-2.5 text-right"
-              >
-                {next.title} →
-              </Link>
-            ) : (
-              <span />
-            )}
-          </div>
-        </div>
-
-        {/* 右列：AI 面板（未解锁 → 预览模式，AI 功能禁用） */}
-        <div className="bg-card border border-border rounded-2xl overflow-hidden flex flex-col min-h-[600px] lg:sticky lg:top-20 lg:h-[calc(100vh-6.5rem)]">
-          <div className="flex border-b border-border shrink-0">
+        {/* AI 工具区（书外）：导师 / 测验 / 代码实操 / 面试 */}
+        <section className="bg-card border border-border rounded-2xl overflow-hidden">
+          <div className="flex border-b border-border">
             {tabBtn("tutor", "💬 AI 导师")}
             {tabBtn("quiz", "📝 练习测验")}
             {tabBtn("review", "💻 代码实操")}
             {tabBtn("interview", "🎤 模拟面试")}
           </div>
-          <div className="flex-1 min-h-0 overflow-y-auto">
+          <div className="min-h-[560px]">
             {!unlocked ? (
               <div className="p-8 text-center">
                 <div className="text-4xl mb-3" aria-hidden="true">
@@ -477,7 +491,7 @@ function LessonContent({ me }: { me: ReturnType<typeof useRequireUser> }) {
                   （各 {PASS_SCORE} 分以上）才能解锁这里的 AI 导师、测验与面试。
                 </p>
                 <p className="text-xs text-slate-400 mt-3">
-                  左侧的知识点与例句可自由预习。
+                  书中的知识点与例句可自由预习。
                 </p>
                 <Link
                   href={`/learn/${lang}`}
@@ -501,7 +515,38 @@ function LessonContent({ me }: { me: ReturnType<typeof useRequireUser> }) {
               </>
             )}
           </div>
-        </div>
+        </section>
+      </div>
+
+      {/* 上一课 / 下一课（书外翻页） */}
+      <div className="flex justify-between gap-3 pb-4">
+        {prev ? (
+          <Link
+            href={`/learn/${lang}/${prev.id}`}
+            className="hand-note text-sm text-slate-500 hover:text-rose-600 paper book-page rounded-lg px-4 py-2.5"
+          >
+            ← 上一页：{prev.title}
+          </Link>
+        ) : (
+          <span />
+        )}
+        {next ? (
+          <Link
+            href={`/learn/${lang}/${next.id}`}
+            className={`hand-note text-sm paper book-page rounded-lg px-4 py-2.5 ${
+              completed
+                ? "text-emerald-700 hover:text-emerald-800"
+                : "text-slate-400 hover:text-rose-600"
+            }`}
+            title={completed ? "上一课已通关，可进入" : "需先通关本课"}
+          >
+            下一页：{next.title} {completed ? "→" : "🔒"}
+          </Link>
+        ) : (
+          <span className="hand-note text-sm text-emerald-600 self-center">
+            🎉 全书完 —— 恭喜读完《{course.name}》！
+          </span>
+        )}
       </div>
     </div>
   );
