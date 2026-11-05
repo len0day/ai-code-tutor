@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { findLesson, getCourse, flatLessons } from "@/data/courses";
 import {
   availableBanks,
@@ -17,7 +17,6 @@ import {
 import { useRequireUser } from "@/lib/useMe";
 import type { Notebook, Progress } from "@/lib/types";
 import Markdown from "@/components/Markdown";
-import ContentOutline from "@/components/ContentOutline";
 import ChatPanel from "@/components/ChatPanel";
 import QuizTab from "@/components/QuizTab";
 import CodeLab from "@/components/CodeLab";
@@ -26,11 +25,11 @@ import ProblemBank from "@/components/ProblemBank";
 import ReasoningBlock from "@/components/ReasoningBlock";
 import SpeakButton from "@/components/SpeakButton";
 import LessonGateGuard, { GateBadge } from "@/components/LessonGateGuard";
-import BookReader, { type BookSection } from "@/components/BookReader";
+import BookStage, { type BookPageDef } from "@/components/BookStage";
+import ToolDrawer from "@/components/ToolDrawer";
+import { splitMarkdownSections } from "@/lib/outline";
 import "../../../languages/book.css";
 import { PASS_SCORE } from "@/lib/gateConstants";
-
-type Tab = "tutor" | "quiz" | "review" | "interview";
 
 /** 课程语言 → highlight.js 语言（示例代码高亮用） */
 const HL_LANG: Record<string, string> = {
@@ -54,7 +53,6 @@ function LessonContent({ me }: { me: ReturnType<typeof useRequireUser> }) {
   const course = getCourse(lang);
   const found = findLesson(lang, lessonId);
 
-  const [tab, setTab] = useState<Tab>("tutor");
   const [progress, setProgress] = useState<Progress | null>(null);
   const [notebook, setNotebook] = useState<Notebook | null>(null);
   const [noteDraft, setNoteDraft] = useState("");
@@ -66,14 +64,21 @@ function LessonContent({ me }: { me: ReturnType<typeof useRequireUser> }) {
   /** 闯关：未解锁 → 预览模式，AI 功能禁用 */
   const [unlocked, setUnlocked] = useState(true);
 
-  // 记录访问（异步回调中更新状态）
+  // ---- 右侧工具抽屉 ----
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [drawerTab, setDrawerTab] = useState("tutor");
+  const openDrawer = (tab: string) => {
+    setDrawerTab(tab);
+    setDrawerOpen(true);
+  };
+
+  // 记录访问
   useEffect(() => {
     if (findLesson(lang, lessonId)) {
       postProgress({ type: "visit", lessonId }).then(setProgress).catch(() => {});
     }
   }, [lang, lessonId]);
 
-  // 检查本课解锁状态
   const refreshGate = () => {
     fetchProgress()
       .then((d) => {
@@ -114,7 +119,7 @@ function LessonContent({ me }: { me: ReturnType<typeof useRequireUser> }) {
       .catch(() => {});
   }, [lessonId]);
 
-  // 切换课时清空讲解与完成提示（渲染期调整状态）
+  // 切换课时清空讲解与完成提示
   const [prevKey, setPrevKey] = useState(lessonId);
   if (prevKey !== lessonId) {
     setPrevKey(lessonId);
@@ -124,6 +129,23 @@ function LessonContent({ me }: { me: ReturnType<typeof useRequireUser> }) {
     setExplainError("");
     setNoteSavedAt(null);
   }
+
+  // ---- 讲解分节：按标题拆成书的多页（生成完成后更新到左目录） ----
+  // （Hooks 必须在早退 return 之前调用）
+  const explainSections = useMemo(
+    () => (explain && !explaining ? splitMarkdownSections(explain, "ex") : []),
+    [explain, explaining]
+  );
+
+  // 生成完成 → 自动跳到讲解第一节
+  const wasExplaining = useRef(false);
+  const [focusPageId, setFocusPageId] = useState<string | null>(null);
+  useEffect(() => {
+    if (wasExplaining.current && !explaining && explainSections.length > 1) {
+      setFocusPageId(explainSections[0].id);
+    }
+    wasExplaining.current = explaining;
+  }, [explaining, explainSections.length]);
 
   // 登录门禁：所有 Hooks 之后才能早退
   if (me === undefined) {
@@ -142,7 +164,6 @@ function LessonContent({ me }: { me: ReturnType<typeof useRequireUser> }) {
     );
   }
 
-  // 语言类课程走增值包路径，避免两套页面重复
   if (course.kind === "language") {
     return (
       <div className="text-center py-20">
@@ -225,8 +246,97 @@ function LessonContent({ me }: { me: ReturnType<typeof useRequireUser> }) {
     }
   };
 
-  /** 书的正文页：要点 / 示例代码 / 深入讲解 / 笔记 / 题库 */
-  const sections: BookSection[] = [
+  /** 锁定页（测验/面试未解锁时的占位） */
+  const lockedPage = (
+    <div className="p-6 text-center">
+      <div className="text-4xl mb-3" aria-hidden="true">
+        🔒
+      </div>
+      <p className="text-sm font-medium text-slate-700">此页未解锁</p>
+      <p className="text-xs text-slate-500 mt-2 leading-relaxed">
+        需先通过上一节的「练习测验」与「模拟面试」
+        <br />
+        （各 {PASS_SCORE} 分以上）。
+      </p>
+      <Link
+        href={`/learn/${lang}`}
+        className="inline-block mt-4 text-sm font-medium text-indigo-600 hover:underline"
+      >
+        ← 返回课程大纲
+      </Link>
+    </div>
+  );
+
+  /** 讲解主页（控制台：生成 / 朗读 / 重新生成 + 分节总览） */
+  const explainHub = (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between gap-2 flex-wrap">
+        <p className="hand-note text-sm">
+          AI 用类比、更多例子和常见坑帮你吃透本课
+        </p>
+        <div className="flex items-center gap-1.5 shrink-0">
+          {explain && !explaining && (
+            <SpeakButton
+              id={`explain-${lesson.id}`}
+              text={explain}
+              lang={lang}
+              compact
+            />
+          )}
+          <button
+            onClick={() => deepExplain(explain ? true : false)}
+            disabled={explaining || !unlocked}
+            title={
+              unlocked
+                ? explain
+                  ? "已有讲解：点击可忽略缓存重新生成"
+                  : "优先复用已有讲解，没有才调用 AI"
+                : "本课尚未解锁，通过上一课后可用"
+            }
+            className="text-xs btn-primary disabled:opacity-40 text-white px-3 py-1.5 rounded-lg transition-colors"
+          >
+            {explaining ? "讲解中…" : explain ? "重新生成" : "生成讲解"}
+          </button>
+        </div>
+      </div>
+      {!unlocked && (
+        <p className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+          🔒 本课未解锁，AI 深入讲解暂不可用（通过上一课后开放）
+        </p>
+      )}
+      {(explainReasoning || explaining) && (
+        <ReasoningBlock
+          reasoning={explainReasoning}
+          thinking={explaining && !explain}
+        />
+      )}
+      {explainError && (
+        <p className="text-sm text-red-500 bg-red-50 rounded-lg px-3 py-2">
+          {explainError}
+        </p>
+      )}
+      {explaining && (
+        <div>
+          <Markdown content={explain} scope="ex" />
+          <span className="streaming-cursor" />
+        </div>
+      )}
+      {!explain && !explaining && !explainError && !explainReasoning && unlocked && (
+        <p className="text-sm text-slate-400">
+          点击「生成讲解」，AI 会用类比、更多例子和常见坑帮你吃透本课。
+        </p>
+      )}
+      {explainSections.length > 0 && (
+        <div className="mt-2 text-xs text-slate-500 bg-amber-900/5 dark:bg-amber-100/5 rounded-lg px-3 py-2.5">
+          📑 本讲解已按段落拆成 {explainSections.length} 页 ——
+          在左侧目录「讲解」下方逐节阅读。
+        </div>
+      )}
+    </div>
+  );
+
+  /** 书的正文页：要点 / 示例 / 讲解（+分节）/ 题库 / 练习测验 / 模拟面试 */
+  const pages: BookPageDef[] = [
     {
       id: "points",
       label: "要点",
@@ -282,96 +392,19 @@ function LessonContent({ me }: { me: ReturnType<typeof useRequireUser> }) {
       id: "explain",
       label: "讲解",
       icon: "🤖",
-      content: (
-        <div className="space-y-3">
-          <div className="flex items-center justify-between gap-2">
-            <p className="hand-note text-sm">
-              AI 用类比、更多例子和常见坑帮你吃透本课
-            </p>
-            <div className="flex items-center gap-1.5 shrink-0">
-              {explain && !explaining && (
-                <SpeakButton
-                  id={`explain-${lesson.id}`}
-                  text={explain}
-                  lang={lang}
-                  compact
-                />
-              )}
-              <button
-                onClick={() => deepExplain(explain ? true : false)}
-                disabled={explaining || !unlocked}
-                title={
-                  unlocked
-                    ? explain
-                      ? "已有讲解：点击可忽略缓存重新生成"
-                      : "优先复用已有讲解，没有才调用 AI"
-                    : "本课尚未解锁，通过上一课后可用"
-                }
-                className="text-xs btn-primary disabled:opacity-40 text-white px-3 py-1.5 rounded-lg transition-colors"
-              >
-                {explaining ? "讲解中…" : explain ? "重新生成" : "生成讲解"}
-              </button>
-            </div>
-          </div>
-          {!unlocked && (
-            <p className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
-              🔒 本课未解锁，AI 深入讲解暂不可用（通过上一课后开放）
-            </p>
-          )}
-          {(explainReasoning || explaining) && (
-            <ReasoningBlock
-              reasoning={explainReasoning}
-              thinking={explaining && !explain}
-            />
-          )}
-          {explainError && (
-            <p className="text-sm text-red-500 bg-red-50 rounded-lg px-3 py-2">
-              {explainError}
-            </p>
-          )}
-          {explain && (
-            <ContentOutline markdown={explain} scope="ex">
-              <Markdown content={explain} scope="ex" />
-            </ContentOutline>
-          )}
-          {explaining && explain && <span className="streaming-cursor" />}
-          {!explain && !explaining && !explainError && !explainReasoning && unlocked && (
-            <p className="text-sm text-slate-400">
-              点击「生成讲解」，AI 会用类比、更多例子和常见坑帮你吃透本课。
-            </p>
-          )}
-        </div>
-      ),
-    },
-    {
-      id: "notes",
-      label: "笔记",
-      icon: "📝",
-      content: (
-        <div>
-          <div className="flex items-center justify-between mb-2">
-            <span className="hand-note text-sm">记录你的理解、易错点、心得…</span>
-            <div className="flex items-center gap-2 shrink-0">
-              {noteSavedAt && (
-                <span className="text-xs text-emerald-600">✓ {noteSavedAt}</span>
-              )}
-              <button
-                onClick={handleSaveNote}
-                className="text-xs btn-primary text-white px-3 py-1.5 rounded-lg"
-              >
-                保存
-              </button>
-            </div>
-          </div>
-          <textarea
-            value={noteDraft}
-            onChange={(e) => setNoteDraft(e.target.value)}
-            rows={8}
-            placeholder="像在书页边上写批注…（可在「知识库 → 笔记」查看全部）"
-            className="w-full text-sm bg-transparent border-0 border-b-2 border-dashed border-amber-900/25 dark:border-amber-100/20 focus:outline-none focus:border-rose-400 leading-loose resize-none px-1"
-          />
-        </div>
-      ),
+      content: explainHub,
+      children:
+        explainSections.length > 1
+          ? explainSections.map((s) => ({
+              id: s.id,
+              label: s.title,
+              content: (
+                <div className="pr-1">
+                  <Markdown content={s.md} scope="ex" />
+                </div>
+              ),
+            }))
+          : undefined,
     },
     ...(availableBanks(lang).length > 0
       ? [
@@ -391,19 +424,27 @@ function LessonContent({ me }: { me: ReturnType<typeof useRequireUser> }) {
           },
         ]
       : []),
+    {
+      id: "quiz",
+      label: "练习测验",
+      icon: "📝",
+      content: unlocked ? (
+        <QuizTab lang={lang} lesson={lesson} onGateChange={refreshGate} />
+      ) : (
+        lockedPage
+      ),
+    },
+    {
+      id: "interview",
+      label: "模拟面试",
+      icon: "🎤",
+      content: unlocked ? (
+        <InterviewTab lang={lang} lesson={lesson} onGateChange={refreshGate} />
+      ) : (
+        lockedPage
+      ),
+    },
   ];
-
-  const tabBtn = (id: Tab, label: string) => (    <button
-      onClick={() => setTab(id)}
-      className={`flex-1 py-2.5 text-sm font-medium transition-colors border-b-2 ${
-        tab === id
-          ? "border-indigo-600 text-indigo-600 bg-indigo-50/50"
-          : "border-transparent text-slate-500 hover:text-slate-800"
-      }`}
-    >
-      {label}
-    </button>
-  );
 
   return (
     <div className="space-y-5">
@@ -429,6 +470,17 @@ function LessonContent({ me }: { me: ReturnType<typeof useRequireUser> }) {
           </span>
         </div>
         <div className="flex items-center gap-2">
+          <button
+            onClick={() => openDrawer("notes")}
+            title="打开笔记（随时记录）"
+            className={`text-sm font-medium px-3 py-2 rounded-xl border transition-colors ${
+              noteDraft.trim()
+                ? "border-indigo-300 bg-indigo-50 text-indigo-600"
+                : "border-border text-slate-400 hover:border-indigo-300 hover:text-indigo-500"
+            }`}
+          >
+            📝 笔记
+          </button>
           <button
             onClick={toggleLessonFav}
             title={lessonFav ? "取消收藏本课" : "收藏本课"}
@@ -460,99 +512,120 @@ function LessonContent({ me }: { me: ReturnType<typeof useRequireUser> }) {
         </div>
       )}
 
-      <div className="space-y-6 book-stage">
-        {/* 书本阅读器：双页对开（左目录 + 右正文），AI 面板在书下方 */}
-        <BookReader
-          lang={lang}
+      {/* 全屏书本：左目录（要点/示例/讲解+分节/题库/测验/面试）+ 右正文 */}
+      <div className="book-stage space-y-6">
+        <BookStage
           courseName={course.name}
           courseEmoji={course.emoji}
-          lessonId={lessonId}
           lessonTitle={lesson.title}
           levelName={`${level.name} · L${level.id}`}
           index={index}
           total={total}
-          progress={progress}
-          sections={sections}
+          pages={pages}
+          focusPageId={focusPageId}
+          headerRight={
+            <>
+              <button
+                onClick={() => openDrawer("tutor")}
+                title="打开 AI 导师"
+                className="text-xs px-2.5 py-1.5 rounded-lg border border-border text-slate-500 hover:border-indigo-300 hover:text-indigo-600 transition-colors"
+              >
+                💬 导师
+              </button>
+              <button
+                onClick={() => openDrawer("lab")}
+                title="打开代码实操"
+                className="text-xs px-2.5 py-1.5 rounded-lg border border-border text-slate-500 hover:border-indigo-300 hover:text-indigo-600 transition-colors"
+              >
+                💻 实操
+              </button>
+            </>
+          }
         />
 
-        {/* AI 工具区（书外）：导师 / 测验 / 代码实操 / 面试 */}
-        <section className="bg-card border border-border rounded-2xl overflow-hidden">
-          <div className="flex border-b border-border">
-            {tabBtn("tutor", "💬 AI 导师")}
-            {tabBtn("quiz", "📝 练习测验")}
-            {tabBtn("review", "💻 代码实操")}
-            {tabBtn("interview", "🎤 模拟面试")}
-          </div>
-          <div className="min-h-[560px]">
-            {!unlocked ? (
-              <div className="p-8 text-center">
-                <div className="text-4xl mb-3" aria-hidden="true">
-                  🔒
-                </div>
-                <p className="text-sm font-medium text-slate-700">AI 功能未解锁</p>
-                <p className="text-xs text-slate-500 mt-2 leading-relaxed">
-                  本节需要先通过上一节的「练习测验」与「模拟面试」
-                  <br />
-                  （各 {PASS_SCORE} 分以上）才能解锁这里的 AI 导师、测验与面试。
-                </p>
-                <p className="text-xs text-slate-400 mt-3">
-                  书中的知识点与例句可自由预习。
-                </p>
-                <Link
-                  href={`/learn/${lang}`}
-                  className="inline-block mt-4 text-sm font-medium text-indigo-600 hover:underline"
-                >
-                  ← 返回课程大纲
-                </Link>
-              </div>
-            ) : (
-              <>
-                {tab === "tutor" && (
-                  <ChatPanel lang={lang} langName={course.name} lesson={lesson} />
-                )}
-                {tab === "quiz" && (
-                  <QuizTab lang={lang} lesson={lesson} onGateChange={refreshGate} />
-                )}
-                {tab === "review" && <CodeLab lang={lang} lesson={lesson} />}
-                {tab === "interview" && (
-                  <InterviewTab lang={lang} lesson={lesson} onGateChange={refreshGate} />
-                )}
-              </>
-            )}
-          </div>
-        </section>
+        {/* 上一课 / 下一课（书外翻页） */}
+        <div className="flex justify-between gap-3 pb-4">
+          {prev ? (
+            <Link
+              href={`/learn/${lang}/${prev.id}`}
+              className="hand-note text-sm text-slate-500 hover:text-rose-600 paper book-page rounded-lg px-4 py-2.5"
+            >
+              ← 上一页：{prev.title}
+            </Link>
+          ) : (
+            <span />
+          )}
+          {next ? (
+            <Link
+              href={`/learn/${lang}/${next.id}`}
+              className={`hand-note text-sm paper book-page rounded-lg px-4 py-2.5 ${
+                completed
+                  ? "text-emerald-700 hover:text-emerald-800"
+                  : "text-slate-400 hover:text-rose-600"
+              }`}
+              title={completed ? "上一课已通关，可进入" : "需先通关本课"}
+            >
+              下一页：{next.title} {completed ? "→" : "🔒"}
+            </Link>
+          ) : (
+            <span className="hand-note text-sm text-emerald-600 self-center">
+              🎉 全书完 —— 恭喜读完《{course.name}》！
+            </span>
+          )}
+        </div>
       </div>
 
-      {/* 上一课 / 下一课（书外翻页） */}
-      <div className="flex justify-between gap-3 pb-4">
-        {prev ? (
-          <Link
-            href={`/learn/${lang}/${prev.id}`}
-            className="hand-note text-sm text-slate-500 hover:text-rose-600 paper book-page rounded-lg px-4 py-2.5"
-          >
-            ← 上一页：{prev.title}
-          </Link>
-        ) : (
-          <span />
-        )}
-        {next ? (
-          <Link
-            href={`/learn/${lang}/${next.id}`}
-            className={`hand-note text-sm paper book-page rounded-lg px-4 py-2.5 ${
-              completed
-                ? "text-emerald-700 hover:text-emerald-800"
-                : "text-slate-400 hover:text-rose-600"
-            }`}
-            title={completed ? "上一课已通关，可进入" : "需先通关本课"}
-          >
-            下一页：{next.title} {completed ? "→" : "🔒"}
-          </Link>
-        ) : (
-          <span className="hand-note text-sm text-emerald-600 self-center">
-            🎉 全书完 —— 恭喜读完《{course.name}》！
-          </span>
-        )}
-      </div>
+      {/* 右侧工具抽屉：AI 导师 / 代码实操 / 笔记 */}
+      <ToolDrawer
+        open={drawerOpen}
+        onOpenChange={setDrawerOpen}
+        tab={drawerTab}
+        onTabChange={setDrawerTab}
+        tabs={[
+          {
+            id: "tutor",
+            label: "AI 导师",
+            icon: "💬",
+            content: <ChatPanel lang={lang} langName={course.name} lesson={lesson} />,
+          },
+          {
+            id: "lab",
+            label: "代码实操",
+            icon: "💻",
+            content: <CodeLab lang={lang} lesson={lesson} />,
+          },
+          {
+            id: "notes",
+            label: "笔记",
+            icon: "📝",
+            content: (
+              <div className="p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="hand-note text-sm">书页边的批注…</span>
+                  <div className="flex items-center gap-2">
+                    {noteSavedAt && (
+                      <span className="text-xs text-emerald-600">✓ {noteSavedAt}</span>
+                    )}
+                    <button
+                      onClick={handleSaveNote}
+                      className="text-xs btn-primary text-white px-3 py-1.5 rounded-lg"
+                    >
+                      保存
+                    </button>
+                  </div>
+                </div>
+                <textarea
+                  value={noteDraft}
+                  onChange={(e) => setNoteDraft(e.target.value)}
+                  rows={14}
+                  placeholder="记录你的理解、易错点、心得…（可在「知识库 → 笔记」查看全部）"
+                  className="w-full text-sm bg-transparent border-0 border-b-2 border-dashed border-amber-900/25 dark:border-amber-100/20 focus:outline-none focus:border-rose-400 leading-loose resize-none px-1"
+                />
+              </div>
+            ),
+          },
+        ]}
+      />
     </div>
   );
 }

@@ -111,3 +111,76 @@ export function flattenOutline(nodes: OutlineNode[]): OutlineNode[] {
   walk(nodes);
   return out;
 }
+
+// ---- 按标题分节（讲解拆页） ----
+
+export interface MdSection {
+  /** 小节锚点 id（与 Markdown 渲染一致） */
+  id: string;
+  title: string;
+  /** 起始标题层级 */
+  level: number;
+  /** 本节 markdown（从标题行到下一同级标题之前） */
+  md: string;
+}
+
+/**
+ * 把长文按一/二级标题切成多节（用于把 AI 讲解拆成书的多页）。
+ * 代码块内的 `#` 不会被误判；首标题前的引言并入第一节。
+ * 标题 id 规则与 parseOutline / Markdown 渲染一致。
+ */
+export function splitMarkdownSections(markdown: string, scope = ""): MdSection[] {
+  if (!markdown.trim()) return [];
+  const lines = markdown.split("\n");
+  const used = new Map<string, number>();
+
+  interface Stop {
+    level: number;
+    title: string;
+    id: string;
+    line: number;
+  }
+  const stops: Stop[] = [];
+  let inFence = false;
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (/^\s*(```|~~~)/.test(line)) {
+      inFence = !inFence;
+      continue;
+    }
+    if (inFence) continue;
+    const m = line.match(/^(#{1,2})\s+(.+?)\s*#*\s*$/);
+    if (!m) continue;
+    const title = plainTitle(m[2]);
+    if (!title) continue;
+    stops.push({
+      level: m[1].length,
+      title,
+      id: scopeId(scope, uniqueSlug(title, used)),
+      line: i,
+    });
+  }
+
+  if (stops.length === 0) return [];
+
+  // 只按最顶层的标题分节：旧内容用 `# 一、`，新提示词用 `## 一、`
+  // 取实际出现的最小层级，避免把小节也拆成页
+  const minLevel = Math.min(...stops.map((s) => s.level));
+  const topStops = stops.filter((s) => s.level === minLevel);
+
+  const sections: MdSection[] = topStops.map((h, idx) => {
+    const end = idx + 1 < topStops.length ? topStops[idx + 1].line : lines.length;
+    return {
+      id: h.id,
+      title: h.title,
+      level: h.level,
+      md: lines.slice(h.line, end).join("\n").trim(),
+    };
+  });
+
+  // 首个标题前的引言并入第一节
+  const intro = lines.slice(0, topStops[0].line).join("\n").trim();
+  if (intro) sections[0].md = `${intro}\n\n${sections[0].md}`;
+
+  return sections;
+}

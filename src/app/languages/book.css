@@ -126,13 +126,79 @@
   padding: 10px 8px 0;
   scrollbar-width: thin;
 }
-.shelf-row::-webkit-scrollbar {
-  height: 6px;
+
+/* ============================================================
+   图书馆场景 + 3D 书架 + 三段式抽书（书架 → 悬浮展示 → 翻开）
+   ============================================================ */
+
+/* 图书馆背景：暗色木墙 + 远处书架剪影 + 顶灯暖光 */
+.shelf-scene {
+  position: relative;
+  border-radius: 26px;
+  overflow: hidden;
+  padding: 1.75rem 1.25rem 2.25rem;
+  isolation: isolate;
 }
-.shelf-row::-webkit-scrollbar-thumb {
-  background: rgba(120, 90, 40, 0.25);
-  border-radius: 3px;
+.shelf-scene::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background:
+    radial-gradient(70% 55% at 50% -5%, rgba(255, 208, 130, 0.16), transparent 72%),
+    radial-gradient(40% 45% at 85% 10%, rgba(255, 190, 110, 0.08), transparent 70%),
+    linear-gradient(180deg, #241a10 0%, #33261a 42%, #1c130b 100%);
 }
+/* 远处书架剪影：一排排小书脊 */
+.shelf-scene::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.35;
+  filter: blur(1.5px);
+  background:
+    repeating-linear-gradient(
+      90deg,
+      transparent 0 14px,
+      rgba(150, 110, 60, 0.14) 14px 17px,
+      transparent 17px 26px,
+      rgba(190, 140, 80, 0.1) 26px 30px,
+      transparent 30px 44px
+    ),
+    repeating-linear-gradient(
+      180deg,
+      transparent 0 88px,
+      rgba(0, 0, 0, 0.35) 88px 92px,
+      rgba(120, 85, 45, 0.22) 92px 96px,
+      transparent 96px 176px
+    );
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.25) 60%, rgba(0, 0, 0, 0.05));
+  -webkit-mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.25) 60%, rgba(0, 0, 0, 0.05));
+}
+
+/* 书架本体：轻微俯视 3D；抽出书后整体退为背景 */
+.shelf-wrap {
+  transition:
+    opacity 0.55s ease,
+    filter 0.55s ease,
+    transform 0.55s ease;
+}
+.shelf-inner {
+  perspective: 1400px;
+}
+.shelf-row {
+  transform: rotateX(9deg);
+  transform-style: preserve-3d;
+}
+.shelf-wrap.shelf-dimmed {
+  opacity: 0.18;
+  filter: blur(4px) saturate(0.55) brightness(0.75);
+  transform: scale(0.965) translateY(14px);
+  pointer-events: none;
+  user-select: none;
+}
+
 /* 书架木板 */
 .shelf-board {
   height: 16px;
@@ -145,6 +211,179 @@
 }
 .dark .shelf-board {
   background: linear-gradient(180deg, #6b4a2a 0%, #4b3319 55%, #2f2010 100%);
+}
+
+/* ---------- 展示台：悬浮的书 → 翻开封面 ---------- */
+.focus-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding-top: 0.5rem;
+  perspective: 1700px;
+}
+.focus-book {
+  position: relative;
+  width: 16.5rem;
+  height: 25rem;
+  transform-style: preserve-3d;
+}
+/* 封面（提高优先级，避免被基础 .book-cover 的 position:relative 覆盖） */
+.focus-book .focus-book-cover {
+  position: absolute;
+  inset: 0;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  transform-origin: left center;
+  backface-visibility: hidden;
+  border-radius: 6px 14px 14px 6px;
+  transform: rotateY(-16deg);
+  animation: focusFloat 3s ease-in-out infinite;
+  animation-delay: 0.55s;
+  z-index: 2;
+  display: block;
+}
+@keyframes focusFloat {
+  0%,
+  100% {
+    transform: rotateY(-16deg) translateY(0);
+    box-shadow:
+      inset 4px 0 10px rgba(0, 0, 0, 0.35),
+      22px 30px 44px rgba(0, 0, 0, 0.45);
+  }
+  50% {
+    transform: rotateY(-5deg) translateY(-12px);
+    box-shadow:
+      inset 4px 0 10px rgba(0, 0, 0, 0.35),
+      26px 40px 54px rgba(0, 0, 0, 0.5);
+  }
+}
+.focus-book-inner {
+  position: absolute;
+  inset: 10px 14px 10px 34px;
+  border: 1px solid rgba(232, 200, 130, 0.55);
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  color: #fdf8ee;
+  padding: 1.25rem 1rem 1rem;
+}
+/* 翻开：封面沿书脊向左翻开 */
+.focus-book.is-open .focus-book-cover {
+  animation: coverOpen 1s cubic-bezier(0.645, 0.045, 0.355, 1) forwards;
+  pointer-events: none;
+}
+@keyframes coverOpen {
+  0% {
+    transform: rotateY(-16deg);
+  }
+  100% {
+    transform: rotateY(-152deg);
+    box-shadow: -10px 6px 24px rgba(0, 0, 0, 0.3);
+  }
+}
+
+/* 目录内页（翻开后显现） */
+.focus-book-toc {
+  position: absolute;
+  inset: 0;
+  border-radius: 4px 14px 14px 4px;
+  padding: 1.25rem 1.1rem 1.1rem 1.6rem;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  opacity: 0;
+  transform: rotateY(2deg);
+}
+.focus-book.is-open .focus-book-toc {
+  animation: tocReveal 0.55s 0.42s ease both;
+}
+@keyframes tocReveal {
+  from {
+    opacity: 0;
+    transform: rotateY(2deg);
+  }
+  to {
+    opacity: 1;
+    transform: rotateY(0);
+  }
+}
+.focus-book-toc nav {
+  flex: 1;
+  max-height: none !important;
+}
+
+/* ---------- 右侧工具抽屉 ---------- */
+.tool-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100dvh;
+  width: min(420px, 100vw);
+  z-index: 60;
+  transform: translateX(100%);
+  transition: transform 0.38s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  background: var(--card, #fff);
+  border-left: 1px solid var(--border, #e2e8f0);
+  box-shadow: -18px 0 48px rgba(15, 23, 42, 0.18);
+}
+.dark .tool-drawer {
+  box-shadow: -18px 0 48px rgba(0, 0, 0, 0.55);
+}
+.tool-drawer.is-open {
+  transform: translateX(0);
+}
+.tool-drawer-handle {
+  position: fixed;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 55;
+  writing-mode: vertical-rl;
+  letter-spacing: 0.2em;
+  padding: 14px 7px;
+  border-radius: 12px 0 0 12px;
+  font-size: 12px;
+  border: none;
+  cursor: pointer;
+  background: linear-gradient(160deg, #6d28d9, #4338ca);
+  color: #fff;
+  box-shadow: -4px 4px 14px rgba(67, 56, 202, 0.4);
+  transition: right 0.38s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.tool-drawer.is-open ~ .tool-drawer-handle {
+  right: min(420px, 100vw);
+}
+.tool-drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: rgba(15, 23, 42, 0.35);
+  backdrop-filter: blur(2px);
+  animation: fadeIn 0.25s ease both;
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ---------- 全屏书本 ---------- */
+.book-fullscreen {
+  min-height: calc(100dvh - 176px);
+}
+.book-fullscreen > .book-page {
+  display: flex;
+  flex-direction: column;
 }
 
 /* 单本书的书脊 */
@@ -403,8 +642,27 @@
 /* ---------- 减少动效 ---------- */
 @media (prefers-reduced-motion: reduce) {
   .page-flip,
-  .page-enter {
-    animation: none;
+  .page-enter,
+  .focus-book .focus-book-cover,
+  .focus-book.is-open .focus-book-cover,
+  .focus-book.is-open .focus-book-toc,
+  .tool-drawer,
+  .tool-drawer-handle,
+  .tool-drawer-backdrop {
+    animation: none !important;
+  }
+  .focus-book .focus-book-cover {
+    transform: rotateY(-8deg);
+  }
+  .focus-book.is-open .focus-book-cover {
+    transform: rotateY(-152deg);
+  }
+  .focus-book.is-open .focus-book-toc {
+    opacity: 1;
+    transform: none;
+  }
+  .tool-drawer.is-open {
+    transform: translateX(0);
   }
   .book-hover:hover {
     transform: none;
