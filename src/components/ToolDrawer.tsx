@@ -43,14 +43,14 @@ export default function ToolDrawer({
         aria-hidden={!open}
       >
         {/* 抽屉头：页签 + 关闭 */}
-        <div className="flex items-center gap-1 border-b border-border px-3 py-2.5 shrink-0">
+        <div className="flex items-center gap-1 border-b border-border px-2 py-2 shrink-0">
           {tabs.map((t) => (
             <button
               key={t.id}
               onClick={() => onTabChange(t.id)}
               aria-selected={tab === t.id}
               role="tab"
-              className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+              className={`px-2 py-1 rounded-md text-[11px] font-medium transition-colors ${
                 tab === t.id
                   ? "bg-indigo-600 text-white"
                   : "text-slate-500 hover:bg-slate-100 dark:hover:bg-white/10"
@@ -63,7 +63,7 @@ export default function ToolDrawer({
             onClick={() => onOpenChange(false)}
             aria-label="收起工具栏"
             title="收起工具栏"
-            className="ml-auto text-slate-400 hover:text-slate-600 text-lg leading-none px-2"
+            className="ml-auto text-slate-400 hover:text-slate-600 text-base leading-none px-1.5"
           >
             »
           </button>

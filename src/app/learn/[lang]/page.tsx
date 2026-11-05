@@ -112,7 +112,7 @@ function OutlineContent({ me }: { me: ReturnType<typeof useRequireUser> }) {
         {/* 右：目录页 */}
         <div className="book-page relative p-6 sm:p-8">
           <div className="flex items-center justify-between border-b border-amber-900/15 dark:border-amber-100/10 pb-2.5 mb-3">
-            <span className="serif-title text-sm tracking-[0.3em] text-amber-900/70 dark:text-amber-200/70">
+            <span className="serif-title text-sm tracking-[0.3em] amber-head">
               目 录
             </span>
             <span className="text-[11px] text-slate-400">

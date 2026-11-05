@@ -109,7 +109,7 @@ export default function ContentOutline({
           className="outline-rail hidden lg:block shrink-0 w-[190px] lg:sticky lg:top-24 lg:self-start"
         >
           <div className="flex items-center justify-between mb-1.5 pb-1.5 border-b border-amber-900/15 dark:border-amber-100/10">
-            <span className="serif-title text-[11px] tracking-[0.25em] text-amber-900/70 dark:text-amber-200/70">
+            <span className="serif-title text-[11px] tracking-[0.25em] amber-head">
               {label}
             </span>
             <button
@@ -136,7 +136,7 @@ export default function ContentOutline({
 
       {/* ---------- 窄屏：点开式目录 ---------- */}
       <details className="lg:hidden w-full shrink-0 group">
-        <summary className="cursor-pointer list-none flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 border-b border-amber-900/15 dark:border-amber-100/10 pb-1.5 mb-2">
+        <summary className="cursor-pointer list-none flex items-center justify-between text-xs text-slate-500 border-b border-amber-900/15 dark:border-amber-100/10 pb-1.5 mb-2">
           <span className="serif-title tracking-[0.25em]">{label}</span>
           <span className="opacity-60 group-open:rotate-90 transition-transform">
             ▸
@@ -179,7 +179,7 @@ function OutlineItem({
         className={`w-full text-left rounded-md px-2 py-1 text-[12px] leading-snug transition-colors ${
           isActive
             ? "bg-rose-600/90 text-white"
-            : "text-slate-600 hover:bg-amber-900/10 dark:text-slate-300 dark:hover:bg-amber-100/10"
+            : "text-slate-600 hover:bg-amber-900/10 dark:hover:bg-amber-100/10"
         } ${depth > 0 ? "pl-4" : ""}`}
       >
         <span className="line-clamp-2">{node.title}</span>

@@ -77,7 +77,7 @@ export default function LanguagesPage() {
       {/* 与编程课的区别说明 */}
       <section className="paper book-page rounded-r-xl rounded-l-sm p-5 sm:p-6">
         <h2 className="serif-title font-bold mb-2">📖 与编程课程有什么不同？</h2>
-        <ul className="text-sm space-y-1.5 text-slate-600 dark:text-slate-300">
+        <ul className="text-sm space-y-1.5 text-slate-600">
           <li>
             <b>编程课程</b>：AI 导师问答 → 练习测验 → 代码实操（写+运行+AI 挑毛病）→ 模拟面试（技术面）
           </li>

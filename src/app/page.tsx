@@ -74,7 +74,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="space-y-10">
+    <div className="library-page space-y-10">
       {/* Hero */}
       <section className="text-center py-8">
         <h1 className="text-4xl font-extrabold tracking-tight leading-tight">
@@ -128,13 +128,11 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="shelf-scene">
-          <Bookshelf
-            courses={CODE_COURSES}
-            progress={progress}
-            lockedLangs={lockedLangs}
-          />
-        </div>
+        <Bookshelf
+          courses={CODE_COURSES}
+          progress={progress}
+          lockedLangs={lockedLangs}
+        />
       </section>
 
       {/* 语言学习增值包入口 */}

@@ -136,7 +136,7 @@ export default function BookStage({
       {/* ---- 左页：本书页目录 ---- */}
       <div className="book-page relative p-4 sm:p-5">
         <div className="hidden lg:flex items-center justify-between border-b border-amber-900/15 dark:border-amber-100/10 pb-2.5 mb-3">
-          <span className="serif-title text-sm tracking-[0.3em] text-amber-900/70 dark:text-amber-200/70">
+          <span className="serif-title text-sm tracking-[0.3em] amber-head">
             本 书 页
           </span>
           <span className="text-[11px] text-slate-400 tabular-nums">
@@ -154,7 +154,7 @@ export default function BookStage({
               className={`shrink-0 px-2.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
                 key === e.key
                   ? "bg-rose-600 text-white"
-                  : "bg-amber-900/5 text-slate-600 dark:bg-amber-100/10 dark:text-slate-300"
+                  : "bg-amber-900/5 text-slate-600 dark:bg-amber-100/10"
               }`}
             >
               {e.icon ? `${e.icon} ` : ""}
@@ -173,7 +173,7 @@ export default function BookStage({
                   className={`w-full text-left flex items-center gap-2 rounded-md px-2 py-1.5 text-xs transition-colors ${
                     key === e.key
                       ? "bg-rose-600/90 text-white font-medium"
-                      : "text-slate-600 hover:bg-amber-900/10 dark:text-slate-300 dark:hover:bg-amber-100/10"
+                      : "text-slate-600 hover:bg-amber-900/10 dark:hover:bg-amber-100/10"
                   } ${e.depth ? "pl-5" : ""}`}
                 >
                   {e.icon ? (
@@ -182,7 +182,7 @@ export default function BookStage({
                     </span>
                   ) : (
                     <span
-                      className="shrink-0 text-amber-900/40 dark:text-amber-100/30"
+                      className="shrink-0 amber-soft"
                       aria-hidden="true"
                     >
                       ├

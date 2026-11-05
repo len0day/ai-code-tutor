@@ -66,7 +66,7 @@ export default function LessonGateGuard({
           <div className="font-bold text-amber-800 dark:text-amber-300">
             本课尚未解锁 —— 当前为预览模式
           </div>
-          <p className="text-sm text-amber-700/90 dark:text-amber-200/80 mt-1 leading-relaxed">
+          <p className="text-sm text-amber-700/90 dark:text-amber-300/80 mt-1 leading-relaxed">
             需要先通过上一节课的「练习测验」与「模拟面试 / 场景对话」（均需 {PASS_SCORE} 分以上）才能解锁本节的 AI 功能。
             你可以先浏览下面的知识点与例句预习。
           </p>
@@ -77,7 +77,7 @@ export default function LessonGateGuard({
           )}
           <Link
             href={`/learn/${lang}`}
-            className="inline-block mt-3 text-sm font-medium text-amber-800 dark:text-amber-200 hover:underline"
+            className="inline-block mt-3 text-sm font-medium text-amber-800 dark:text-amber-300 hover:underline"
           >
             ← 返回课程大纲，先通过上一课
           </Link>

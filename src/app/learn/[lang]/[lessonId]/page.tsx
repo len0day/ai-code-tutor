@@ -64,8 +64,12 @@ function LessonContent({ me }: { me: ReturnType<typeof useRequireUser> }) {
   /** 闯关：未解锁 → 预览模式，AI 功能禁用 */
   const [unlocked, setUnlocked] = useState(true);
 
-  // ---- 右侧工具抽屉 ----
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  // ---- 右侧工具抽屉（桌面端默认展开） ----
+  const [drawerOpen, setDrawerOpen] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      window.matchMedia("(min-width: 1024px)").matches
+  );
   const [drawerTab, setDrawerTab] = useState("tutor");
   const openDrawer = (tab: string) => {
     setDrawerTab(tab);

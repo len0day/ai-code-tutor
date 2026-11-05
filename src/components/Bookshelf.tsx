@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { Course, Progress } from "@/lib/types";
 import { flatLessons } from "@/data/courses";
 import { ChapterTree } from "@/components/BookReader";
@@ -32,10 +32,11 @@ export interface BookshelfProps {
 }
 
 /**
- * 书架三段式交互：
+ * 书架四段式交互（书与书架同行，无需滚动）：
  *  1️⃣ 书架：每门课程一本立体书脊立在木板上
- *  2️⃣ 抽出：点一本书 → 书架退为暗色背景，书在展示台上 3D 悬浮
- *  3️⃣ 翻开：再点一下 → 封面沿书脊 3D 翻开，露出课程目录页
+ *  2️⃣ 抽出：点一本书 → 书架退为暗色背景（同行左侧），书在右侧 3D 悬浮
+ *  3️⃣ 翻开：再点一下 → 书加宽为左右两页对开（左=目录，右=扉页），封面沿书脊翻开
+ *  4️⃣ 合上/放回：封面摆回动画 / 书飞回书架动画
  * 目录中点击任意一节 → 进入全屏图书页面开始阅读。
  */
 export default function Bookshelf({
@@ -45,8 +46,19 @@ export default function Bookshelf({
 }: BookshelfProps) {
   /** 抽出的那本书（null = 书架状态） */
   const [picked, setPicked] = useState<string | null>(null);
-  /** 封面是否已翻开 */
+  /** 封面已翻开 */
   const [opened, setOpened] = useState(false);
+  /** 合上中（封面摆回动画） */
+  const [closing, setClosing] = useState(false);
+  /** 放回中（书本飞回书架动画） */
+  const [returning, setReturning] = useState(false);
+  const timers = useRef<number[]>([]);
+
+  const clearTimers = () => {
+    timers.current.forEach((t) => window.clearTimeout(t));
+    timers.current = [];
+  };
+  useEffect(() => () => clearTimers(), []);
 
   const stats = useMemo(() => {
     const map: Record<
@@ -75,12 +87,40 @@ export default function Bookshelf({
   const currentStats = current ? stats[current.lang] : null;
 
   const pick = (lang: string) => {
+    clearTimers();
     setPicked(lang);
     setOpened(false);
+    setClosing(false);
+    setReturning(false);
   };
+  /** 翻开封面 */
+  const openBook = () => {
+    if (closing || returning || opened) return;
+    setOpened(true);
+  };
+  /** 合上封面（摆回动画后复位） */
+  const closeBook = () => {
+    if (!opened || closing || returning) return;
+    setClosing(true);
+    timers.current.push(
+      window.setTimeout(() => {
+        setClosing(false);
+        setOpened(false);
+      }, 820)
+    );
+  };
+  /** 放回书架（飞回动画后卸载） */
   const putBack = () => {
-    setPicked(null);
-    setOpened(false);
+    clearTimers();
+    setReturning(true);
+    setClosing(false);
+    timers.current.push(
+      window.setTimeout(() => {
+        setPicked(null);
+        setReturning(false);
+        setOpened(false);
+      }, 460)
+    );
   };
 
   const lessonHref = (c: Course, id: string | null) =>
@@ -93,8 +133,8 @@ export default function Bookshelf({
         : `/learn/${c.lang}`;
 
   return (
-    <div className="shelf-scene">
-      {/* ---------- 1️⃣ 书架（抽出后退为背景） ---------- */}
+    <div className={`shelf-scene ${picked ? "has-book" : ""}`}>
+      {/* ---------- 1️⃣/2️⃣ 书架（同行左侧，抽出后退为背景） ---------- */}
       <div
         className={`shelf-wrap ${picked ? "shelf-dimmed" : ""}`}
         aria-hidden={picked ? true : undefined}
@@ -146,30 +186,106 @@ export default function Bookshelf({
         </div>
       </div>
 
-      {/* ---------- 2️⃣/3️⃣ 展示台：悬浮的书 → 翻开 ---------- */}
+      {/* ---------- 2️⃣/3️⃣ 展示台（同行右侧）：悬浮的书 → 左右两页对开 ---------- */}
       {current && currentStats && (
-        <div className="focus-stage page-enter">
-          <div className="flex items-center gap-3">
-            <span className="hand-note text-base">
-              {opened
-                ? "📖 点击目录任意一节，进入全屏阅读"
-                : "👆 再点一下，翻开这本书"}
+        <div
+          className={`focus-stage ${returning ? "is-returning" : ""}`}
+          aria-live="polite"
+        >
+          <div className="flex items-center justify-center gap-3 flex-wrap">
+            <span className="hand-note text-sm">
+              {returning
+                ? "📕 放回书架…"
+                : closing
+                  ? "📓 合上封面…"
+                  : opened
+                    ? "📖 点击目录任意一节，进入全屏阅读"
+                    : "👆 再点一下，翻开这本书"}
             </span>
-            <button
-              onClick={putBack}
-              className="text-xs text-slate-400 hover:text-rose-500 border border-border rounded-full px-3 py-1 transition-colors"
-            >
-              ↩ 放回书架
-            </button>
+            <div className="flex items-center gap-2">
+              {opened && !closing && !returning && (
+                <button
+                  onClick={closeBook}
+                  className="text-xs text-slate-400 hover:text-rose-500 border border-border rounded-full px-3 py-1 transition-colors"
+                >
+                  合上封面
+                </button>
+              )}
+              <button
+                onClick={putBack}
+                disabled={returning}
+                className="text-xs text-slate-400 hover:text-rose-500 border border-border rounded-full px-3 py-1 transition-colors disabled:opacity-40"
+              >
+                ↩ 放回书架
+              </button>
+            </div>
           </div>
 
           <div
-            className={`focus-book ${opened ? "is-open" : ""}`}
+            className={`focus-book ${opened && !closing ? "is-open" : ""} ${
+              closing ? "is-closing" : ""
+            }`}
             data-course={current.lang}
           >
-            {/* 封面（翻开后转向左侧） */}
+            {/* 左页：目录（与课程大纲页一致） */}
+            <div className="focus-book-toc paper book-page">
+              <div className="flex items-center justify-between border-b border-amber-900/15 dark:border-amber-100/10 pb-2.5 mb-2.5">
+                <span className="serif-title text-sm tracking-[0.25em] amber-head">
+                  {current.name} · 目 录
+                </span>
+                <span className="text-[11px] text-slate-400 tabular-nums">
+                  {currentStats.passed}/{currentStats.total} 页通关
+                </span>
+              </div>
+              <ChapterTree
+                lang={current.lang}
+                lessonId=""
+                progress={progress}
+                flat={flatLessons(current.lang)}
+              />
+            </div>
+
+            {/* 右页：扉页（课程信息 + 继续阅读） */}
+            <div className="focus-book-front paper book-page">
+              <div className="flex flex-col items-center justify-center text-center h-full gap-3 px-4">
+                <div className="text-5xl">{current.emoji}</div>
+                <h3 className="serif-title text-2xl font-bold">{current.name}</h3>
+                <p className="hand-note text-xs leading-relaxed max-w-[16rem]">
+                  {current.tagline}
+                </p>
+                <div className="text-xs text-slate-500 tabular-nums">
+                  {current.levels.length} 章 · {currentStats.total} 页 · 已通关{" "}
+                  {currentStats.passed} 页
+                </div>
+                <div className="w-44">
+                  <div className="h-1.5 bg-black/25 dark:bg-black/40 rounded-full overflow-hidden mb-1.5">
+                    <div
+                      className="h-full bg-gradient-to-r from-amber-200 to-amber-100 rounded-full transition-all duration-700"
+                      style={{ width: `${currentStats.pct}%` }}
+                    />
+                  </div>
+                  <div className="text-[11px] text-slate-400">
+                    已读 {currentStats.pct}%
+                  </div>
+                </div>
+                <Link
+                  href={lessonHref(current, currentStats.nextId)}
+                  className="mt-1 text-sm font-medium text-rose-600 hover:text-rose-700 hand-note text-base"
+                >
+                  {currentStats.done === 0 ? "翻开第一页 →" : "从上次读到的地方继续 →"}
+                </Link>
+                <button
+                  onClick={closeBook}
+                  className="text-xs text-slate-400 hover:text-rose-600"
+                >
+                  « 合上封面
+                </button>
+              </div>
+            </div>
+
+            {/* 封面：盖住全书；翻开后沿书脊向左摆开（backface 隐藏） */}
             <button
-              onClick={() => !opened && setOpened(true)}
+              onClick={openBook}
               aria-label={opened ? undefined : `翻开《${current.name}》`}
               tabIndex={opened ? -1 : 0}
               className="focus-book-cover book-cover"
@@ -182,24 +298,24 @@ export default function Bookshelf({
               }
             >
               <span className="focus-book-inner">
-                <span className="text-[10px] tracking-[0.3em] opacity-75">
+                <span className="text-[11px] tracking-[0.3em] opacity-75">
                   {current.kind === "language" ? "LANGUAGE" : "PROGRAMMING"}
                 </span>
-                <span className="text-5xl mt-6">{current.emoji}</span>
-                <h3 className="serif-title text-3xl font-bold mt-3">
+                <span className="text-6xl mt-8">{current.emoji}</span>
+                <h3 className="serif-title text-4xl font-bold mt-4">
                   {current.name}
                 </h3>
-                <span className="hand-note text-sm mt-1 text-left px-6">
+                <span className="hand-note text-sm mt-2 text-left px-8 leading-relaxed">
                   {current.tagline}
                 </span>
-                <span className="mt-auto mb-5 w-40">
-                  <span className="block h-1 bg-black/25 rounded-full overflow-hidden mb-1.5">
+                <span className="mt-auto mb-6 w-52">
+                  <span className="block h-1.5 bg-black/25 rounded-full overflow-hidden mb-2">
                     <span
                       className="block h-full bg-gradient-to-r from-amber-200 to-amber-100 rounded-full transition-all duration-700"
                       style={{ width: `${currentStats.pct}%` }}
                     />
                   </span>
-                  <span className="flex justify-between text-[11px] opacity-80">
+                  <span className="flex justify-between text-xs opacity-80">
                     <span>已读 {currentStats.pct}%</span>
                     <span>
                       {current.levels.length} 章 · {currentStats.total} 页
@@ -208,38 +324,6 @@ export default function Bookshelf({
                 </span>
               </span>
             </button>
-
-            {/* 目录内页（翻开后显现） */}
-            <div className="focus-book-toc paper book-page">
-              <div className="flex items-center justify-between border-b border-amber-900/15 dark:border-amber-100/10 pb-2.5 mb-3">
-                <span className="serif-title text-sm tracking-[0.3em] text-amber-900/70 dark:text-amber-200/70">
-                  {current.name} · 目 录
-                </span>
-                <span className="text-[11px] text-slate-400">
-                  {currentStats.passed} 页已通关
-                </span>
-              </div>
-              <ChapterTree
-                lang={current.lang}
-                lessonId=""
-                progress={progress}
-                flat={flatLessons(current.lang)}
-              />
-              <div className="border-t border-amber-900/15 dark:border-amber-100/10 pt-3 mt-3 flex justify-between items-center">
-                <button
-                  onClick={() => setOpened(false)}
-                  className="hand-note text-sm text-slate-400 hover:text-rose-600"
-                >
-                  « 合上封面
-                </button>
-                <Link
-                  href={lessonHref(current, currentStats.nextId)}
-                  className="text-sm font-medium text-rose-600 hover:text-rose-700 hand-note"
-                >
-                  从上次读到的地方继续 →
-                </Link>
-              </div>
-            </div>
           </div>
         </div>
       )}

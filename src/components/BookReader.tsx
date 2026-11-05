@@ -48,7 +48,7 @@ export function ChapterTree({
     >
       {grouped.map(([levelId, group], gi) => (
         <div key={levelId}>
-          <div className="serif-title text-xs font-semibold text-amber-900/70 dark:text-amber-200/70 mb-1 tracking-wider">
+          <div className="serif-title text-xs font-semibold amber-head mb-1 tracking-wider">
             第{cnNum[gi] ?? levelId}章 · {group.name}
           </div>
           <ul className="space-y-0.5">
@@ -69,7 +69,7 @@ export function ChapterTree({
                     className={`flex items-center gap-2 rounded-md px-2 py-1.5 text-xs transition-colors ${
                       current
                         ? "bg-rose-600/90 text-white font-medium"
-                        : "text-slate-600 hover:bg-amber-900/10 dark:text-slate-300 dark:hover:bg-amber-100/10"
+                        : "text-slate-600 hover:bg-amber-900/10 dark:hover:bg-amber-100/10"
                     }`}
                   >
                     <span

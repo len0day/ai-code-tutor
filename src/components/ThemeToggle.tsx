@@ -54,7 +54,7 @@ export default function ThemeToggle({ compact }: { compact?: boolean }) {
         onClick={cycle}
         title={`主题：${label}（点击切换）`}
         aria-label={`主题：${label}`}
-        className="px-2 py-1.5 rounded-lg text-sm text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 transition-colors"
+        className="px-2 py-1.5 rounded-lg text-sm text-slate-500 hover:bg-slate-100 transition-colors"
       >
         {mounted ? icon : "🌙"}
       </button>
