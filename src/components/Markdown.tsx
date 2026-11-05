@@ -4,6 +4,7 @@ import { memo, useMemo, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import hljs from "highlight.js/lib/common";
+import { plainTitle, scopeId, uniqueSlug } from "@/lib/outline";
 
 function highlightCode(code: string, lang?: string): string {
   try {
@@ -51,15 +52,112 @@ function CodeBlock({ code, lang }: { code: string; lang?: string }) {
   );
 }
 
+/* ---------- 标题锚点：让「目录」可以跳转到正文 ---------- */
+
+/** 取 mdast 节点的纯文本（与 outline.parseOutline 的标题规范化保持一致） */
+function mdastText(node: unknown): string {
+  if (!node || typeof node !== "object") return "";
+  const n = node as {
+    type?: string;
+    value?: string;
+    children?: unknown[];
+  };
+  if (n.type === "text" || n.type === "inlineCode") return n.value ?? "";
+  if (Array.isArray(n.children)) return n.children.map(mdastText).join("");
+  return "";
+}
+
 /**
- * AI 输出 / 课程内容的 Markdown 渲染（代码块高亮 + 复制按钮）。
+ * remark 插件：为 `#`~`####` 标题生成锚点 id。
+ * id 规则与 `parseOutline` 完全一致 → 目录点击可精准定位。
+ *
+ * 用法：`[remarkHeadingIds, { scope }]`（unified 的插件 + 选项元组写法）
+ */
+export function remarkHeadingIds(options?: { scope?: string }) {
+  const scope = options?.scope ?? "";
+  return (tree: unknown) => {
+    const used = new Map<string, number>();
+    const walk = (node: unknown) => {
+      if (!node || typeof node !== "object") return;
+      const n = node as {
+        type?: string;
+        depth?: number;
+        children?: unknown[];
+        data?: { hProperties?: Record<string, unknown> };
+      };
+      if (n.type === "heading" && typeof n.depth === "number") {
+        const depth = n.depth;
+        if (depth >= 1 && depth <= 4) {
+          const title = plainTitle(mdastText(n));
+          if (title) {
+            n.data = n.data ?? {};
+            n.data.hProperties = {
+              ...(n.data.hProperties ?? {}),
+              id: scopeId(scope, uniqueSlug(title, used)),
+            };
+          }
+        }
+      }
+      if (Array.isArray(n.children)) n.children.forEach(walk);
+    };
+    walk(tree);
+  };
+}
+
+/**
+ * AI 输出 / 课程内容的 Markdown 渲染（代码块高亮 + 复制按钮 + 标题锚点）。
  * 代码块内容经 highlight.js 手动高亮，避免 rehype 与自定义组件的结构冲突。
  */
-const Markdown = memo(function Markdown({ content }: { content: string }) {
+const Markdown = memo(function Markdown({
+  content,
+  scope = "",
+}: {
+  content: string;
+  /** 作用域前缀：同页面多个 Markdown 区块时避免锚点冲突 */
+  scope?: string;
+}) {
+  const remarkPlugins = useMemo(
+    () =>
+      [
+        remarkGfm,
+        [remarkHeadingIds, { scope }],
+      ] as unknown as never[],
+    [scope]
+  );
+
+  const heading = (Tag: "h1" | "h2" | "h3" | "h4") =>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    function Heading({ node, children, id: idProp }: any) {
+      const id = (idProp ?? node?.properties?.id) as string | undefined;
+      return (
+        <Tag
+          id={id}
+          className="scroll-mt-24 group/head"
+        >
+          {children}
+          {id && (
+            <a
+              href={`#${id}`}
+              aria-label="复制本节链接"
+              onClick={(e) => {
+                e.preventDefault();
+                navigator.clipboard?.writeText(
+                  `${window.location.origin}${window.location.pathname}#${id}`
+                );
+              }}
+              className="ml-2 opacity-0 group-hover/head:opacity-40 hover:!opacity-90 text-slate-400 align-middle text-xs"
+            >
+              #
+            </a>
+          )}
+        </Tag>
+      );
+    };
+
   return (
     <div className="md">
       <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
+        remarkPlugins={remarkPlugins}
         components={{
           code({ className, children }) {
             const text = String(children).replace(/\n$/, "");
@@ -75,6 +173,10 @@ const Markdown = memo(function Markdown({ content }: { content: string }) {
             // CodeBlock 已自带 <pre>，跳过默认包裹
             return <>{children}</>;
           },
+          h1: heading("h1"),
+          h2: heading("h2"),
+          h3: heading("h3"),
+          h4: heading("h4"),
         }}
       >
         {content}

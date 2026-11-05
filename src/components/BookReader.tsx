@@ -50,6 +50,8 @@ export default function BookReader({
   const [page, setPage] = useState(0);
   const [flipKey, setFlipKey] = useState(0);
   const [tocOpen, setTocOpen] = useState(false);
+  /** 目录向左折叠成窄边（桌面端） */
+  const [tocCollapsed, setTocCollapsed] = useState(false);
 
   const flat = useMemo(() => flatLessons(lang), [lang]);
 
@@ -76,45 +78,78 @@ export default function BookReader({
   return (
     <div className="space-y-4">
       {/* 书本：双页对开 */}
-      <div className="book-spread paper rounded-r-xl rounded-l-lg border-x border-amber-900/10 dark:border-amber-100/10 shadow-lg">
-        {/* ---- 左页：目录树 ---- */}
+      <div
+        className={`book-spread paper rounded-r-xl rounded-l-lg border-x border-amber-900/10 dark:border-amber-100/10 shadow-lg ${
+          tocCollapsed ? "toc-collapsed" : ""
+        }`}
+      >
+        {/* ---- 左页：目录树（可向左折叠） ---- */}
         <div className="book-page relative p-5 sm:p-6 min-h-[460px]">
-          <div className="hidden lg:flex items-center justify-between border-b border-amber-900/15 dark:border-amber-100/10 pb-2.5 mb-3">
-            <span className="serif-title text-sm tracking-[0.3em] text-amber-900/70 dark:text-amber-200/70">
-              目 录
-            </span>
-            <span className="text-[11px] text-slate-400 tabular-nums">
-              {courseEmoji} {courseName}
-            </span>
-          </div>
+          {tocCollapsed ? (
+            /* 折叠态：收成一条窄边 */
+            <button
+              onClick={() => setTocCollapsed(false)}
+              aria-label="展开目录"
+              title="展开目录"
+              className="hidden lg:flex h-full min-h-[460px] w-full flex-col items-center justify-start gap-3 pt-6 text-slate-500 hover:text-rose-600 transition-colors"
+            >
+              <span className="vertical-title serif-title text-[11px] tracking-[0.35em]">
+                目 录
+              </span>
+              <span className="text-xs opacity-60" aria-hidden="true">
+                »
+              </span>
+            </button>
+          ) : (
+            <>
+              <div className="hidden lg:flex items-center justify-between border-b border-amber-900/15 dark:border-amber-100/10 pb-2.5 mb-3">
+                <span className="serif-title text-sm tracking-[0.3em] text-amber-900/70 dark:text-amber-200/70">
+                  目 录
+                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] text-slate-400 tabular-nums">
+                    {courseEmoji} {courseName}
+                  </span>
+                  <button
+                    onClick={() => setTocCollapsed(true)}
+                    aria-label="折叠目录"
+                    title="折叠目录（向左收起）"
+                    className="text-slate-400 hover:text-rose-600 text-xs leading-none px-1"
+                  >
+                    «
+                  </button>
+                </div>
+              </div>
 
-          {/* 移动端：目录折叠面板 */}
-          <button
-            onClick={() => setTocOpen((v) => !v)}
-            aria-expanded={tocOpen}
-            aria-controls="book-toc-mobile"
-            className="lg:hidden w-full flex items-center justify-between text-sm font-medium text-slate-600 dark:text-slate-300 border-b border-amber-900/15 dark:border-amber-100/10 pb-2.5 mb-2"
-          >
-            <span className="serif-title tracking-widest">目 录</span>
-            <span aria-hidden="true">{tocOpen ? "▾" : "▸"}</span>
-          </button>
-          <div
-            id="book-toc-mobile"
-            className={`${tocOpen ? "block" : "hidden"} lg:block`}
-          >
-            <ChapterTree
-              lang={lang}
-              lessonId={lessonId}
-              progress={progress ?? null}
-              flat={flat}
-            />
-          </div>
+              {/* 移动端：目录折叠面板 */}
+              <button
+                onClick={() => setTocOpen((v) => !v)}
+                aria-expanded={tocOpen}
+                aria-controls="book-toc-mobile"
+                className="lg:hidden w-full flex items-center justify-between text-sm font-medium text-slate-600 dark:text-slate-300 border-b border-amber-900/15 dark:border-amber-100/10 pb-2.5 mb-2"
+              >
+                <span className="serif-title tracking-widest">目 录</span>
+                <span aria-hidden="true">{tocOpen ? "▾" : "▸"}</span>
+              </button>
+              <div
+                id="book-toc-mobile"
+                className={`${tocOpen ? "block" : "hidden"} lg:block`}
+              >
+                <ChapterTree
+                  lang={lang}
+                  lessonId={lessonId}
+                  progress={progress ?? null}
+                  flat={flat}
+                />
+              </div>
 
-          <p className="hidden lg:block text-[11px] text-slate-400 mt-4 leading-relaxed border-t border-amber-900/15 dark:border-amber-100/10 pt-3">
-            💡 键盘 ← → 可翻页。
-            <br />
-            🔒 的章节需先通过前置课程的测验与考核。
-          </p>
+              <p className="hidden lg:block text-[11px] text-slate-400 mt-4 leading-relaxed border-t border-amber-900/15 dark:border-amber-100/10 pt-3">
+                💡 键盘 ← → 可翻页。
+                <br />
+                🔒 的章节需先通过前置课程的测验与考核。
+              </p>
+            </>
+          )}
         </div>
 
         {/* ---- 书脊 ---- */}

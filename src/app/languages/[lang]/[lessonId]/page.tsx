@@ -16,6 +16,7 @@ import {
 import { useRequireUser } from "@/lib/useMe";
 import type { Notebook, Progress } from "@/lib/types";
 import Markdown from "@/components/Markdown";
+import ContentOutline from "@/components/ContentOutline";
 import ChatPanel from "@/components/ChatPanel";
 import QuizTab from "@/components/QuizTab";
 import LanguageRoleplay from "@/components/LanguageRoleplay";
@@ -257,7 +258,9 @@ function LanguageLesson({ me }: { me: ReturnType<typeof useRequireUser> }) {
                   label="读中文"
                 />
               </div>
-              <Markdown content={teach} />
+              <ContentOutline markdown={teach} scope="teach">
+                <Markdown content={teach} scope="teach" />
+              </ContentOutline>
               {teaching && <span className="streaming-cursor" />}
             </>
           )}

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Markdown from "./Markdown";
+import ContentOutline from "./ContentOutline";
 import SpeakButton from "./SpeakButton";
 import ReasoningBlock from "./ReasoningBlock";
 import { addWrongQuestion, aiJson, postProgress, streamAi, toggleFavorite } from "@/lib/client";
@@ -257,7 +258,9 @@ export default function InterviewTab({ lang, lesson, onGateChange }: Props) {
         )}
         {guide ? (
           <div className="text-sm">
-            <Markdown content={guide} />
+            <ContentOutline markdown={guide} scope="ig">
+              <Markdown content={guide} scope="ig" />
+            </ContentOutline>
             {guideLoading && <span className="streaming-cursor" />}
           </div>
         ) : (

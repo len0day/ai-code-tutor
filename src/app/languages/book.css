@@ -65,6 +65,191 @@
   .book-spread {
     grid-template-columns: minmax(260px, 0.8fr) auto minmax(0, 1.6fr);
   }
+  /* 目录向左折叠：左页收成一条窄边，正文占满 */
+  .book-spread.toc-collapsed {
+    grid-template-columns: 46px auto minmax(0, 1fr);
+  }
+  .book-spread.toc-collapsed > .book-page:first-child {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
+/* ---------- 内容目录（讲解目录）窄栏 ---------- */
+.outline-rail {
+  border: 1px solid rgba(120, 90, 40, 0.16);
+  border-radius: 10px;
+  padding: 8px 8px 10px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.55),
+    rgba(250, 246, 236, 0.35)
+  );
+  box-shadow: inset 0 0 18px rgba(160, 130, 70, 0.05);
+}
+.dark .outline-rail {
+  border-color: rgba(255, 230, 170, 0.12);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.03),
+    rgba(0, 0, 0, 0.18)
+  );
+}
+.outline-rail-collapsed {
+  width: 30px;
+  padding: 12px 2px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  color: #b03a5b;
+}
+.dark .outline-rail-collapsed {
+  color: #e8919f;
+}
+
+/* ---------- 书架 ---------- */
+.bookshelf {
+  padding: 0 4px;
+}
+.shelf-inner {
+  width: fit-content;
+  min-width: 320px;
+  max-width: 100%;
+}
+.shelf-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 10px 8px 0;
+  scrollbar-width: thin;
+}
+.shelf-row::-webkit-scrollbar {
+  height: 6px;
+}
+.shelf-row::-webkit-scrollbar-thumb {
+  background: rgba(120, 90, 40, 0.25);
+  border-radius: 3px;
+}
+/* 书架木板 */
+.shelf-board {
+  height: 16px;
+  margin-top: -2px;
+  border-radius: 3px 3px 6px 6px;
+  background: linear-gradient(180deg, #b07a45 0%, #8a5a2f 55%, #5f3c1c 100%);
+  box-shadow:
+    0 8px 18px rgba(60, 40, 15, 0.28),
+    inset 0 1px 0 rgba(255, 235, 200, 0.35);
+}
+.dark .shelf-board {
+  background: linear-gradient(180deg, #6b4a2a 0%, #4b3319 55%, #2f2010 100%);
+}
+
+/* 单本书的书脊 */
+.book-spine {
+  position: relative;
+  flex: 0 0 auto;
+  width: 46px;
+  height: var(--spine-h, 180px);
+  border-radius: 3px 6px 2px 3px;
+  padding: 8px 4px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  color: #fdf8ee;
+  cursor: pointer;
+  border: none;
+  transform-origin: bottom center;
+  transition:
+    transform 0.35s cubic-bezier(0.34, 1.3, 0.64, 1),
+    box-shadow 0.35s ease,
+    filter 0.3s ease;
+  background: linear-gradient(
+    180deg,
+    var(--spine-from, #94a3b8) 0%,
+    var(--spine-to, #334155) 100%
+  );
+  box-shadow:
+    inset 3px 0 8px rgba(0, 0, 0, 0.35),
+    inset -2px 0 6px rgba(0, 0, 0, 0.22),
+    3px 5px 12px rgba(40, 30, 10, 0.25);
+}
+.book-spine:hover {
+  transform: translateY(-10px) rotate(-1.5deg);
+  box-shadow:
+    inset 3px 0 8px rgba(0, 0, 0, 0.35),
+    inset -2px 0 6px rgba(0, 0, 0, 0.22),
+    8px 16px 26px rgba(40, 30, 10, 0.35);
+}
+/* 被抽出的一本 */
+.book-spine.is-out {
+  transform: translateY(-18px) rotate(-3deg) scale(1.04);
+  box-shadow:
+    inset 3px 0 8px rgba(0, 0, 0, 0.35),
+    inset -2px 0 6px rgba(0, 0, 0, 0.22),
+    12px 22px 34px rgba(40, 30, 10, 0.42);
+  z-index: 2;
+}
+.book-spine.is-locked {
+  filter: grayscale(0.55) brightness(0.9);
+}
+.spine-emoji {
+  font-size: 15px;
+  line-height: 1;
+  opacity: 0.95;
+}
+.spine-title {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  line-height: 1.15;
+  opacity: 0.95;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-height: 118px;
+}
+/* 长书名缩小字号，避免被截断 */
+.spine-title.is-long {
+  font-size: 9.5px;
+  letter-spacing: 0.06em;
+}
+.spine-meta {
+  margin-top: auto;
+  font-size: 9px;
+  opacity: 0.85;
+  font-variant-numeric: tabular-nums;
+}
+/* 书脊底部阅读进度 */
+.spine-bar {
+  width: 4px;
+  height: 20px;
+  border-radius: 2px;
+  background: rgba(0, 0, 0, 0.28);
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+}
+.spine-bar-fill {
+  width: 100%;
+  background: linear-gradient(180deg, #fde68a, #fbbf24);
+  transition: height 0.6s ease;
+}
+
+/* 抽出的书：落到阅读台 */
+.book-take-out {
+  animation: bookTakeOut 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes bookTakeOut {
+  0% {
+    transform: translateY(-40px) rotate(-8deg) scale(0.9);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0) rotate(0) scale(1);
+    opacity: 1;
+  }
 }
 
 /* ---------- 书本封面 ---------- */.book-cover {
@@ -74,7 +259,12 @@
   color: #fdf8ee;
   background:
     radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.18), transparent 55%),
-    linear-gradient(155deg, #b03a5b 0%, #8f2d4e 55%, #6d1f3a 100%);
+    linear-gradient(
+      155deg,
+      var(--cover-from, #b03a5b) 0%,
+      var(--cover-mid, #8f2d4e) 55%,
+      var(--cover-to, #6d1f3a) 100%
+    );
   box-shadow:
     inset 4px 0 10px rgba(0, 0, 0, 0.35),
     inset 0 0 60px rgba(0, 0, 0, 0.15),

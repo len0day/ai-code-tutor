@@ -2,71 +2,17 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { COURSES, CODE_COURSES, LANGUAGE_COURSES } from "@/data/courses";
+import { COURSES, LANGUAGE_COURSES } from "@/data/courses";
 import { fetchProgress, aiJson } from "@/lib/client";
 import { useRequireUser } from "@/lib/useMe";
+import Bookshelf from "@/components/Bookshelf";
 import type { Progress } from "@/lib/types";
+import "./languages/book.css";
 
 interface PathAdvice {
   advice: string;
   weakPoints?: string[];
   nextLessons?: string[];
-}
-
-const RING_COLORS: Record<string, [string, string]> = {
-  python: ["#0ea5e9", "#2563eb"],
-  java: ["#f97316", "#ef4444"],
-  javascript: ["#fbbf24", "#eab308"],
-  typescript: ["#2563eb", "#4f46e5"],
-  html: ["#f97316", "#f43f5e"],
-  docker: ["#3b82f6", "#06b6d4"],
-  linux: ["#64748b", "#18181b"],
-  japanese: ["#f43f5e", "#ec4899"],
-  go: ["#06b6d4", "#0284c7"],
-  swift: ["#fb923c", "#ef4444"],
-  nextjs: ["#52525b", "#18181b"],
-};
-
-function ProgressRing({
-  value,
-  total,
-  lang,
-}: {
-  value: number;
-  total: number;
-  lang: string;
-}) {
-  const pct = total ? value / total : 0;
-  const R = 26;
-  const C = 2 * Math.PI * R;
-  const [c1, c2] = RING_COLORS[lang] ?? ["#6366f1", "#8b5cf6"];
-  return (
-    <div className="relative w-16 h-16">
-      <svg viewBox="0 0 64 64" className="w-16 h-16 -rotate-90">
-        <circle cx="32" cy="32" r={R} fill="none" stroke="var(--border)" strokeWidth="6" />
-        <circle
-          cx="32"
-          cy="32"
-          r={R}
-          fill="none"
-          stroke={`url(#grad-${lang})`}
-          strokeWidth="6"
-          strokeLinecap="round"
-          strokeDasharray={C}
-          strokeDashoffset={C * (1 - pct)}
-        />
-        <defs>
-          <linearGradient id={`grad-${lang}`} x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor={c1} />
-            <stop offset="100%" stopColor={c2} />
-          </linearGradient>
-        </defs>
-      </svg>
-      <span className="absolute inset-0 grid place-items-center text-xs font-bold">
-        {Math.round(pct * 100)}%
-      </span>
-    </div>
-  );
 }
 
 export default function Dashboard() {
@@ -97,16 +43,12 @@ export default function Dashboard() {
       .catch(() => {});
   }, [me]);
 
-  const totals = useMemo(() => {
-    const map: Record<string, { done: number; total: number; nextId: string | null }> = {};
-    for (const c of COURSES) {
-      const all = c.levels.flatMap((l) => l.lessons);
-      const done = all.filter((l) => progress?.lessons[l.id]?.completed).length;
-      const next = all.find((l) => !progress?.lessons[l.id]?.completed);
-      map[c.lang] = { done, total: all.length, nextId: next?.id ?? null };
-    }
-    return map;
-  }, [progress]);
+  /** 达到课程数上限的课程（书架上显示锁） */
+  const lockedLangs = useMemo(() => {
+    if (!usage || usage.courseLimit === -1) return [];
+    if (usage.unlocked.length < usage.courseLimit) return [];
+    return COURSES.filter((c) => !usage.unlocked.includes(c.lang)).map((c) => c.lang);
+  }, [usage]);
 
   const getAdvice = async () => requestAdvice();
 
@@ -170,160 +112,32 @@ export default function Dashboard() {
         </div>
       </section>
 
-      {/* 语言卡片（编程与运维） */}
-      <section className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-        {CODE_COURSES.map((c) => {
-          const t = totals[c.lang];
-          const locked =
-            usage !== null &&
-            usage.courseLimit !== -1 &&
-            !usage.unlocked.includes(c.lang) &&
-            usage.unlocked.length >= usage.courseLimit;
-          return (
-            <div
-              key={c.lang}
-              className={`relative bg-card border rounded-2xl p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-5 card-glow ${
-                locked ? "opacity-60 border-dashed" : "border-border hover:-translate-y-0.5"
-              }`}
-            >
-              {locked && (
-                <span
-                  title="学习课程数已达上限，联系管理员扩容"
-                  className="absolute top-3 right-3 text-sm"
-                >
-                  🔒
-                </span>
-              )}
-              <div
-                className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${c.gradient} grid place-items-center text-3xl shrink-0 shadow-lg self-start sm:self-auto`}
-              >
-                {c.emoji}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <h3 className="font-bold text-lg">{c.name}</h3>
-                  <span className="text-xs text-slate-400 whitespace-nowrap">
-                    {t.done}/{t.total} 课
-                  </span>
-                  <span className="ml-auto sm:ml-0">
-                    <ProgressRing value={t.done} total={t.total} lang={c.lang} />
-                  </span>
-                </div>
-                <p className="text-sm text-slate-500 mt-0.5 line-clamp-2 sm:line-clamp-1">
-                  {c.tagline}
-                </p>
-                <div className="mt-3 flex items-center gap-3 flex-wrap">
-                  {locked ? (
-                    <span className="text-sm font-medium text-slate-400">
-                      🔒 已达课程数上限
-                    </span>
-                  ) : (
-                    <Link
-                      href={t.nextId ? `/learn/${c.lang}/${t.nextId}` : `/learn/${c.lang}`}
-                      className="text-sm font-medium text-indigo-600 hover:text-indigo-700 whitespace-nowrap"
-                    >
-                      {t.done === 0 ? "开始学习 →" : t.nextId ? "继续学习 →" : "全部完成 🎉"}
-                    </Link>
-                  )}
-                  {!locked && (
-                    <Link
-                      href={`/learn/${c.lang}`}
-                      className="text-sm text-slate-400 hover:text-slate-600"
-                    >
-                      课程大纲
-                    </Link>
-                  )}
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </section>
-
-      {/* 语言学习增值包 */}
-      {LANGUAGE_COURSES.length > 0 && (
-        <section>
-          <div className="flex items-center justify-between mb-3">
-            <div>
-              <h2 className="font-bold text-lg flex items-center gap-2">
-                🌸 语言学习增值包
-                <span className="text-xs font-normal bg-rose-100 text-rose-600 px-2 py-0.5 rounded-full">
-                  {LANGUAGE_COURSES.length} 门
-                </span>
-              </h2>
-              <p className="text-sm text-slate-500 mt-0.5">
-                场景对话实战 + 语言老师逐句点评（与编程课程不同的学习路径）
-              </p>
-            </div>
+      {/* 书架：每门课程是一本书 */}
+      <section className="space-y-4">
+        <div className="flex items-end justify-between flex-wrap gap-3">
+          <div>
+            <h2 className="font-bold text-lg flex items-center gap-2">
+              📚 我的书架
+              <span className="text-xs font-normal bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">
+                {COURSES.length} 本
+              </span>
+            </h2>
+            <p className="text-sm text-slate-500 mt-0.5">
+              每门课程是一本书 —— 点一本书，把它从书架上抽出来，翻开它的目录。
+            </p>
+          </div>
+          {LANGUAGE_COURSES.length > 0 && (
             <Link
               href="/languages"
               className="text-sm font-medium text-rose-600 hover:text-rose-700"
             >
-              进入增值包 →
+              🌸 语言增值包 →
             </Link>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            {LANGUAGE_COURSES.map((c) => {
-              const t = totals[c.lang];
-              const locked =
-                usage !== null &&
-                usage.courseLimit !== -1 &&
-                !usage.unlocked.includes(c.lang) &&
-                usage.unlocked.length >= usage.courseLimit;
-              return (
-                <div
-                  key={c.lang}
-                  className={`relative bg-card border rounded-2xl p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-5 card-glow ${
-                    locked
-                      ? "opacity-60 border-dashed"
-                      : "border-border hover:-translate-y-0.5"
-                  }`}
-                >
-                  {locked && (
-                    <span
-                      title="学习课程数已达上限，联系管理员扩容"
-                      className="absolute top-3 right-3 text-sm"
-                    >
-                      🔒
-                    </span>
-                  )}
-                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-rose-500 to-pink-600 grid place-items-center text-3xl shrink-0 shadow-lg self-start sm:self-auto">
-                    {c.emoji}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <h3 className="font-bold text-lg">{c.name}</h3>
-                      <span className="text-xs text-slate-400 whitespace-nowrap">
-                        {t.done}/{t.total} 课
-                      </span>
-                      <span className="ml-auto sm:ml-0">
-                        <ProgressRing value={t.done} total={t.total} lang={c.lang} />
-                      </span>
-                    </div>
-                    <p className="text-sm text-slate-500 mt-0.5 line-clamp-2 sm:line-clamp-1">
-                      {c.tagline}
-                    </p>
-                    <div className="mt-3 flex items-center gap-3">
-                      {locked ? (
-                        <span className="text-sm font-medium text-slate-400">
-                          🔒 已达课程数上限
-                        </span>
-                      ) : (
-                        <Link
-                          href={`/languages/${c.lang}${t.nextId ? `/${t.nextId}` : ""}`}
-                          className="text-sm font-medium text-rose-600 hover:text-rose-700"
-                        >
-                          {t.done === 0 ? "开始学习 →" : t.nextId ? "继续学习 →" : "全部完成 🎉"}
-                        </Link>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-      )}
+          )}
+        </div>
+
+        <Bookshelf courses={COURSES} progress={progress} lockedLangs={lockedLangs} />
+      </section>
 
       {/* AI 学习建议 */}
       <section className="bg-card rounded-2xl border border-border p-6">

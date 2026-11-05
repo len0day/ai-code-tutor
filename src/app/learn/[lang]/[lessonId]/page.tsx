@@ -17,6 +17,7 @@ import {
 import { useRequireUser } from "@/lib/useMe";
 import type { Notebook, Progress } from "@/lib/types";
 import Markdown from "@/components/Markdown";
+import ContentOutline from "@/components/ContentOutline";
 import ChatPanel from "@/components/ChatPanel";
 import QuizTab from "@/components/QuizTab";
 import CodeLab from "@/components/CodeLab";
@@ -328,7 +329,11 @@ function LessonContent({ me }: { me: ReturnType<typeof useRequireUser> }) {
               {explainError}
             </p>
           )}
-          {explain && <Markdown content={explain} />}
+          {explain && (
+            <ContentOutline markdown={explain} scope="ex">
+              <Markdown content={explain} scope="ex" />
+            </ContentOutline>
+          )}
           {explaining && explain && <span className="streaming-cursor" />}
           {!explain && !explaining && !explainError && !explainReasoning && unlocked && (
             <p className="text-sm text-slate-400">
