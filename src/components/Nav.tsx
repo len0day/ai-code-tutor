@@ -4,7 +4,9 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { COURSES, LANGUAGE_COURSES } from "@/data/courses";
+import { fetchProgress } from "@/lib/client";
 import { logout, useMe } from "@/lib/useMe";
+import type { Progress } from "@/lib/types";
 import ThemeToggle from "@/components/ThemeToggle";
 
 export default function Nav() {
@@ -12,6 +14,9 @@ export default function Nav() {
   const router = useRouter();
   const me = useMe();
   const [status, setStatus] = useState<SettingsStatus | null>(null);
+  const [stats, setStats] = useState<
+    { xp: number; streak: number; done: number } | null
+  >(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [menuPath, setMenuPath] = useState(pathname);
   const navRef = useRef<HTMLElement>(null);
@@ -57,6 +62,28 @@ export default function Nav() {
       alive = false;
     };
   }, [pathname]);
+
+  // 个人学习数据（XP / 连击 / 完成课），展示在用户名旁
+  useEffect(() => {
+    if (!me) {
+      setStats(null);
+      return;
+    }
+    let alive = true;
+    fetchProgress()
+      .then((d: Progress) => {
+        if (!alive) return;
+        setStats({
+          xp: d.xp,
+          streak: d.streak,
+          done: Object.values(d.lessons).filter((l) => l.completed).length,
+        });
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, [me, pathname]);
 
   const isAdmin = me?.role === "admin";
 
@@ -125,6 +152,9 @@ export default function Nav() {
       <Link href="/report" className={linkCls(pathname === "/report")}>
         学习报告
       </Link>
+      <Link href="/advice" className={linkCls(pathname === "/advice")}>
+        🤖 学习建议
+      </Link>
       {LANGUAGE_COURSES.length > 0 && (
         <Link href="/languages" className={linkCls(pathname.startsWith("/languages"))}>
           🌸 增值包
@@ -175,8 +205,24 @@ export default function Nav() {
           {navItems}
         </nav>
 
-        {/* 移动端菜单按钮 */}
+        {/* 个人学习数据 + 用户名 */}
         <div className="flex items-center gap-1.5">
+          {stats && (
+            <span
+              className="hidden xl:inline-flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400 tabular-nums"
+              title="我的学习数据：XP 经验值 · 连续学习天数 · 已完成课程"
+            >
+              <span className="bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-300 rounded-full px-2 py-0.5">
+                ⚡ {stats.xp}
+              </span>
+              <span className="bg-orange-50 dark:bg-orange-950/40 text-orange-600 dark:text-orange-300 rounded-full px-2 py-0.5">
+                🔥 {stats.streak}
+              </span>
+              <span className="bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-300 rounded-full px-2 py-0.5">
+                ✅ {stats.done}
+              </span>
+            </span>
+          )}
           <ThemeToggle compact />
           {me === undefined ? null : me === null ? (
             <Link

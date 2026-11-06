@@ -291,47 +291,50 @@ export default function Bookshelf({
               </span>
             </button>
 
-            {/* 目录左页：前半章节 */}
-            <div className="focus-book-toc paper book-page">
-              <div className="flex items-center justify-between border-b border-amber-900/15 dark:border-amber-100/10 pb-2.5 mb-2.5">
-                <span className="serif-title text-sm tracking-[0.25em] amber-head">
-                  {current.name} · 目 录
-                </span>
-                <span className="text-[11px] text-slate-400 tabular-nums">
-                  {currentStats.passed}/{currentStats.total} 页通关
-                </span>
-              </div>
-              <ChapterTree
-                lang={current.lang}
-                lessonId=""
-                progress={progress}
-                flat={flatL}
-              />
-            </div>
-
-            {/* 目录右页：后半章节 */}
-            <div className="focus-book-toc-b paper book-page">
-              <div className="flex items-center justify-between border-b border-amber-900/15 dark:border-amber-100/10 pb-2.5 mb-2.5">
-                <span className="serif-title text-sm tracking-[0.25em] amber-head">
-                  目 录 <span className="text-xs">（续）</span>
-                </span>
-                <span className="text-[11px] text-slate-400">
-                  {current.levels.length} 章 · {currentStats.total} 页
-                </span>
-              </div>
-              {flatR.length > 0 ? (
+            {/* 目录：对开两页（与封面分离的独立书本，翻页动画显现） */}
+            <div className="focus-book-pages">
+              {/* 左页：前半章节 */}
+              <div className="focus-book-toc paper book-page">
+                <div className="flex items-center justify-between border-b border-amber-900/15 dark:border-amber-100/10 pb-2.5 mb-2.5">
+                  <span className="serif-title text-sm tracking-[0.25em] amber-head">
+                    {current.name} · 目 录
+                  </span>
+                  <span className="text-[11px] text-slate-400 tabular-nums">
+                    {currentStats.passed}/{currentStats.total} 页通关
+                  </span>
+                </div>
                 <ChapterTree
                   lang={current.lang}
                   lessonId=""
                   progress={progress}
-                  flat={flatR}
-                  chapterOffset={halfLevelIdx}
+                  flat={flatL}
                 />
-              ) : (
-                <p className="hand-note text-sm text-slate-400">
-                  目录都在第 1 页 →
-                </p>
-              )}
+              </div>
+
+              {/* 右页：后半章节 */}
+              <div className="focus-book-toc-b paper book-page">
+                <div className="flex items-center justify-between border-b border-amber-900/15 dark:border-amber-100/10 pb-2.5 mb-2.5">
+                  <span className="serif-title text-sm tracking-[0.25em] amber-head">
+                    目 录 <span className="text-xs">（续）</span>
+                  </span>
+                  <span className="text-[11px] text-slate-400">
+                    {current.levels.length} 章 · {currentStats.total} 页
+                  </span>
+                </div>
+                {flatR.length > 0 ? (
+                  <ChapterTree
+                    lang={current.lang}
+                    lessonId=""
+                    progress={progress}
+                    flat={flatR}
+                    chapterOffset={halfLevelIdx}
+                  />
+                ) : (
+                  <p className="hand-note text-sm text-slate-400">
+                    目录都在第 1 页 →
+                  </p>
+                )}
+              </div>
             </div>
           </div>
         </div>

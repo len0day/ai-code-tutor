@@ -356,7 +356,7 @@
   }
 }
 
-/* 书本：合上 = 单本悬浮；翻开 = 封面立最左 + 目录两页铺满整行 */
+/* 书本：合上 = 单本悬浮；翻开 = 封面独立 3D 悬浮 + 目录对开书本铺在右侧 */
 .focus-book {
   position: relative;
   width: min(20rem, 38vw);
@@ -368,7 +368,8 @@
   width: 100%;
   max-width: none;
   display: flex;
-  align-items: stretch;
+  align-items: center;
+  gap: 2.5rem;
 }
 @media (max-width: 1279px) {
   .focus-book {
@@ -381,7 +382,7 @@
     height: 23rem;
   }
 }
-/* 封面：合上盖住全书悬浮；翻开后立于最左（不旋转） */
+/* 封面：合上盖住全书悬浮；翻开时保持独立 3D 悬浮，与目录分离 */
 .focus-book .focus-book-cover {
   position: absolute;
   left: 0;
@@ -402,13 +403,13 @@
 @keyframes focusFloat {
   0%,
   100% {
-    transform: rotateY(-14deg) translateY(0);
+    transform: rotateY(-16deg) translateY(0);
     box-shadow:
       inset 4px 0 10px rgba(0, 0, 0, 0.35),
       18px 26px 40px rgba(0, 0, 0, 0.42);
   }
   50% {
-    transform: rotateY(-4deg) translateY(-10px);
+    transform: rotateY(-4deg) translateY(-12px);
     box-shadow:
       inset 4px 0 10px rgba(0, 0, 0, 0.35),
       22px 34px 48px rgba(0, 0, 0, 0.48);
@@ -426,21 +427,37 @@
   color: #fdf8ee;
   padding: 1.5rem 1.1rem 1.1rem;
 }
-/* 翻开：封面立最左，右侧目录两页并排铺开 */
+/* 翻开：封面保持独立立体悬浮（居左），右侧是对开的目录书本 */
 .focus-book.is-open .focus-book-cover {
   position: relative;
   inset: auto;
-  flex: 0 0 min(16rem, 26vw);
-  width: auto;
-  transform: none;
-  animation: none;
-  border-radius: 6px 0 0 6px;
+  flex: 0 0 min(15rem, 24vw);
+  height: 24rem;
+  align-self: center;
+  transform: rotateY(-16deg);
+  animation: focusFloat 3s ease-in-out infinite;
   pointer-events: none;
 }
 .focus-book.is-open .focus-book-inner {
   inset: 10px 14px 10px 28px;
 }
-/* 目录页：合上时隐藏，翻开后作为普通栏位并排显现 */
+/* 目录书本：对开两页 + 中缝书脊，作为独立书本放在封面右侧 */
+.focus-book-pages {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.focus-book.is-open .focus-book-pages {
+  position: relative;
+  inset: auto;
+  flex: 1 1 0;
+  min-width: 0;
+  align-self: stretch;
+  display: flex;
+  align-items: stretch;
+  pointer-events: auto;
+}
+/* 目录页：合上时隐藏，翻开后带翻书动画显现 */
 .focus-book-toc,
 .focus-book-toc-b {
   position: absolute;
@@ -456,6 +473,7 @@
 }
 .focus-book-toc {
   left: 0;
+  border-radius: 4px 0 0 4px;
 }
 .focus-book-toc-b {
   right: 0;
@@ -470,30 +488,17 @@
   min-width: 0;
   opacity: 1;
   pointer-events: auto;
-  border-radius: 0;
-}
-.focus-book.is-open .focus-book-toc-b {
-  border-radius: 0 14px 14px 0;
+  transform-origin: left center;
 }
 .focus-book.is-open .focus-book-toc {
-  animation: pageIn 0.5s 0.1s ease both;
+  animation: pageFlip 0.8s 0.1s cubic-bezier(0.645, 0.045, 0.355, 1) both;
 }
 .focus-book.is-open .focus-book-toc-b {
-  animation: pageIn 0.5s 0.22s ease both;
+  animation: pageFlip 0.8s 0.3s cubic-bezier(0.645, 0.045, 0.355, 1) both;
 }
 .focus-book.is-closing .focus-book-toc,
 .focus-book.is-closing .focus-book-toc-b {
   animation: tocHide 0.3s ease both;
-}
-@keyframes pageIn {
-  from {
-    opacity: 0;
-    transform: rotateY(2deg);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
 }
 @keyframes tocHide {
   from {
@@ -514,13 +519,18 @@
     flex-direction: column;
     height: auto;
     align-items: center;
+    gap: 1.5rem;
   }
   .focus-book.is-open .focus-book-cover {
     flex: none;
-    width: min(16rem, 80vw);
+    width: min(15rem, 80vw);
     height: 23rem;
-    border-radius: 6px 14px 14px 6px;
     pointer-events: none;
+  }
+  .focus-book.is-open .focus-book-pages {
+    width: 100%;
+    flex-direction: column;
+    gap: 1rem;
   }
   .focus-book.is-open .focus-book-toc,
   .focus-book.is-open .focus-book-toc-b {
