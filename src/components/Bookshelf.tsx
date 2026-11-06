@@ -43,6 +43,8 @@ export interface BookshelfProps {
   progress: Progress | null;
   /** 达到课程数上限的课程（显示锁） */
   lockedLangs?: string[];
+  /** 书架旁的礼物盒（增值包入口） */
+  giftBox?: { href: string; label: string; sub: string };
 }
 
 /**
@@ -57,6 +59,7 @@ export default function Bookshelf({
   courses,
   progress,
   lockedLangs = [],
+  giftBox,
 }: BookshelfProps) {
   /** 抽出的那本书（null = 书架状态） */
   const [picked, setPicked] = useState<string | null>(null);
@@ -252,6 +255,33 @@ export default function Bookshelf({
       </nav>
 
       <div className="room-floor" aria-hidden="true" />
+
+      {/* 书架旁的礼物盒（增值包） */}
+      {giftBox && (
+        <Link href={giftBox.href} className="gift-box" aria-label={`打开礼物：${giftBox.label}`}>
+          <span className="gift-bow" aria-hidden="true">
+            <span className="bow-loop bow-loop-l" />
+            <span className="bow-loop bow-loop-r" />
+            <span className="bow-knot" />
+          </span>
+          <span className="gift-lid" aria-hidden="true">
+            <span className="gift-lid-band" />
+          </span>
+          <span className="gift-body" aria-hidden="true">
+            <span className="gift-ribbon-v" />
+            <span className="gift-tag">{giftBox.label}</span>
+          </span>
+          <span className="gift-shadow" aria-hidden="true" />
+          <span className="gift-sparkle sparkle-a" aria-hidden="true">
+            ✦
+          </span>
+          <span className="gift-sparkle sparkle-b" aria-hidden="true">
+            ✦
+          </span>
+          <span className="gift-caption">{giftBox.sub}</span>
+        </Link>
+      )}
+
       <div className="room-plant" aria-hidden="true">
         🪴
       </div>

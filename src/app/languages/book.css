@@ -114,6 +114,60 @@
   padding: 0 4px;
 }
 
+/* ---------- 书架标题：墙上的藏书目录牌 ---------- */
+.shelf-heading {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 24px 13px;
+  border-radius: 10px;
+  background:
+    radial-gradient(130% 150% at 0% 0%, rgba(255, 226, 170, 0.14), transparent 62%),
+    linear-gradient(160deg, #3d2c1d 0%, #2b1f14 58%, #1d150d 100%);
+  border: 1px solid rgba(201, 162, 75, 0.5);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 226, 170, 0.2),
+    inset 0 0 24px rgba(0, 0, 0, 0.42),
+    0 8px 20px rgba(20, 12, 4, 0.45);
+}
+.shelf-heading-main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.shelf-heading-icon {
+  font-size: 19px;
+  line-height: 1;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.5));
+}
+.shelf-heading-title {
+  font-family: "Songti SC", "STSong", "SimSun", Georgia, serif;
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #f6e3bd;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+.shelf-heading-count {
+  padding: 2px 11px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #3a2708;
+  background: linear-gradient(180deg, #f7dfa4 0%, #d9ab5c 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    0 1px 4px rgba(0, 0, 0, 0.4);
+}
+.shelf-heading-sub {
+  font-family: "Kaiti SC", "STKaiti", "KaiTi", cursive, serif;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  color: rgba(240, 224, 194, 0.72);
+  padding-left: 29px;
+}
+
 /* ============================================================
    图书馆场景（整页背景） + 3D 书架 + 三段式抽书
    ============================================================ */
@@ -335,43 +389,68 @@
   letter-spacing: 0.08em;
 }
 
-/* 介绍木牌 */
+/* 介绍牌：深色皮革 + 金箔描边 + 角饰，像图书馆的藏书说明牌 */
 .wall-sign {
   left: 5%;
   top: 52%;
-  width: 190px;
-  padding: 11px 13px;
+  width: 214px;
+  padding: 16px 18px 15px;
   border-radius: 8px;
-  background: linear-gradient(180deg, #b07a45 0%, #8a5a2f 100%);
+  color: #f6e7c8;
+  background:
+    radial-gradient(120% 90% at 30% 0%, rgba(255, 226, 170, 0.12), transparent 60%),
+    linear-gradient(160deg, #3a2a1c 0%, #2b1f14 55%, #1f160e 100%);
+  border: 1px solid rgba(201, 162, 75, 0.55);
   box-shadow:
-    inset 0 1px 0 rgba(255, 235, 200, 0.4),
-    inset 0 0 0 1px rgba(255, 236, 190, 0.35),
-    4px 8px 16px rgba(30, 20, 8, 0.35);
+    inset 0 1px 0 rgba(255, 226, 170, 0.22),
+    inset 0 0 26px rgba(0, 0, 0, 0.45),
+    6px 12px 22px rgba(20, 12, 4, 0.5);
+}
+/* 内描边金框 */
+.wall-sign::after {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border: 1px solid rgba(201, 162, 75, 0.32);
+  border-radius: 4px;
+  pointer-events: none;
 }
 .wall-sign::before {
   content: "";
   position: absolute;
   left: 50%;
-  top: -16px;
-  width: 26px;
-  height: 16px;
+  top: -14px;
+  width: 30px;
+  height: 14px;
   transform: translateX(-50%);
-  border-left: 2px solid rgba(230, 200, 150, 0.7);
-  border-right: 2px solid rgba(230, 200, 150, 0.7);
+  border-left: 2px solid rgba(230, 200, 150, 0.55);
+  border-right: 2px solid rgba(230, 200, 150, 0.55);
 }
 .sign-title {
+  position: relative;
   font-family: "Songti SC", "STSong", "SimSun", Georgia, serif;
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 700;
-  color: #fff3d6;
-  line-height: 1.5;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  letter-spacing: 0.02em;
+  line-height: 1.65;
+  color: #f6e3bd;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+/* 标题下的花饰分隔线 */
+.sign-title::after {
+  content: "❦";
+  display: block;
+  margin: 6px 0 2px;
+  font-size: 10px;
+  letter-spacing: 0.4em;
+  color: rgba(201, 162, 75, 0.8);
 }
 .sign-sub {
-  margin-top: 6px;
-  font-size: 10px;
-  line-height: 1.6;
-  color: rgba(255, 240, 210, 0.8);
+  position: relative;
+  font-size: 10.5px;
+  line-height: 1.75;
+  color: rgba(240, 224, 194, 0.72);
+  letter-spacing: 0.01em;
 }
 
 /* 功能海报（相框式快捷入口） */
@@ -441,12 +520,215 @@
 /* 绿植 */
 .room-plant {
   position: absolute;
-  left: calc(50% - 240px);
-  bottom: 34px;
+  left: calc(50% - 250px);
+  bottom: 30px;
   z-index: 1;
   font-size: 36px;
   filter: drop-shadow(6px 10px 10px rgba(20, 12, 4, 0.45));
   transition: opacity 0.5s ease;
+}
+
+/* ---------- 书架旁的礼物盒（增值包） ---------- */
+.gift-box {
+  position: absolute;
+  left: calc(50% + 148px);
+  bottom: 42px;
+  z-index: 2;
+  width: 108px;
+  height: 104px;
+  display: block;
+  transition: opacity 0.5s ease, transform 0.4s ease;
+}
+.shelf-scene.has-book .gift-box,
+.shelf-scene.is-open-book .gift-box {
+  opacity: 0.25;
+  pointer-events: none;
+}
+.shelf-scene.is-open-book .gift-box {
+  opacity: 0;
+}
+.gift-body {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 8px;
+  height: 62px;
+  border-radius: 4px 4px 6px 6px;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.28),
+      rgba(255, 255, 255, 0.05) 30%,
+      rgba(0, 0, 0, 0.08) 70%,
+      rgba(0, 0, 0, 0.26)
+    ),
+    linear-gradient(180deg, #fb7185 0%, #e11d48 55%, #9f1239 100%);
+  box-shadow:
+    inset 0 -8px 14px rgba(0, 0, 0, 0.28),
+    inset 0 2px 3px rgba(255, 255, 255, 0.3),
+    6px 10px 18px rgba(20, 12, 4, 0.45);
+}
+.gift-ribbon-v {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 18px;
+  transform: translateX(-50%);
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.3),
+    #fbbf24 35%,
+    #d97706 75%,
+    rgba(0, 0, 0, 0.2)
+  );
+  box-shadow: 0 0 10px rgba(251, 191, 36, 0.45);
+}
+.gift-lid {
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  top: 28px;
+  height: 20px;
+  border-radius: 4px;
+  transform-origin: left bottom;
+  transition: transform 0.45s cubic-bezier(0.34, 1.4, 0.64, 1);
+  background:
+    linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.32),
+      rgba(255, 255, 255, 0.06) 32%,
+      rgba(0, 0, 0, 0.1) 72%,
+      rgba(0, 0, 0, 0.28)
+    ),
+    linear-gradient(180deg, #f472b6 0%, #db2777 60%, #9d174d 100%);
+  box-shadow:
+    inset 0 2px 3px rgba(255, 255, 255, 0.35),
+    4px 6px 12px rgba(20, 12, 4, 0.4);
+}
+.gift-lid-band {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 18px;
+  transform: translateX(-50%);
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.3), #fbbf24 40%, #d97706 80%);
+}
+.gift-box:hover .gift-lid {
+  transform: rotate(-20deg) translate(-6px, -12px);
+}
+.gift-box:hover .gift-body {
+  filter: brightness(1.08);
+}
+.gift-bow {
+  position: absolute;
+  left: 50%;
+  top: 6px;
+  transform: translateX(-50%);
+  z-index: 3;
+  width: 52px;
+  height: 26px;
+  transition: transform 0.45s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+.gift-box:hover .gift-bow {
+  transform: translateX(-50%) scale(1.12) rotate(-4deg);
+}
+.bow-loop {
+  position: absolute;
+  top: 0;
+  width: 26px;
+  height: 22px;
+  border-radius: 50% 50% 45% 45%;
+  background: linear-gradient(160deg, #fde68a 0%, #f59e0b 55%, #b45309 100%);
+  box-shadow:
+    inset 0 2px 3px rgba(255, 255, 255, 0.45),
+    2px 4px 8px rgba(20, 12, 4, 0.45);
+}
+.bow-loop-l {
+  left: 0;
+  transform: rotate(-22deg);
+}
+.bow-loop-r {
+  right: 0;
+  transform: rotate(22deg);
+}
+.bow-knot {
+  position: absolute;
+  left: calc(50% - 6px);
+  top: 6px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fde68a, #d97706 70%, #92400e);
+  box-shadow: 0 2px 5px rgba(20, 12, 4, 0.5);
+}
+.gift-shadow {
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  bottom: 0;
+  height: 12px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.45), transparent 70%);
+}
+.gift-tag {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) rotate(-4deg);
+  padding: 3px 9px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #7c2d12;
+  background: linear-gradient(180deg, #fffbeb, #fde68a);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  white-space: nowrap;
+  z-index: 2;
+}
+.gift-caption {
+  position: absolute;
+  left: 50%;
+  bottom: -6px;
+  transform: translateX(-50%);
+  font-size: 10px;
+  color: rgba(255, 232, 190, 0.72);
+  white-space: nowrap;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+.gift-sparkle {
+  position: absolute;
+  color: #fde68a;
+  font-size: 13px;
+  opacity: 0;
+  pointer-events: none;
+}
+.sparkle-a {
+  right: -6px;
+  top: 16px;
+}
+.sparkle-b {
+  left: -4px;
+  top: 44px;
+  font-size: 10px;
+}
+.gift-box:hover .gift-sparkle {
+  animation: sparkle 1.1s ease-in-out infinite;
+}
+.gift-box:hover .sparkle-b {
+  animation-delay: 0.45s;
+}
+@keyframes sparkle {
+  0%,
+  100% {
+    opacity: 0;
+    transform: scale(0.6) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15) rotate(25deg);
+  }
 }
 .shelf-scene.has-book .room-plant,
 .shelf-scene.has-book .room-floor {
