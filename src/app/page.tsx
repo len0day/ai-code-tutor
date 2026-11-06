@@ -122,37 +122,6 @@ export default function Dashboard() {
           </Link>
         </section>
       )}
-
-      {/* 关于本应用（原首屏文案，移到底部） */}
-      <section className="paper book-page rounded-r-xl rounded-l-sm p-6 sm:p-8">
-        <h2 className="serif-title text-lg font-bold mb-2">
-          ⚡ CodeTutor AI —— 用 AI 导师 学编程、运维与外语
-        </h2>
-        <p className="text-sm text-slate-600 leading-relaxed">
-          Python · Java · JavaScript · TypeScript · Go · Swift · Next.js · HTML · Docker ·
-          Linux · 日语 —— 内置从入门到进阶的 259 节课，AI 全程陪学：讲解、答疑、出题、批改、
-          模拟面试、规划路径。
-        </p>
-        <div className="mt-3 flex flex-wrap gap-2 text-xs">
-          {[
-            ["💬 AI 导师答疑", "/learn/python"],
-            ["📝 练习测验", "/learn/python"],
-            ["💻 代码实操", "/learn/python"],
-            ["🎤 模拟面试", "/learn/python"],
-            ["📚 知识库", "/notebook"],
-            ["🤖 学习建议", "/advice"],
-            ["📊 学习报告", "/report"],
-          ].map(([label, href]) => (
-            <Link
-              key={label}
-              href={href}
-              className="bg-white/70 dark:bg-white/5 border border-amber-900/15 dark:border-amber-100/15 rounded-full px-3 py-1 text-slate-600 hover:text-rose-600 hover:border-rose-300 transition-colors"
-            >
-              {label}
-            </Link>
-          ))}
-        </div>
-      </section>
     </div>
   );
 }

@@ -27,6 +27,17 @@ const HEIGHTS = [206, 228, 198, 216, 234, 202, 212, 222, 200, 214, 208];
 /** 书脊微倾角（散落感，不随机抖动） */
 const SPINE_TILTS = [-1.6, 0.8, -0.6, 1.4, 0, -1, 1.8, -0.9, 0.5, -1.4, 1];
 
+/** 墙上功能海报（房间装饰 + 快捷入口） */
+const WALL_POSTERS: Array<[string, string, string]> = [
+  ["💬", "AI 导师答疑", "/learn/python"],
+  ["📝", "练习测验", "/learn/python"],
+  ["💻", "代码实操", "/learn/python"],
+  ["🎤", "模拟面试", "/learn/python"],
+  ["📚", "知识库", "/notebook"],
+  ["🤖", "学习建议", "/advice"],
+  ["📊", "学习报告", "/report"],
+];
+
 export interface BookshelfProps {
   courses: Course[];
   progress: Progress | null;
@@ -102,6 +113,26 @@ export default function Bookshelf({
     return map;
   }, [courses]);
 
+  // ---- 房间装饰：挂钟实时走时 + 墙上进度挂牌 ----
+  const [now, setNow] = useState<Date | null>(null);
+  useEffect(() => {
+    setNow(new Date());
+    const t = window.setInterval(() => setNow(new Date()), 30000);
+    return () => window.clearInterval(t);
+  }, []);
+  const hourDeg = now ? (now.getHours() % 12 + now.getMinutes() / 60) * 30 : 0;
+  const minDeg = now ? now.getMinutes() * 6 : 0;
+  const roomStats = useMemo(
+    () => ({
+      xp: progress?.xp ?? 0,
+      streak: progress?.streak ?? 0,
+      done: progress
+        ? Object.values(progress.lessons).filter((l) => l.completed).length
+        : 0,
+    }),
+    [progress]
+  );
+
   const pick = (lang: string) => {
     clearTimers();
     setPicked(lang);
@@ -164,6 +195,67 @@ export default function Bookshelf({
         opened || closing ? "is-open-book" : ""
       }`}
     >
+      {/* ---------- 房间装饰（挂在墙上，不参与布局） ---------- */}
+      <div className="room-decor pendant-lamp" aria-hidden="true">
+        <span className="lamp-cord" />
+        <span className="lamp-shade" />
+        <span className="lamp-glow" />
+      </div>
+
+      <div className="room-decor wall-clock" aria-hidden="true">
+        {now && (
+          <>
+            <span
+              className="clock-hand clock-hand-hour"
+              style={{ transform: `rotate(${hourDeg}deg)` }}
+            />
+            <span
+              className="clock-hand clock-hand-min"
+              style={{ transform: `rotate(${minDeg}deg)` }}
+            />
+            <span className="clock-pin" />
+          </>
+        )}
+      </div>
+
+      <div className="room-decor wall-plaques">
+        <div className="wall-plaque" title="XP 经验值">
+          <span className="plaque-num">{roomStats.xp}</span>
+          <span className="plaque-label">⚡ XP 经验</span>
+        </div>
+        <div className="wall-plaque" title="连续学习天数">
+          <span className="plaque-num">{roomStats.streak}</span>
+          <span className="plaque-label">🔥 连续天数</span>
+        </div>
+        <div className="wall-plaque" title="已完成课程">
+          <span className="plaque-num">{roomStats.done}</span>
+          <span className="plaque-label">✅ 完成课程</span>
+        </div>
+      </div>
+
+      <div className="room-decor wall-sign">
+        <p className="sign-title">
+          ⚡ CodeTutor AI —— 用 AI 导师 学编程、运维与外语
+        </p>
+        <p className="sign-sub">
+          11 门课 · 259 节 —— AI 全程陪学：讲解、答疑、出题、批改、模拟面试、规划路径
+        </p>
+      </div>
+
+      <nav className="room-decor wall-posters" aria-label="功能快捷入口">
+        {WALL_POSTERS.map(([icon, label, href]) => (
+          <Link key={label} href={href} className="wall-poster">
+            <span aria-hidden="true">{icon}</span>
+            {label}
+          </Link>
+        ))}
+      </nav>
+
+      <div className="room-floor" aria-hidden="true" />
+      <div className="room-plant" aria-hidden="true">
+        🪴
+      </div>
+
       {/* ---------- 1️⃣/2️⃣ 多层书柜：书高低错落散落在不同层板上 ---------- */}
       <div
         className={`shelf-wrap ${picked ? "shelf-dimmed" : ""}`}
