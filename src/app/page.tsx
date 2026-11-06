@@ -83,7 +83,7 @@ export default function Dashboard() {
           lockedLangs={lockedLangs}
           giftBox={
             LANGUAGE_COURSES.length > 0
-              ? { href: "/languages", label: "日语", sub: "语言增值包" }
+              ? { href: "/languages", label: "增值礼包", sub: "语言学习增值包" }
               : undefined
           }
         />

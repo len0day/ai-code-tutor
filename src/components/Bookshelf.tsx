@@ -269,7 +269,7 @@ export default function Bookshelf({
           </span>
           <span className="gift-body" aria-hidden="true">
             <span className="gift-ribbon-v" />
-            <span className="gift-tag">{giftBox.label}</span>
+            <span className="gift-print">{giftBox.label}</span>
           </span>
           <span className="gift-shadow" aria-hidden="true" />
           <span className="gift-sparkle sparkle-a" aria-hidden="true">

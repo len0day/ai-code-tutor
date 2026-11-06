@@ -114,21 +114,25 @@
   padding: 0 4px;
 }
 
-/* ---------- 书架标题：墙上的藏书目录牌 ---------- */
+/* ---------- 书架标题：直接印在墙上（无边框、浮雕质感） ---------- */
 .shelf-heading {
   display: inline-flex;
   flex-direction: column;
   gap: 6px;
-  padding: 12px 24px 13px;
-  border-radius: 10px;
-  background:
-    radial-gradient(130% 150% at 0% 0%, rgba(255, 226, 170, 0.14), transparent 62%),
-    linear-gradient(160deg, #3d2c1d 0%, #2b1f14 58%, #1d150d 100%);
-  border: 1px solid rgba(201, 162, 75, 0.5);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 226, 170, 0.2),
-    inset 0 0 24px rgba(0, 0, 0, 0.42),
-    0 8px 20px rgba(20, 12, 4, 0.45);
+  padding: 4px 2px 6px;
+}
+/* 墙上的一圈柔光，让字看起来像刷在木纹上 */
+.shelf-heading::before {
+  content: "";
+  position: absolute;
+  inset: -14px -30px -18px -26px;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    60% 80% at 30% 40%,
+    rgba(255, 216, 150, 0.09),
+    transparent 72%
+  );
 }
 .shelf-heading-main {
   display: flex;
@@ -138,34 +142,36 @@
 .shelf-heading-icon {
   font-size: 19px;
   line-height: 1;
-  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.5));
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.6));
 }
 .shelf-heading-title {
   font-family: "Songti SC", "STSong", "SimSun", Georgia, serif;
-  font-size: 19px;
+  font-size: 20px;
   font-weight: 700;
-  letter-spacing: 0.1em;
-  color: #f6e3bd;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  letter-spacing: 0.12em;
+  color: rgba(248, 232, 198, 0.94);
+  text-shadow:
+    0 1px 0 rgba(0, 0, 0, 0.55),
+    0 -1px 0 rgba(255, 226, 170, 0.14),
+    0 0 18px rgba(255, 208, 130, 0.16);
 }
 .shelf-heading-count {
-  padding: 2px 11px;
+  padding: 1px 10px;
   border-radius: 999px;
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.06em;
-  color: #3a2708;
-  background: linear-gradient(180deg, #f7dfa4 0%, #d9ab5c 100%);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.7),
-    0 1px 4px rgba(0, 0, 0, 0.4);
+  letter-spacing: 0.08em;
+  color: rgba(240, 214, 160, 0.92);
+  background: rgba(201, 162, 75, 0.16);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 .shelf-heading-sub {
   font-family: "Kaiti SC", "STKaiti", "KaiTi", cursive, serif;
   font-size: 13px;
-  letter-spacing: 0.02em;
-  color: rgba(240, 224, 194, 0.72);
+  letter-spacing: 0.03em;
+  color: rgba(232, 214, 180, 0.6);
   padding-left: 29px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
 }
 
 /* ============================================================
@@ -275,18 +281,18 @@
 
 /* 挂钟（实时走时） */
 .wall-clock {
-  right: 6%;
-  top: 12%;
-  width: 84px;
-  height: 84px;
+  right: 5%;
+  top: 10%;
+  width: 126px;
+  height: 126px;
   border-radius: 50%;
   background:
     radial-gradient(circle at 34% 30%, rgba(255, 255, 255, 0.85), rgba(250, 244, 228, 0.92) 55%),
     #efe6cd;
-  border: 6px solid #7a4f26;
+  border: 8px solid #7a4f26;
   box-shadow:
     inset 0 0 0 2px rgba(201, 162, 75, 0.7),
-    6px 10px 22px rgba(30, 20, 8, 0.4);
+    8px 14px 28px rgba(30, 20, 8, 0.45);
 }
 .wall-clock::before {
   /* 12 刻度 */
@@ -304,27 +310,28 @@
 }
 .clock-hand {
   position: absolute;
-  left: calc(50% - 2px);
+  left: calc(50% - 2.5px);
   bottom: 50%;
-  width: 4px;
-  border-radius: 2px;
+  width: 5px;
+  border-radius: 3px;
   transform-origin: 50% 100%;
   background: #3d2c14;
 }
 .clock-hand-hour {
-  height: 20px;
+  height: 30px;
+  width: 5px;
 }
 .clock-hand-min {
-  height: 28px;
-  width: 3px;
+  height: 44px;
+  width: 4px;
   background: #6d4a1f;
 }
 .clock-pin {
   position: absolute;
-  left: calc(50% - 4.5px);
-  top: calc(50% - 4.5px);
-  width: 9px;
-  height: 9px;
+  left: calc(50% - 6px);
+  top: calc(50% - 6px);
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
   background: radial-gradient(circle at 35% 30%, #f4d98b, #8a5a2f);
 }
@@ -389,104 +396,97 @@
   letter-spacing: 0.08em;
 }
 
-/* 介绍牌：深色皮革 + 金箔描边 + 角饰，像图书馆的藏书说明牌 */
+/* 介绍牌：直接印在墙上（无边框、浮雕质感） */
 .wall-sign {
   left: 5%;
-  top: 52%;
-  width: 214px;
-  padding: 16px 18px 15px;
-  border-radius: 8px;
+  top: 50%;
+  width: 226px;
+  padding: 4px 2px 6px;
   color: #f6e7c8;
-  background:
-    radial-gradient(120% 90% at 30% 0%, rgba(255, 226, 170, 0.12), transparent 60%),
-    linear-gradient(160deg, #3a2a1c 0%, #2b1f14 55%, #1f160e 100%);
-  border: 1px solid rgba(201, 162, 75, 0.55);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 226, 170, 0.22),
-    inset 0 0 26px rgba(0, 0, 0, 0.45),
-    6px 12px 22px rgba(20, 12, 4, 0.5);
 }
-/* 内描边金框 */
-.wall-sign::after {
-  content: "";
-  position: absolute;
-  inset: 6px;
-  border: 1px solid rgba(201, 162, 75, 0.32);
-  border-radius: 4px;
-  pointer-events: none;
-}
+/* 墙上柔光 */
 .wall-sign::before {
   content: "";
   position: absolute;
-  left: 50%;
-  top: -14px;
-  width: 30px;
-  height: 14px;
-  transform: translateX(-50%);
-  border-left: 2px solid rgba(230, 200, 150, 0.55);
-  border-right: 2px solid rgba(230, 200, 150, 0.55);
+  inset: -16px -26px -20px -24px;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    62% 78% at 35% 42%,
+    rgba(255, 214, 150, 0.1),
+    transparent 74%
+  );
 }
 .sign-title {
-  position: relative;
   font-family: "Songti SC", "STSong", "SimSun", Georgia, serif;
-  font-size: 13.5px;
+  font-size: 14px;
   font-weight: 700;
-  letter-spacing: 0.02em;
-  line-height: 1.65;
-  color: #f6e3bd;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+  letter-spacing: 0.03em;
+  line-height: 1.7;
+  color: rgba(248, 232, 198, 0.92);
+  text-shadow:
+    0 1px 0 rgba(0, 0, 0, 0.55),
+    0 -1px 0 rgba(255, 226, 170, 0.12),
+    0 0 16px rgba(255, 208, 130, 0.14);
 }
 /* 标题下的花饰分隔线 */
 .sign-title::after {
   content: "❦";
   display: block;
-  margin: 6px 0 2px;
+  margin: 8px 0 2px;
   font-size: 10px;
   letter-spacing: 0.4em;
-  color: rgba(201, 162, 75, 0.8);
+  color: rgba(201, 162, 75, 0.7);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
 }
 .sign-sub {
-  position: relative;
-  font-size: 10.5px;
-  line-height: 1.75;
-  color: rgba(240, 224, 194, 0.72);
-  letter-spacing: 0.01em;
+  font-size: 11px;
+  line-height: 1.8;
+  color: rgba(232, 214, 180, 0.62);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.65);
 }
 
-/* 功能海报（相框式快捷入口） */
+/* 功能海报：直接印在墙上（无相框、浮雕质感） */
 .wall-posters {
   right: 5%;
   top: 26%;
   display: flex;
   flex-direction: column;
-  gap: 9px;
+  gap: 11px;
 }
 .wall-poster {
   display: flex;
   align-items: center;
-  gap: 8px;
-  width: 132px;
-  padding: 7px 11px;
-  font-size: 12px;
-  color: #4a3a22;
-  background: linear-gradient(180deg, #fdf8ec 0%, #f3ead2 100%);
-  border: 3px solid #7a4f26;
-  border-radius: 4px;
-  box-shadow:
-    inset 0 0 0 1px rgba(255, 236, 190, 0.8),
-    4px 8px 16px rgba(30, 20, 8, 0.35);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  gap: 9px;
+  width: 138px;
+  padding: 5px 10px;
+  font-size: 12.5px;
+  letter-spacing: 0.04em;
+  color: rgba(240, 224, 190, 0.62);
+  border-radius: 6px;
+  text-shadow:
+    0 1px 0 rgba(0, 0, 0, 0.6),
+    0 -1px 0 rgba(255, 226, 170, 0.08);
+  transition:
+    color 0.25s ease,
+    transform 0.25s ease,
+    text-shadow 0.25s ease;
 }
-.dark .wall-poster {
-  color: #eadfc2;
-  background: linear-gradient(180deg, #2b2419 0%, #221c12 100%);
-  border-color: #5f4222;
+.wall-poster span {
+  font-size: 14px;
+  opacity: 0.72;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.6));
+  transition: opacity 0.25s ease;
 }
 .wall-poster:hover {
-  transform: translateY(-3px) rotate(-1deg);
-  box-shadow:
-    inset 0 0 0 1px rgba(255, 236, 190, 0.8),
-    6px 14px 24px rgba(30, 20, 8, 0.45);
+  color: rgba(255, 232, 180, 0.98);
+  transform: translateX(-3px);
+  text-shadow:
+    0 1px 0 rgba(0, 0, 0, 0.6),
+    0 0 16px rgba(255, 208, 130, 0.45);
+}
+.wall-poster:hover span {
+  opacity: 1;
 }
 
 /* 地板 + 踢脚线 */
@@ -531,7 +531,7 @@
 /* ---------- 书架旁的礼物盒（增值包） ---------- */
 .gift-box {
   position: absolute;
-  left: calc(50% + 148px);
+  left: calc(50% + 205px);
   bottom: 42px;
   z-index: 2;
   width: 108px;
@@ -568,21 +568,21 @@
     inset 0 2px 3px rgba(255, 255, 255, 0.3),
     6px 10px 18px rgba(20, 12, 4, 0.45);
 }
+/* 盒身正面的横向金缎带（字印在带上） */
 .gift-ribbon-v {
   position: absolute;
-  left: 50%;
-  top: 0;
-  bottom: 0;
-  width: 18px;
-  transform: translateX(-50%);
+  left: 0;
+  right: 0;
+  top: 38px;
+  height: 17px;
   background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0.3),
-    #fbbf24 35%,
-    #d97706 75%,
-    rgba(0, 0, 0, 0.2)
+    180deg,
+    rgba(255, 255, 255, 0.32),
+    #fbbf24 38%,
+    #d97706 78%,
+    rgba(0, 0, 0, 0.22)
   );
-  box-shadow: 0 0 10px rgba(251, 191, 36, 0.45);
+  box-shadow: 0 0 12px rgba(251, 191, 36, 0.4);
 }
 .gift-lid {
   position: absolute;
@@ -672,20 +672,20 @@
   border-radius: 50%;
   background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.45), transparent 70%);
 }
-.gift-tag {
+/* 盒身上印的字（丝印质感，印在金色缎带上） */
+.gift-print {
   position: absolute;
   left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%) rotate(-4deg);
-  padding: 3px 9px;
-  border-radius: 3px;
-  font-size: 10px;
-  font-weight: 700;
-  color: #7c2d12;
-  background: linear-gradient(180deg, #fffbeb, #fde68a);
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-  white-space: nowrap;
+  top: 46.5px;
+  transform: translate(-50%, -50%);
   z-index: 2;
+  font-family: "Songti SC", "STSong", "SimSun", Georgia, serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #6b3410;
+  text-shadow: 0 1px 0 rgba(255, 245, 214, 0.55);
+  white-space: nowrap;
 }
 .gift-caption {
   position: absolute;
