@@ -63,20 +63,7 @@ export default function Dashboard() {
       )}
 
       {/* 书架：图书馆场景，编程与运维课程（语言课在增值包书架） */}
-      <section className="space-y-4">
-        <div className="shelf-heading">
-          <div className="shelf-heading-main">
-            <span className="shelf-heading-icon" aria-hidden="true">
-              📚
-            </span>
-            <h2 className="shelf-heading-title">我的书架</h2>
-            <span className="shelf-heading-count">{CODE_COURSES.length} 本</span>
-          </div>
-          <p className="shelf-heading-sub">
-            点一本书把它从书架上抽出来，再点一下翻开封面，从目录进入全屏阅读。
-          </p>
-        </div>
-
+      <section>
         <Bookshelf
           courses={CODE_COURSES}
           progress={progress}

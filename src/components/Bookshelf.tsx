@@ -61,8 +61,6 @@ export default function Bookshelf({
   const [picked, setPicked] = useState<string | null>(null);
   /** 封面已翻开 */
   const [opened, setOpened] = useState(false);
-  /** 合上中（封面摆回动画） */
-  const [closing, setClosing] = useState(false);
   /** 放回中（书本飞回书架动画） */
   const [returning, setReturning] = useState(false);
   const timers = useRef<number[]>([]);
@@ -136,30 +134,17 @@ export default function Bookshelf({
     clearTimers();
     setPicked(lang);
     setOpened(false);
-    setClosing(false);
     setReturning(false);
   };
   /** 翻开封面 */
   const openBook = () => {
-    if (closing || returning || opened) return;
+    if (returning || opened) return;
     setOpened(true);
-  };
-  /** 合上封面（摆回动画后复位） */
-  const closeBook = () => {
-    if (!opened || closing || returning) return;
-    setClosing(true);
-    timers.current.push(
-      window.setTimeout(() => {
-        setClosing(false);
-        setOpened(false);
-      }, 820)
-    );
   };
   /** 放回书架（飞回动画后卸载） */
   const putBack = () => {
     clearTimers();
     setReturning(true);
-    setClosing(false);
     timers.current.push(
       window.setTimeout(() => {
         setPicked(null);
@@ -168,15 +153,13 @@ export default function Bookshelf({
       }, 460)
     );
   };
-
-  const lessonHref = (c: Course, id: string | null) =>
-    id
-      ? c.kind === "language"
-        ? `/languages/${c.lang}/${id}`
-        : `/learn/${c.lang}/${id}`
-      : c.kind === "language"
-        ? `/languages/${c.lang}`
-        : `/learn/${c.lang}`;
+  /** 点击书以外的任意区域 = 放回书架 */
+  const handleSceneClick = (e: React.MouseEvent) => {
+    if (!picked || returning) return;
+    const t = e.target as HTMLElement;
+    if (t.closest(".focus-book") || t.closest(".focus-actions")) return;
+    putBack();
+  };
 
   /** 翻开后目录按章对半分到左右两页（像大纲页一样铺开） */
   const flatAll = current ? flatLessons(current.lang) : [];
@@ -191,8 +174,9 @@ export default function Bookshelf({
   return (
     <div
       className={`shelf-scene ${picked ? "has-book" : ""} ${
-        opened || closing ? "is-open-book" : ""
+        opened ? "is-open-book" : ""
       }`}
+      onClick={handleSceneClick}
     >
       {/* ---------- 房间装饰（挂在墙上，不参与布局） ---------- */}
       <div className="room-decor pendant-lamp" aria-hidden="true">
@@ -218,23 +202,38 @@ export default function Bookshelf({
       </div>
 
       <div className="room-decor wall-plaques">
-        <div className="wall-plaque" title="XP 经验值">
-          <span className="plaque-num">{roomStats.xp}</span>
-          <span className="plaque-label">⚡ XP 经验</span>
+        <div className="wall-scroll">
+          <span className="scroll-cord" aria-hidden="true" />
+          <span className="scroll-rod" aria-hidden="true" />
+          <span className="scroll-silk silk-a">
+            <span className="scroll-num">{roomStats.xp}</span>
+            <span className="scroll-label">XP 经验</span>
+          </span>
+          <span className="scroll-rod" aria-hidden="true" />
         </div>
-        <div className="wall-plaque" title="连续学习天数">
-          <span className="plaque-num">{roomStats.streak}</span>
-          <span className="plaque-label">🔥 连续天数</span>
+        <div className="wall-scroll">
+          <span className="scroll-cord" aria-hidden="true" />
+          <span className="scroll-rod" aria-hidden="true" />
+          <span className="scroll-silk silk-b">
+            <span className="scroll-num">{roomStats.streak}</span>
+            <span className="scroll-label">连续天数</span>
+          </span>
+          <span className="scroll-rod" aria-hidden="true" />
         </div>
-        <div className="wall-plaque" title="已完成课程">
-          <span className="plaque-num">{roomStats.done}</span>
-          <span className="plaque-label">✅ 完成课程</span>
+        <div className="wall-scroll">
+          <span className="scroll-cord" aria-hidden="true" />
+          <span className="scroll-rod" aria-hidden="true" />
+          <span className="scroll-silk silk-c">
+            <span className="scroll-num">{roomStats.done}</span>
+            <span className="scroll-label">完成课程</span>
+          </span>
+          <span className="scroll-rod" aria-hidden="true" />
         </div>
       </div>
 
       <div className="room-decor wall-sign">
         <p className="sign-title">
-          ⚡ CodeTutor AI —— 用 AI 导师 学编程、运维与外语
+          CodeTutor AI —— 用 AI 导师 学编程、运维与外语
         </p>
         <p className="sign-sub">
           11 门课 · 259 节 —— AI 全程陪学：讲解、答疑、出题、批改、模拟面试、规划路径
@@ -349,61 +348,28 @@ export default function Bookshelf({
         </div>
       </div>
 
-      {/* ---------- 2️⃣/3️⃣ 展示台：悬浮的书 → 封面立最左 + 目录两页铺开 ---------- */}
+      {/* ---------- 2️⃣/3️⃣ 展示台：悬浮的书 → 封面独立 3D + 目录两页铺开 ---------- */}
       {current && currentStats && (
         <div
           className={`focus-stage ${returning ? "is-returning" : ""}`}
           aria-live="polite"
         >
-          <div className="flex items-center justify-center gap-3 flex-wrap">
-            <span className="hand-note text-sm">
-              {returning
-                ? "📕 放回书架…"
-                : closing
-                  ? "📓 合上封面…"
-                  : opened
-                    ? "📖 点击目录任意一节，进入全屏阅读"
-                    : "👆 再点一下，翻开这本书"}
-            </span>
-            <div className="flex items-center gap-2">
-              {opened && !closing && !returning && (
-                <>
-                  <Link
-                    href={lessonHref(current, currentStats.nextId)}
-                    className="text-xs font-medium text-rose-600 hover:text-rose-700 border border-rose-200 dark:border-rose-500/40 rounded-full px-3 py-1 transition-colors"
-                  >
-                    翻开这一页 →
-                  </Link>
-                  <button
-                    onClick={closeBook}
-                    className="text-xs text-slate-400 hover:text-rose-500 border border-border rounded-full px-3 py-1 transition-colors"
-                  >
-                    合上封面
-                  </button>
-                </>
-              )}
-              <button
-                onClick={putBack}
-                disabled={returning}
-                className="text-xs text-slate-400 hover:text-rose-500 border border-border rounded-full px-3 py-1 transition-colors disabled:opacity-40"
-              >
-                ↩ 放回书架
-              </button>
-            </div>
+          <div className="focus-actions">
+            <button onClick={putBack} disabled={returning} className="return-btn">
+              ↩ 放回书架
+            </button>
           </div>
 
           <div
-            className={`focus-book ${opened && !closing ? "is-open" : ""} ${
-              closing ? "is-closing" : ""
-            }`}
+            className={`focus-book ${opened ? "is-open" : ""}`}
             data-course={current.lang}
           >
-            {/* 封面：合上时盖住全书悬浮展示；翻开后立于最左 */}
+            {/* 封面：真 3D 书体（封面 + 书脊 + 书页 + 封底），烫金排版 */}
             <button
               onClick={openBook}
               aria-label={opened ? undefined : `翻开《${current.name}》`}
               tabIndex={opened ? -1 : 0}
-              className="focus-book-cover book-cover"
+              className="focus-book-cover"
               style={
                 {
                   "--cover-from": SPINE_COLORS[current.lang]?.[0] ?? "#a1a1aa",
@@ -412,28 +378,38 @@ export default function Bookshelf({
                 } as React.CSSProperties
               }
             >
-              <span className="focus-book-inner">
-                <span className="text-[11px] tracking-[0.3em] opacity-75">
-                  {current.kind === "language" ? "LANGUAGE" : "PROGRAMMING"}
-                </span>
-                <span className="text-6xl mt-8">{current.emoji}</span>
-                <h3 className="serif-title text-4xl font-bold mt-4">
-                  {current.name}
-                </h3>
-                <span className="hand-note text-sm mt-2 text-left px-8 leading-relaxed">
-                  {current.tagline}
-                </span>
-                <span className="mt-auto mb-6 w-52">
-                  <span className="block h-1.5 bg-black/25 rounded-full overflow-hidden mb-2">
-                    <span
-                      className="block h-full bg-gradient-to-r from-amber-200 to-amber-100 rounded-full transition-all duration-700"
-                      style={{ width: `${currentStats.pct}%` }}
-                    />
-                  </span>
-                  <span className="flex justify-between text-xs opacity-80">
-                    <span>已读 {currentStats.pct}%</span>
-                    <span>
-                      {current.levels.length} 章 · {currentStats.total} 页
+              <span className="book3d" aria-hidden="true">
+                {/* 封底 */}
+                <span className="book3d-face b3-back" />
+                {/* 书脊 */}
+                <span className="book3d-face b3-spine" />
+                {/* 书页侧面与顶面 */}
+                <span className="book3d-face b3-pages-r" />
+                <span className="book3d-face b3-pages-t" />
+                {/* 正面：烫金排版 */}
+                <span className="book3d-face b3-front">
+                  <span className="focus-book-inner">
+                    <span className="cover-label foil">
+                      {current.kind === "language" ? "LANGUAGE" : "PROGRAMMING"}
+                    </span>
+                    <span className="cover-title serif-title foil">
+                      {current.name}
+                    </span>
+                    <span className="cover-divider" aria-hidden="true">
+                      ❦
+                    </span>
+                    <span className="cover-tagline">{current.tagline}</span>
+                    <span className="mt-auto mb-6 w-52">
+                      <span className="block h-1.5 bg-black/30 rounded-full overflow-hidden mb-2">
+                        <span
+                          className="block h-full bg-gradient-to-r from-amber-200 to-amber-100 rounded-full transition-all duration-700"
+                          style={{ width: `${currentStats.pct}%` }}
+                        />
+                      </span>
+                      <span className="cover-meta">
+                        已读 {currentStats.pct}% · {current.levels.length} 章 ·{" "}
+                        {currentStats.total} 页
+                      </span>
                     </span>
                   </span>
                 </span>
