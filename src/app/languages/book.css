@@ -219,10 +219,11 @@
   pointer-events: none;
 }
 
-/* 挂钟（实时走时，介绍牌下方） */
+/* 挂钟（实时走时，左上区域中心） */
 .wall-clock {
-  right: 4.5%;
-  top: 34%;
+  left: 11%;
+  right: auto;
+  top: 21%;
   width: 150px;
   height: 150px;
   border-radius: 50%;
@@ -278,7 +279,7 @@
 /* 进度挂牌：挂轴卷轴（绸面 + 上下木轴 + 挂绳） */
 .wall-plaques {
   left: 4%;
-  top: 30%;
+  top: 56%;
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -389,7 +390,7 @@
 .wall-sign {
   left: 4%;
   right: auto;
-  top: 6%;
+  top: 3.5%;
   width: fit-content;
   max-width: 40vw;
   padding: 4px 2px 6px;
@@ -441,40 +442,78 @@
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.65);
 }
 
-/* 功能刻字：艺术字浮雕，印在墙上（无图标） */
-.wall-posters {
-  right: 4.5%;
-  top: 64%;
+/* 功能快捷入口：挂在墙上的小木牌（悬停摆动） */
+.wall-tags {
+  right: 6%;
+  top: 30%;
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  text-align: right;
+  gap: 26px;
 }
-.wall-poster {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  padding: 2px 2px;
+.wall-tag {
+  position: relative;
+  display: block;
+  width: fit-content;
+  transform-origin: 50% -14px;
+  transition: transform 0.3s ease;
+}
+.wall-tag:hover {
+  transform: rotate(-3deg);
+}
+.tag-cord {
+  position: absolute;
+  left: 50%;
+  top: -16px;
+  width: 2px;
+  height: 16px;
+  transform: translateX(-50%);
+  background: linear-gradient(180deg, rgba(235, 205, 155, 0.3), rgba(235, 205, 155, 0.7));
+}
+.tag-cord::before {
+  content: "";
+  position: absolute;
+  top: -4px;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #f4d98b, #6d4523);
+}
+.tag-board {
+  display: block;
+  padding: 9px 20px 10px;
+  border-radius: 6px;
   font-family: "Songti SC", "STSong", "SimSun", Georgia, serif;
-  font-size: 16px;
+  font-size: 14.5px;
   font-weight: 700;
-  letter-spacing: 0.34em;
-  color: rgba(238, 220, 184, 0.58);
+  letter-spacing: 0.22em;
+  color: rgba(255, 236, 190, 0.92);
   text-shadow:
-    0 1px 0 rgba(0, 0, 0, 0.65),
-    0 -1px 0 rgba(255, 226, 170, 0.16);
-  transition:
-    color 0.25s ease,
-    letter-spacing 0.3s ease,
-    text-shadow 0.25s ease;
+    0 1px 0 rgba(0, 0, 0, 0.55),
+    0 -1px 0 rgba(255, 226, 170, 0.14);
+  background:
+    radial-gradient(120% 130% at 0% 0%, rgba(255, 226, 170, 0.16), transparent 62%),
+    linear-gradient(160deg, #4a321c 0%, #2b1f14 58%, #1d150d 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 226, 170, 0.22),
+    inset 0 0 18px rgba(0, 0, 0, 0.4),
+    5px 9px 16px rgba(20, 12, 4, 0.42);
+  white-space: nowrap;
 }
-.wall-poster:hover {
-  color: rgba(255, 234, 186, 0.98);
-  letter-spacing: 0.42em;
+.tag-board::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border: 1px solid rgba(201, 162, 75, 0.3);
+  border-radius: 4px;
+  pointer-events: none;
+}
+.wall-tag:hover .tag-board {
+  color: rgba(255, 240, 205, 1);
   text-shadow:
-    0 1px 0 rgba(0, 0, 0, 0.65),
-    0 -1px 0 rgba(255, 226, 170, 0.2),
-    0 0 18px rgba(255, 208, 130, 0.5);
+    0 1px 0 rgba(0, 0, 0, 0.55),
+    0 0 16px rgba(255, 208, 130, 0.5);
 }
 
 /* 地板 + 踢脚线 */

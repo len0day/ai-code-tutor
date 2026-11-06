@@ -240,10 +240,11 @@ export default function Bookshelf({
         </p>
       </div>
 
-      <nav className="room-decor wall-posters" aria-label="功能快捷入口">
+      <nav className="room-decor wall-tags" aria-label="功能快捷入口">
         {WALL_POSTERS.map(([label, href]) => (
-          <Link key={label} href={href} className="wall-poster">
-            {label}
+          <Link key={label} href={href} className="wall-tag">
+            <span className="tag-cord" aria-hidden="true" />
+            <span className="tag-board">{label}</span>
           </Link>
         ))}
       </nav>
