@@ -24,6 +24,9 @@ const SPINE_COLORS: Record<string, [string, string]> = {
 /** 书脊高度（略有高低，像真实的一排书） */
 const HEIGHTS = [206, 228, 198, 216, 234, 202, 212, 222, 200, 214, 208];
 
+/** 书脊微倾角（散落感，不随机抖动） */
+const SPINE_TILTS = [-1.6, 0.8, -0.6, 1.4, 0, -1, 1.8, -0.9, 0.5, -1.4, 1];
+
 export interface BookshelfProps {
   courses: Course[];
   progress: Progress | null;
@@ -85,6 +88,19 @@ export default function Bookshelf({
 
   const current = courses.find((c) => c.lang === picked) ?? null;
   const currentStats = current ? stats[current.lang] : null;
+
+  /** 书分散到多层书柜：轮转分配 + 记录每本书的全局序号（用于错落样式） */
+  const rows = useMemo(() => {
+    const rowCount = courses.length <= 4 ? 1 : courses.length <= 8 ? 2 : 3;
+    const out: Course[][] = Array.from({ length: rowCount }, () => []);
+    courses.forEach((c, i) => out[i % rowCount].push(c));
+    return out;
+  }, [courses]);
+  const courseIndex = useMemo(() => {
+    const map: Record<string, number> = {};
+    courses.forEach((c, i) => (map[c.lang] = i));
+    return map;
+  }, [courses]);
 
   const pick = (lang: string) => {
     clearTimers();
@@ -148,55 +164,71 @@ export default function Bookshelf({
         opened || closing ? "is-open-book" : ""
       }`}
     >
-      {/* ---------- 1️⃣/2️⃣ 书架（同行左侧，抽出后退为背景） ---------- */}
+      {/* ---------- 1️⃣/2️⃣ 多层书柜：书高低错落散落在不同层板上 ---------- */}
       <div
         className={`shelf-wrap ${picked ? "shelf-dimmed" : ""}`}
         aria-hidden={picked ? true : undefined}
       >
-        <div className="shelf-inner">
-          <div className="shelf-row" role="group" aria-label="课程书架">
-            {courses.map((c, i) => {
-              const s = stats[c.lang];
-              const [from, to] = SPINE_COLORS[c.lang] ?? ["#a1a1aa", "#4b5563"];
-              const locked = lockedLangs.includes(c.lang);
-              return (
-                <div key={c.lang} className="contents">
-                  <button
-                    onClick={() => pick(c.lang)}
-                    aria-label={`抽出《${c.name}》`}
-                    title={`《${c.name}》${locked ? "（已达课程数上限）" : ""}`}
-                    className={`book-spine ${locked ? "is-locked" : ""}`}
-                    style={
-                      {
-                        "--spine-h": `${HEIGHTS[i % HEIGHTS.length]}px`,
-                        "--spine-from": from,
-                        "--spine-to": to,
-                      } as React.CSSProperties
-                    }
-                  >
-                    <span className="spine-emoji">{c.emoji}</span>
-                    <span
-                      className={`vertical-title spine-title ${
-                        c.name.length > 6 ? "is-long" : ""
+        <div className="bookcase">
+          <div className="bookcase-cap" aria-hidden="true" />
+          {rows.map((row, ri) => (
+            <div className="shelf-row" key={ri} role="group" aria-label={`书架第 ${ri + 1} 层`}>
+              {row.map((c) => {
+                const s = stats[c.lang];
+                const gi = courseIndex[c.lang];
+                const [from, to] = SPINE_COLORS[c.lang] ?? ["#a1a1aa", "#4b5563"];
+                const locked = lockedLangs.includes(c.lang);
+                // 散落感：间距 / 倾斜 / 偶尔斜靠，全部由索引确定（无随机抖动）
+                const gap = 6 + ((gi * 7) % 14);
+                const tilt = SPINE_TILTS[gi % SPINE_TILTS.length];
+                const lean = gi % 7 === 3;
+                return (
+                  <div key={c.lang} className="contents">
+                    <button
+                      onClick={() => pick(c.lang)}
+                      aria-label={`抽出《${c.name}》`}
+                      title={`《${c.name}》${locked ? "（已达课程数上限）" : ""}`}
+                      className={`book-spine variant-${gi % 3} ${locked ? "is-locked" : ""} ${
+                        lean ? "is-lean" : ""
                       }`}
+                      style={
+                        {
+                          "--spine-h": `${HEIGHTS[gi % HEIGHTS.length]}px`,
+                          "--spine-from": from,
+                          "--spine-to": to,
+                          "--spine-gap": `${lean ? -6 : gap}px`,
+                          "--spine-tilt": `${tilt}deg`,
+                          "--spine-z": lean ? gi : 0,
+                        } as React.CSSProperties
+                      }
                     >
-                      {c.name}
-                    </span>
-                    <span className="spine-meta">
-                      {locked ? "🔒" : `${s.done}/${s.total}`}
-                    </span>
-                    <span className="spine-bar" aria-hidden="true">
+                      <span className="spine-plate">{c.emoji}</span>
                       <span
-                        className="spine-bar-fill"
-                        style={{ height: `${s.pct}%` }}
-                      />
-                    </span>
-                  </button>
-                </div>
-              );
-            })}
-          </div>
-          <div className="shelf-board" aria-hidden="true" />
+                        className={`vertical-title spine-title ${
+                          c.name.length > 5 ? "is-long" : ""
+                        }`}
+                      >
+                        {c.name}
+                      </span>
+                      <span className="spine-div" aria-hidden="true">
+                        ❦
+                      </span>
+                      <span className="spine-meta">
+                        {locked ? "🔒" : `${s.done}/${s.total}`}
+                      </span>
+                      <span className="spine-bar" aria-hidden="true">
+                        <span
+                          className="spine-bar-fill"
+                          style={{ height: `${s.pct}%` }}
+                        />
+                      </span>
+                    </button>
+                  </div>
+                );
+              })}
+              <div className="shelf-board" aria-hidden="true" />
+            </div>
+          ))}
         </div>
       </div>
 
