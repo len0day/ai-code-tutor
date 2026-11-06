@@ -279,20 +279,20 @@
   pointer-events: none;
 }
 
-/* 挂钟（实时走时） */
+/* 挂钟（实时走时，介绍牌下方） */
 .wall-clock {
-  right: 5%;
-  top: 10%;
-  width: 126px;
-  height: 126px;
+  right: 4.5%;
+  top: 34%;
+  width: 150px;
+  height: 150px;
   border-radius: 50%;
   background:
     radial-gradient(circle at 34% 30%, rgba(255, 255, 255, 0.85), rgba(250, 244, 228, 0.92) 55%),
     #efe6cd;
-  border: 8px solid #7a4f26;
+  border: 9px solid #7a4f26;
   box-shadow:
     inset 0 0 0 2px rgba(201, 162, 75, 0.7),
-    8px 14px 28px rgba(30, 20, 8, 0.45);
+    10px 16px 32px rgba(30, 20, 8, 0.5);
 }
 .wall-clock::before {
   /* 12 刻度 */
@@ -310,28 +310,27 @@
 }
 .clock-hand {
   position: absolute;
-  left: calc(50% - 2.5px);
+  left: calc(50% - 3px);
   bottom: 50%;
-  width: 5px;
+  width: 6px;
   border-radius: 3px;
   transform-origin: 50% 100%;
   background: #3d2c14;
 }
 .clock-hand-hour {
-  height: 30px;
-  width: 5px;
+  height: 36px;
 }
 .clock-hand-min {
-  height: 44px;
+  height: 52px;
   width: 4px;
   background: #6d4a1f;
 }
 .clock-pin {
   position: absolute;
-  left: calc(50% - 6px);
-  top: calc(50% - 6px);
-  width: 12px;
-  height: 12px;
+  left: calc(50% - 7px);
+  top: calc(50% - 7px);
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
   background: radial-gradient(circle at 35% 30%, #f4d98b, #8a5a2f);
 }
@@ -339,7 +338,7 @@
 /* 进度挂牌（挂在墙上的小木牌） */
 .wall-plaques {
   left: 5%;
-  top: 12%;
+  top: 38%;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -396,13 +395,15 @@
   letter-spacing: 0.08em;
 }
 
-/* 介绍牌：直接印在墙上（无边框、浮雕质感） */
+/* 介绍牌：右上角，优雅刻字（无边框、浮雕质感） */
 .wall-sign {
-  left: 5%;
-  top: 50%;
-  width: 226px;
+  right: 4%;
+  left: auto;
+  top: 14%;
+  width: 250px;
   padding: 4px 2px 6px;
   color: #f6e7c8;
+  text-align: right;
 }
 /* 墙上柔光 */
 .wall-sign::before {
@@ -412,81 +413,75 @@
   z-index: -1;
   pointer-events: none;
   background: radial-gradient(
-    62% 78% at 35% 42%,
+    62% 78% at 60% 42%,
     rgba(255, 214, 150, 0.1),
     transparent 74%
   );
 }
 .sign-title {
   font-family: "Songti SC", "STSong", "SimSun", Georgia, serif;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 700;
-  letter-spacing: 0.03em;
-  line-height: 1.7;
+  letter-spacing: 0.05em;
+  line-height: 1.75;
   color: rgba(248, 232, 198, 0.92);
   text-shadow:
     0 1px 0 rgba(0, 0, 0, 0.55),
     0 -1px 0 rgba(255, 226, 170, 0.12),
-    0 0 16px rgba(255, 208, 130, 0.14);
+    0 0 18px rgba(255, 208, 130, 0.14);
 }
 /* 标题下的花饰分隔线 */
 .sign-title::after {
   content: "❦";
   display: block;
-  margin: 8px 0 2px;
+  margin: 7px 0 2px;
   font-size: 10px;
   letter-spacing: 0.4em;
   color: rgba(201, 162, 75, 0.7);
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
 }
 .sign-sub {
-  font-size: 11px;
+  font-family: "Kaiti SC", "STKaiti", "KaiTi", cursive, serif;
+  font-size: 11.5px;
   line-height: 1.8;
   color: rgba(232, 214, 180, 0.62);
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.65);
 }
 
-/* 功能海报：直接印在墙上（无相框、浮雕质感） */
+/* 功能刻字：艺术字浮雕，印在墙上（无图标） */
 .wall-posters {
-  right: 5%;
-  top: 26%;
+  right: 4.5%;
+  top: 64%;
   display: flex;
   flex-direction: column;
-  gap: 11px;
+  gap: 20px;
+  text-align: right;
 }
 .wall-poster {
   display: flex;
   align-items: center;
-  gap: 9px;
-  width: 138px;
-  padding: 5px 10px;
-  font-size: 12.5px;
-  letter-spacing: 0.04em;
-  color: rgba(240, 224, 190, 0.62);
-  border-radius: 6px;
+  justify-content: flex-start;
+  padding: 2px 2px;
+  font-family: "Songti SC", "STSong", "SimSun", Georgia, serif;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.34em;
+  color: rgba(238, 220, 184, 0.58);
   text-shadow:
-    0 1px 0 rgba(0, 0, 0, 0.6),
-    0 -1px 0 rgba(255, 226, 170, 0.08);
+    0 1px 0 rgba(0, 0, 0, 0.65),
+    0 -1px 0 rgba(255, 226, 170, 0.16);
   transition:
     color 0.25s ease,
-    transform 0.25s ease,
+    letter-spacing 0.3s ease,
     text-shadow 0.25s ease;
 }
-.wall-poster span {
-  font-size: 14px;
-  opacity: 0.72;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.6));
-  transition: opacity 0.25s ease;
-}
 .wall-poster:hover {
-  color: rgba(255, 232, 180, 0.98);
-  transform: translateX(-3px);
+  color: rgba(255, 234, 186, 0.98);
+  letter-spacing: 0.42em;
   text-shadow:
-    0 1px 0 rgba(0, 0, 0, 0.6),
-    0 0 16px rgba(255, 208, 130, 0.45);
-}
-.wall-poster:hover span {
-  opacity: 1;
+    0 1px 0 rgba(0, 0, 0, 0.65),
+    0 -1px 0 rgba(255, 226, 170, 0.2),
+    0 0 18px rgba(255, 208, 130, 0.5);
 }
 
 /* 地板 + 踢脚线 */

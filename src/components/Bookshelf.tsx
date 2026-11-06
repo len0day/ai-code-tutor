@@ -27,15 +27,11 @@ const HEIGHTS = [206, 228, 198, 216, 234, 202, 212, 222, 200, 214, 208];
 /** 书脊微倾角（散落感，不随机抖动） */
 const SPINE_TILTS = [-1.6, 0.8, -0.6, 1.4, 0, -1, 1.8, -0.9, 0.5, -1.4, 1];
 
-/** 墙上功能海报（房间装饰 + 快捷入口） */
-const WALL_POSTERS: Array<[string, string, string]> = [
-  ["💬", "AI 导师答疑", "/learn/python"],
-  ["📝", "练习测验", "/learn/python"],
-  ["💻", "代码实操", "/learn/python"],
-  ["🎤", "模拟面试", "/learn/python"],
-  ["📚", "知识库", "/notebook"],
-  ["🤖", "学习建议", "/advice"],
-  ["📊", "学习报告", "/report"],
+/** 墙上功能刻字（房间装饰 + 快捷入口） */
+const WALL_POSTERS: Array<[string, string]> = [
+  ["知识库", "/notebook"],
+  ["学习建议", "/advice"],
+  ["学习报告", "/report"],
 ];
 
 export interface BookshelfProps {
@@ -246,9 +242,8 @@ export default function Bookshelf({
       </div>
 
       <nav className="room-decor wall-posters" aria-label="功能快捷入口">
-        {WALL_POSTERS.map(([icon, label, href]) => (
+        {WALL_POSTERS.map(([label, href]) => (
           <Link key={label} href={href} className="wall-poster">
-            <span aria-hidden="true">{icon}</span>
             {label}
           </Link>
         ))}
