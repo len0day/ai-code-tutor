@@ -279,7 +279,7 @@
 /* 进度挂牌：挂轴卷轴（绸面 + 上下木轴 + 挂绳） */
 .wall-plaques {
   left: 4%;
-  top: 26%;
+  top: 40%;
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -537,8 +537,8 @@
 /* ---------- 挂历：当月日历上墙 ---------- */
 .wall-calendar {
   left: 4%;
-  top: 15%;
-  width: 134px;
+  top: 11%;
+  width: 118px;
 }
 .cal-cord {
   position: absolute;
@@ -576,7 +576,7 @@
   border: 1px solid #cfc0a0;
   border-top: none;
   border-radius: 0 0 6px 6px;
-  padding: 8px 8px 10px;
+  padding: 6px 6px 8px;
   box-shadow:
     inset 0 -3px 8px rgba(150, 120, 70, 0.14),
     4px 8px 16px rgba(20, 12, 4, 0.35);
@@ -584,13 +584,13 @@
 .cal-head {
   background: linear-gradient(180deg, #d64545 0%, #b02f2f 100%);
   color: #fff3dd;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.12em;
   text-align: center;
-  padding: 4px 0 5px;
+  padding: 3px 0 4px;
   border-radius: 3px;
-  margin-bottom: 7px;
+  margin-bottom: 5px;
 }
 .cal-grid {
   display: grid;
@@ -598,8 +598,8 @@
   gap: 2px 1px;
 }
 .cal-grid span {
-  font-size: 8.5px;
-  line-height: 1.4;
+  font-size: 8px;
+  line-height: 1.3;
   text-align: center;
   color: #6b5a3e;
   border-radius: 50%;
@@ -613,82 +613,103 @@
   box-shadow: 0 0 6px rgba(214, 69, 69, 0.55);
 }
 
-/* ---------- 书桌 + 电脑 ---------- */
+/* ---------- 书桌 + 显示器电脑 ---------- */
 .room-desk {
   position: absolute;
-  left: calc(50% + 325px);
-  bottom: 26px;
-  width: 172px;
-  height: 132px;
+  left: calc(50% + 315px);
+  bottom: 24px;
+  width: 200px;
+  height: 150px;
   z-index: 1;
   transition: opacity 0.5s ease;
 }
-.desk-slab {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 56px;
-  height: 12px;
-  border-radius: 3px;
-  background: linear-gradient(180deg, #c08a4f 0%, #8a5a2f 60%, #5f3c1c 100%);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 235, 200, 0.45),
-    0 4px 10px rgba(20, 12, 4, 0.35);
-}
-.desk-leg {
-  position: absolute;
-  top: 68px;
-  width: 9px;
-  height: 62px;
-  border-radius: 2px;
-  background: linear-gradient(180deg, #8a5a2f 0%, #5f3c1c 100%);
-}
-.leg-l {
-  left: 20px;
-}
-.leg-r {
-  right: 20px;
-}
-.laptop {
+/* 显示器 */
+.monitor {
   position: absolute;
   left: 50%;
   top: 0;
   transform: translateX(-50%);
-  z-index: 1;
-}
-.laptop-screen {
   display: flex;
   flex-direction: column;
-  gap: 5px;
-  width: 88px;
-  height: 58px;
-  padding: 9px 10px;
-  background: #0d1522;
-  border: 3px solid #2a3648;
-  border-bottom-width: 2px;
-  border-radius: 6px 6px 0 0;
+  align-items: center;
+  z-index: 1;
+}
+.monitor-display {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 134px;
+  height: 82px;
+  padding: 11px 13px;
+  background:
+    radial-gradient(130% 100% at 30% 0%, rgba(120, 165, 245, 0.5), rgba(40, 70, 140, 0.35) 70%),
+    #16233f;
+  border: 4px solid #2c3a52;
+  border-radius: 9px;
   box-shadow:
-    inset 0 0 12px rgba(90, 130, 220, 0.25),
-    0 0 18px rgba(110, 150, 235, 0.28);
+    0 0 30px rgba(110, 150, 235, 0.42),
+    inset 0 0 16px rgba(110, 150, 235, 0.3);
 }
-.ls-line {
-  height: 4px;
-  width: 92%;
-  border-radius: 2px;
-  background: linear-gradient(90deg, #7dd3fc, #a5b4fc);
-  opacity: 0.85;
+.monitor-neck {
+  width: 16px;
+  height: 15px;
+  background: linear-gradient(180deg, #2a3648 0%, #1a2536 100%);
 }
-.ls-line.short {
-  width: 58%;
-  background: linear-gradient(90deg, #86efac, #5eead4);
-}
-.laptop-base {
-  width: 108px;
-  height: 7px;
-  margin: -1px auto 0;
-  border-radius: 0 0 9px 9px;
+.monitor-base {
+  width: 78px;
+  height: 8px;
+  border-radius: 4px 4px 9px 9px;
   background: linear-gradient(180deg, #3b4a63 0%, #22304a 100%);
-  box-shadow: 0 3px 7px rgba(20, 12, 4, 0.4);
+  box-shadow: 0 3px 8px rgba(20, 12, 4, 0.45);
+}
+/* 键盘与鼠标（摆在桌面上） */
+.desk-keyboard {
+  position: absolute;
+  left: 50%;
+  top: 96px;
+  transform: translateX(-56%);
+  width: 98px;
+  height: 8px;
+  border-radius: 3px;
+  background: linear-gradient(180deg, #3b4a63 0%, #22304a 100%);
+  box-shadow: 0 2px 5px rgba(20, 12, 4, 0.4);
+}
+.desk-mouse {
+  position: absolute;
+  left: calc(50% + 30px);
+  top: 93px;
+  width: 12px;
+  height: 17px;
+  border-radius: 6px;
+  background: linear-gradient(180deg, #42536e 0%, #22304a 100%);
+  box-shadow: 0 2px 5px rgba(20, 12, 4, 0.4);
+}
+/* 书桌：厚桌板 + 双腿 */
+.desk-slab {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 104px;
+  height: 14px;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #c08a4f 0%, #8a5a2f 60%, #5f3c1c 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 235, 200, 0.45),
+    0 5px 12px rgba(20, 12, 4, 0.4);
+}
+.desk-leg {
+  position: absolute;
+  top: 118px;
+  width: 13px;
+  height: 32px;
+  border-radius: 0 0 3px 3px;
+  background: linear-gradient(180deg, #8a5a2f 0%, #5f3c1c 100%);
+}
+.leg-l {
+  left: 22px;
+}
+.leg-r {
+  right: 22px;
 }
 
 /* 绿植 */

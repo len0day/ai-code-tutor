@@ -275,16 +275,19 @@ export default function Bookshelf({
 
       <div className="room-floor" aria-hidden="true" />
 
-      {/* 书桌 + 电脑 */}
+      {/* 书桌 + 显示器电脑 */}
       <div className="room-desk" aria-hidden="true">
-        <span className="laptop">
-          <span className="laptop-screen">
+        <span className="monitor">
+          <span className="monitor-display">
             <span className="ls-line" />
             <span className="ls-line short" />
             <span className="ls-line" />
           </span>
-          <span className="laptop-base" />
+          <span className="monitor-neck" />
+          <span className="monitor-base" />
         </span>
+        <span className="desk-keyboard" />
+        <span className="desk-mouse" />
         <span className="desk-slab" />
         <span className="desk-leg leg-l" />
         <span className="desk-leg leg-r" />
