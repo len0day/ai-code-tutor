@@ -119,6 +119,17 @@ export default function Bookshelf({
   }, []);
   const hourDeg = now ? (now.getHours() % 12 + now.getMinutes() / 60) * 30 : 0;
   const minDeg = now ? now.getMinutes() * 6 : 0;
+  /** 挂历：当月日期 + 今日高亮 */
+  const nowMonth = now ? now.getMonth() : -1;
+  const nowYear = now ? now.getFullYear() : 0;
+  const today = now ? now.getDate() : 0;
+  const calDays =
+    nowMonth >= 0
+      ? Array.from(
+          { length: new Date(nowYear, nowMonth + 1, 0).getDate() },
+          (_, i) => i + 1
+        )
+      : [];
   const roomStats = useMemo(
     () => ({
       xp: progress?.xp ?? 0,
@@ -231,6 +242,22 @@ export default function Bookshelf({
         </div>
       </div>
 
+      {/* 挂历：当月日历，今日标红 */}
+      <div className="room-decor wall-calendar" aria-hidden="true">
+        <span className="cal-cord" />
+        <span className="cal-rod" />
+        <div className="cal-sheet">
+          <div className="cal-head">{nowYear} 年 {nowMonth + 1} 月</div>
+          <div className="cal-grid">
+            {calDays.map((d) => (
+              <span key={d} className={d === today ? "is-today" : ""}>
+                {d}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+
       <div className="room-decor wall-sign">
         <p className="sign-title">
           CodeTutor AI —— 用 AI 导师 学编程、运维与外语
@@ -247,6 +274,21 @@ export default function Bookshelf({
       </nav>
 
       <div className="room-floor" aria-hidden="true" />
+
+      {/* 书桌 + 电脑 */}
+      <div className="room-desk" aria-hidden="true">
+        <span className="laptop">
+          <span className="laptop-screen">
+            <span className="ls-line" />
+            <span className="ls-line short" />
+            <span className="ls-line" />
+          </span>
+          <span className="laptop-base" />
+        </span>
+        <span className="desk-slab" />
+        <span className="desk-leg leg-l" />
+        <span className="desk-leg leg-r" />
+      </div>
 
       {/* 书架旁的礼物盒（增值包） */}
       {giftBox && (

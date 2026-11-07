@@ -221,16 +221,16 @@
 
 /* 挂钟（实时走时，右上区域中心） */
 .wall-clock {
-  right: 5.5%;
+  right: 5%;
   left: auto;
-  top: 18%;
-  width: 150px;
-  height: 150px;
+  top: 15%;
+  width: 176px;
+  height: 176px;
   border-radius: 50%;
   background:
     radial-gradient(circle at 34% 30%, rgba(255, 255, 255, 0.85), rgba(250, 244, 228, 0.92) 55%),
     #efe6cd;
-  border: 9px solid #7a4f26;
+  border: 10px solid #7a4f26;
   box-shadow:
     inset 0 0 0 2px rgba(201, 162, 75, 0.7),
     10px 16px 32px rgba(30, 20, 8, 0.5);
@@ -251,27 +251,27 @@
 }
 .clock-hand {
   position: absolute;
-  left: calc(50% - 3px);
+  left: calc(50% - 3.5px);
   bottom: 50%;
-  width: 6px;
+  width: 7px;
   border-radius: 3px;
   transform-origin: 50% 100%;
   background: #3d2c14;
 }
 .clock-hand-hour {
-  height: 36px;
+  height: 42px;
 }
 .clock-hand-min {
-  height: 52px;
-  width: 4px;
+  height: 60px;
+  width: 5px;
   background: #6d4a1f;
 }
 .clock-pin {
   position: absolute;
-  left: calc(50% - 7px);
-  top: calc(50% - 7px);
-  width: 14px;
-  height: 14px;
+  left: calc(50% - 8px);
+  top: calc(50% - 8px);
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
   background: radial-gradient(circle at 35% 30%, #f4d98b, #8a5a2f);
 }
@@ -533,6 +533,164 @@
   border-top-color: rgba(220, 190, 140, 0.22);
 }
 
+
+/* ---------- 挂历：当月日历上墙 ---------- */
+.wall-calendar {
+  left: 4%;
+  top: 15%;
+  width: 134px;
+}
+.cal-cord {
+  position: absolute;
+  left: 50%;
+  top: -20px;
+  width: 2px;
+  height: 20px;
+  transform: translateX(-50%);
+  background: linear-gradient(180deg, rgba(235, 205, 155, 0.28), rgba(235, 205, 155, 0.65));
+}
+.cal-cord::before {
+  content: "";
+  position: absolute;
+  top: -4px;
+  left: 50%;
+  width: 7px;
+  height: 7px;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #f4d98b, #6d4523);
+}
+.cal-rod {
+  width: 148px;
+  height: 8px;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #d3a45e 0%, #8a5a2f 55%, #5f3c1c 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 235, 200, 0.5),
+    0 2px 5px rgba(20, 12, 4, 0.4);
+  position: relative;
+  z-index: 1;
+}
+.cal-sheet {
+  background: linear-gradient(180deg, #fdfaef 0%, #f3ecd8 100%);
+  border: 1px solid #cfc0a0;
+  border-top: none;
+  border-radius: 0 0 6px 6px;
+  padding: 8px 8px 10px;
+  box-shadow:
+    inset 0 -3px 8px rgba(150, 120, 70, 0.14),
+    4px 8px 16px rgba(20, 12, 4, 0.35);
+}
+.cal-head {
+  background: linear-gradient(180deg, #d64545 0%, #b02f2f 100%);
+  color: #fff3dd;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-align: center;
+  padding: 4px 0 5px;
+  border-radius: 3px;
+  margin-bottom: 7px;
+}
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px 1px;
+}
+.cal-grid span {
+  font-size: 8.5px;
+  line-height: 1.4;
+  text-align: center;
+  color: #6b5a3e;
+  border-radius: 50%;
+  font-variant-numeric: tabular-nums;
+  padding: 1px 0;
+}
+.cal-grid .is-today {
+  background: #d64545;
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 0 6px rgba(214, 69, 69, 0.55);
+}
+
+/* ---------- 书桌 + 电脑 ---------- */
+.room-desk {
+  position: absolute;
+  left: calc(50% + 325px);
+  bottom: 26px;
+  width: 172px;
+  height: 132px;
+  z-index: 1;
+  transition: opacity 0.5s ease;
+}
+.desk-slab {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 56px;
+  height: 12px;
+  border-radius: 3px;
+  background: linear-gradient(180deg, #c08a4f 0%, #8a5a2f 60%, #5f3c1c 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 235, 200, 0.45),
+    0 4px 10px rgba(20, 12, 4, 0.35);
+}
+.desk-leg {
+  position: absolute;
+  top: 68px;
+  width: 9px;
+  height: 62px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #8a5a2f 0%, #5f3c1c 100%);
+}
+.leg-l {
+  left: 20px;
+}
+.leg-r {
+  right: 20px;
+}
+.laptop {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+  z-index: 1;
+}
+.laptop-screen {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 88px;
+  height: 58px;
+  padding: 9px 10px;
+  background: #0d1522;
+  border: 3px solid #2a3648;
+  border-bottom-width: 2px;
+  border-radius: 6px 6px 0 0;
+  box-shadow:
+    inset 0 0 12px rgba(90, 130, 220, 0.25),
+    0 0 18px rgba(110, 150, 235, 0.28);
+}
+.ls-line {
+  height: 4px;
+  width: 92%;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #7dd3fc, #a5b4fc);
+  opacity: 0.85;
+}
+.ls-line.short {
+  width: 58%;
+  background: linear-gradient(90deg, #86efac, #5eead4);
+}
+.laptop-base {
+  width: 108px;
+  height: 7px;
+  margin: -1px auto 0;
+  border-radius: 0 0 9px 9px;
+  background: linear-gradient(180deg, #3b4a63 0%, #22304a 100%);
+  box-shadow: 0 3px 7px rgba(20, 12, 4, 0.4);
+}
+
 /* 绿植 */
 .room-plant {
   position: absolute;
@@ -747,18 +905,21 @@
   }
 }
 .shelf-scene.has-book .room-plant,
-.shelf-scene.has-book .room-floor {
+.shelf-scene.has-book .room-floor,
+.shelf-scene.has-book .room-desk {
   opacity: 0.3;
 }
 .shelf-scene.is-open-book .room-plant,
-.shelf-scene.is-open-book .room-floor {
+.shelf-scene.is-open-book .room-floor,
+.shelf-scene.is-open-book .room-desk {
   opacity: 0;
 }
 /* 窄屏收起房间装饰 */
 @media (max-width: 1023px) {
   .room-decor,
   .room-floor,
-  .room-plant {
+  .room-plant,
+  .room-desk {
     display: none;
   }
 }
