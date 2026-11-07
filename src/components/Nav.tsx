@@ -207,22 +207,6 @@ export default function Nav() {
 
         {/* 个人学习数据 + 用户名 */}
         <div className="flex items-center gap-1.5">
-          {stats && (
-            <span
-              className="hidden xl:inline-flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400 tabular-nums"
-              title="我的学习数据：XP 经验值 · 连续学习天数 · 已完成课程"
-            >
-              <span className="bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-300 rounded-full px-2 py-0.5">
-                ⚡ {stats.xp}
-              </span>
-              <span className="bg-orange-50 dark:bg-orange-950/40 text-orange-600 dark:text-orange-300 rounded-full px-2 py-0.5">
-                🔥 {stats.streak}
-              </span>
-              <span className="bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-300 rounded-full px-2 py-0.5">
-                ✅ {stats.done}
-              </span>
-            </span>
-          )}
           <ThemeToggle compact />
           {me === undefined ? null : me === null ? (
             <Link
