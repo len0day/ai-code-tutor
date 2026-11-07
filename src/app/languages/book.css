@@ -219,11 +219,11 @@
   pointer-events: none;
 }
 
-/* 挂钟（实时走时，左上区域中心） */
+/* 挂钟（实时走时，右上区域中心） */
 .wall-clock {
-  left: 11%;
-  right: auto;
-  top: 21%;
+  right: 5.5%;
+  left: auto;
+  top: 18%;
   width: 150px;
   height: 150px;
   border-radius: 50%;
@@ -279,7 +279,7 @@
 /* 进度挂牌：挂轴卷轴（绸面 + 上下木轴 + 挂绳） */
 .wall-plaques {
   left: 4%;
-  top: 56%;
+  top: 26%;
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -444,8 +444,8 @@
 
 /* 功能快捷入口：挂在墙上的小木牌（悬停摆动） */
 .wall-tags {
-  right: 6%;
-  top: 30%;
+  right: 5.5%;
+  top: 56%;
   display: flex;
   flex-direction: column;
   gap: 26px;
