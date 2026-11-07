@@ -158,12 +158,16 @@ export default function Bookshelf({
     species: string;
   }
   const [tankFish, setTankFish] = useState<TankFish[]>([]);
+  const [plantSize, setPlantSize] = useState(1);
+  const [watering, setWatering] = useState(false);
   useEffect(() => {
     let alive = true;
     fetch("/api/aquarium")
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
-        if (alive && d?.fish) setTankFish(d.fish.slice(0, 3));
+        if (!alive || !d) return;
+        if (d.fish) setTankFish(d.fish.slice(0, 4));
+        if (typeof d.plantSize === "number") setPlantSize(d.plantSize);
       })
       .catch(() => {});
     return () => {
@@ -378,9 +382,44 @@ export default function Bookshelf({
         </Link>
       )}
 
-      <div className="room-plant" aria-hidden="true">
-        🪴
-      </div>
+      {/* 树苗：点击浇水，慢慢长大 */}
+      <button
+        className={`room-plant stage-${plantSize} ${watering ? "is-watering" : ""} ${
+          plantSize >= 5 ? "is-full" : ""
+        }`}
+        onClick={async (e) => {
+          e.stopPropagation();
+          if (watering || plantSize >= 5) return;
+          setWatering(true);
+          try {
+            const r = await fetch("/api/aquarium", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ action: "water" }),
+            });
+            const d = await r.json();
+            if (r.ok && typeof d.plantSize === "number") setPlantSize(d.plantSize);
+          } catch {
+            /* 忽略 */
+          } finally {
+            window.setTimeout(() => setWatering(false), 1500);
+          }
+        }}
+        title="点一点浇水，树苗会慢慢长大"
+        aria-label={`给树苗浇水（当前 ${plantSize} 号，最大 5 号）`}
+      >
+        {watering && <span className="plant-can" aria-hidden="true">🚿</span>}
+        {watering && (
+          <>
+            <i className="plant-drop d1" aria-hidden="true">💧</i>
+            <i className="plant-drop d2" aria-hidden="true">💧</i>
+            <i className="plant-drop d3" aria-hidden="true">💧</i>
+          </>
+        )}
+        <span className="plant-body" aria-hidden="true">
+          {["🌱", "🌱", "🌿", "🪴", "🌳"][plantSize - 1] ?? "🌱"}
+        </span>
+      </button>
 
       {/* ---------- 1️⃣/2️⃣ 多层书柜：书高低错落散落在不同层板上 ---------- */}
       <div

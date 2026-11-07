@@ -156,3 +156,37 @@ export async function feedFish(
   );
   return { ok: true };
 }
+
+// ---- 房间树苗：浇水长大（1~5 号） ----
+
+export const MAX_PLANT_SIZE = 5;
+
+/** 取树苗大小（首次访问自动建栏，默认 1 号） */
+export async function getPlantSize(userId: string): Promise<number> {
+  const db = await getDb();
+  const row = await db.get<{ plant_size: number }>(
+    "SELECT plant_size FROM room_state WHERE user_id = $userId",
+    { userId }
+  );
+  if (!row) {
+    await db.run("INSERT INTO room_state (user_id, plant_size) VALUES ($userId, 1)", {
+      userId,
+    });
+    return 1;
+  }
+  return row.plant_size;
+}
+
+/** 浇水：树苗长大一号（上限 5 号），返回新大小 */
+export async function waterPlant(userId: string): Promise<number> {
+  const db = await getDb();
+  const size = await getPlantSize(userId);
+  const next = Math.min(MAX_PLANT_SIZE, size + 1);
+  if (next !== size) {
+    await db.run(
+      "UPDATE room_state SET plant_size = $size WHERE user_id = $userId",
+      { size: next, userId }
+    );
+  }
+  return next;
+}

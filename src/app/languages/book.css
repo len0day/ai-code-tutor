@@ -431,13 +431,23 @@
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
 }
 
-/* 功能快捷入口：挂在墙上的小木牌（悬停摆动） */
+/* 功能快捷入口：错开挂的小木牌（悬停摆动） */
 .wall-tags {
   right: 5.5%;
-  top: 56%;
+  top: 40%;
   display: flex;
   flex-direction: column;
-  gap: 26px;
+  align-items: flex-end;
+  gap: 20px;
+}
+.wall-tag:nth-child(1) {
+  margin-right: 0;
+}
+.wall-tag:nth-child(2) {
+  margin-right: 46px;
+}
+.wall-tag:nth-child(3) {
+  margin-right: 92px;
 }
 .wall-tag {
   position: relative;
@@ -537,7 +547,7 @@
 /* ---------- 挂历：当月日历上墙 ---------- */
 .wall-calendar {
   left: 4%;
-  top: 11%;
+  top: 13%;
   width: 118px;
 }
 .cal-cord {
@@ -616,10 +626,10 @@
 /* ---------- 透明玻璃鱼缸：小鱼游动，点击放大 ---------- */
 .room-tub {
   position: absolute;
-  left: calc(50% + 300px);
-  bottom: 22px;
-  width: 176px;
-  height: 128px;
+  left: calc(50% + 265px);
+  bottom: 64px;
+  width: 236px;
+  height: 162px;
   z-index: 2;
   border: none;
   padding: 0;
@@ -705,9 +715,21 @@
 }
 @keyframes tubSwim {
   0%, 100% { transform: translateX(4px) scaleX(-1); }
-  46% { transform: translateX(var(--dist, 110px)) scaleX(-1); }
-  50% { transform: translateX(var(--dist, 110px)) scaleX(1); }
+  46% { transform: translateX(var(--dist, 155px)) scaleX(-1); }
+  50% { transform: translateX(var(--dist, 155px)) scaleX(1); }
   96% { transform: translateX(4px) scaleX(1); }
+}
+/* 底座横梁 */
+.tub-body::after {
+  content: "";
+  position: absolute;
+  left: -6px;
+  right: -6px;
+  bottom: -52px;
+  height: 10px;
+  border-radius: 3px;
+  background: linear-gradient(180deg, #c08a4f 0%, #8a5a2f 60%, #5f3c1c 100%);
+  box-shadow: 0 4px 10px rgba(20, 12, 4, 0.4);
 }
 /* 玻璃前壁高光斜线 */
 .tub-body::before {
@@ -721,19 +743,18 @@
 /* 底座 */
 .tub-foot {
   position: absolute;
-  bottom: 0;
-  height: 12px;
-  border-radius: 2px;
-  background: linear-gradient(180deg, #6b4a2a 0%, #4b3319 100%);
-  box-shadow: 0 3px 6px rgba(20, 12, 4, 0.45);
+  bottom: -46px;
+  height: 52px;
+  width: 13px;
+  border-radius: 0 0 3px 3px;
+  background: linear-gradient(180deg, #8a5a2f 0%, #4b3319 100%);
+  box-shadow: 0 4px 8px rgba(20, 12, 4, 0.45);
 }
 .foot-l {
-  left: 6px;
-  width: 46%;
+  left: 22px;
 }
 .foot-r {
-  right: 6px;
-  width: 46%;
+  right: 22px;
 }
 .tub-caption {
   position: absolute;
@@ -746,15 +767,69 @@
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
 }
 
-/* 绿植 */
+/* 绿植树苗：点击浇水长大（1~5 号） */
 .room-plant {
   position: absolute;
   left: calc(50% - 250px);
-  bottom: 30px;
+  bottom: 48px;
   z-index: 1;
-  font-size: 36px;
+  border: none;
+  background: transparent;
+  padding: 4px;
+  cursor: pointer;
+  transition: opacity 0.5s ease, transform 0.3s ease;
+}
+.room-plant:hover {
+  transform: translateY(-2px);
+}
+.room-plant .plant-body {
+  display: block;
+  line-height: 1;
+  transition: font-size 0.5s cubic-bezier(0.34, 1.4, 0.64, 1);
   filter: drop-shadow(6px 10px 10px rgba(20, 12, 4, 0.45));
-  transition: opacity 0.5s ease;
+}
+.room-plant.stage-1 .plant-body { font-size: 24px; }
+.room-plant.stage-2 .plant-body { font-size: 32px; }
+.room-plant.stage-3 .plant-body { font-size: 42px; }
+.room-plant.stage-4 .plant-body { font-size: 52px; }
+.room-plant.stage-5 .plant-body { font-size: 64px; }
+.room-plant.is-full .plant-body {
+  filter: drop-shadow(6px 10px 10px rgba(20, 12, 4, 0.45)) drop-shadow(0 0 12px rgba(134, 239, 172, 0.35));
+}
+/* 浇水：水壶倾斜 + 水滴落下 + 树苗摇摆 */
+.room-plant .plant-can {
+  position: absolute;
+  left: 12px;
+  top: -30px;
+  font-size: 26px;
+  transform: rotate(24deg);
+  animation: canTilt 0.6s ease-in-out infinite alternate;
+}
+@keyframes canTilt {
+  from { transform: rotate(14deg); }
+  to { transform: rotate(34deg); }
+}
+.room-plant .plant-drop {
+  position: absolute;
+  top: -6px;
+  font-style: normal;
+  font-size: 12px;
+  animation: dropFall 0.75s ease-in infinite;
+}
+.room-plant .plant-drop.d1 { left: 16px; animation-delay: 0s; }
+.room-plant .plant-drop.d2 { left: 28px; animation-delay: 0.28s; }
+.room-plant .plant-drop.d3 { left: 24px; animation-delay: 0.55s; }
+@keyframes dropFall {
+  0% { transform: translateY(0) scale(0.8); opacity: 0; }
+  25% { opacity: 1; }
+  100% { transform: translateY(44px) scale(1); opacity: 0; }
+}
+.room-plant.is-watering .plant-body {
+  animation: plantWobble 0.5s ease-in-out infinite;
+}
+@keyframes plantWobble {
+  0%, 100% { transform: rotate(-4deg) scale(1); }
+  50% { transform: rotate(4deg) scale(1.06); }
 }
 
 /* ---------- 书架旁的礼物盒（增值包） ---------- */

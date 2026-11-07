@@ -165,6 +165,10 @@ export const SCHEMA_STATEMENTS: string[] = [
     food INTEGER NOT NULL DEFAULT 1,
     last_fed_at TEXT
   )`,
+  `CREATE TABLE IF NOT EXISTS room_state (
+    user_id TEXT PRIMARY KEY,
+    plant_size INTEGER NOT NULL DEFAULT 1
+  )`,
   `CREATE INDEX IF NOT EXISTS idx_aquarium_user ON aquarium_fish (user_id)`,
   `CREATE INDEX IF NOT EXISTS idx_cache_task ON content_cache (task)`,
   `CREATE INDEX IF NOT EXISTS idx_token_usage_date ON ai_usage (date)`,
