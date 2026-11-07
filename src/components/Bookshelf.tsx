@@ -281,7 +281,10 @@ export default function Bookshelf({
         <span className="cal-cord" />
         <span className="cal-rod" />
         <div className="cal-sheet">
-          <div className="cal-head">{nowYear} 年 {nowMonth + 1} 月</div>
+          <div className="cal-head">
+            <b>{nowMonth + 1} 月</b>
+            <span>{nowYear}</span>
+          </div>
           <div className="cal-grid">
             {calDays.map((d) => (
               <span key={d} className={d === today ? "is-today" : ""}>

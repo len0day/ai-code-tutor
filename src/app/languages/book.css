@@ -544,11 +544,16 @@
 }
 
 
-/* ---------- 挂历：当月日历上墙 ---------- */
+/* ---------- 挂历：当月日历上墙（纸质 + 微倾） ---------- */
 .wall-calendar {
   left: 4%;
   top: 13%;
-  width: 118px;
+  width: 128px;
+  transform: rotate(-1.6deg);
+  transition: transform 0.3s ease, opacity 0.5s ease;
+}
+.wall-calendar:hover {
+  transform: rotate(0deg) translateY(-2px);
 }
 .cal-cord {
   position: absolute;
@@ -571,7 +576,7 @@
   background: radial-gradient(circle at 35% 30%, #f4d98b, #6d4523);
 }
 .cal-rod {
-  width: 148px;
+  width: 142px;
   height: 8px;
   border-radius: 4px;
   background: linear-gradient(180deg, #d3a45e 0%, #8a5a2f 55%, #5f3c1c 100%);
@@ -582,25 +587,41 @@
   z-index: 1;
 }
 .cal-sheet {
-  background: linear-gradient(180deg, #fdfaef 0%, #f3ecd8 100%);
+  background:
+    linear-gradient(180deg, rgba(120, 90, 40, 0.05) 1px, transparent 1px) 0 0 / 100% 26px,
+    linear-gradient(180deg, #fdfaef 0%, #f3ecd8 100%);
   border: 1px solid #cfc0a0;
   border-top: none;
-  border-radius: 0 0 6px 6px;
-  padding: 6px 6px 8px;
+  border-radius: 0 0 7px 7px;
+  padding: 9px 9px 12px;
   box-shadow:
     inset 0 -3px 8px rgba(150, 120, 70, 0.14),
     4px 8px 16px rgba(20, 12, 4, 0.35);
 }
+/* 红头：大月号 + 小年份 */
 .cal-head {
-  background: linear-gradient(180deg, #d64545 0%, #b02f2f 100%);
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  background: linear-gradient(180deg, #d64545 0%, #a82c2c 100%);
   color: #fff3dd;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-align: center;
-  padding: 3px 0 4px;
+  padding: 6px 10px 7px;
   border-radius: 3px;
-  margin-bottom: 5px;
+  margin-bottom: 8px;
+  box-shadow: inset 0 1px 0 rgba(255, 235, 200, 0.35);
+}
+.cal-head b {
+  font-family: "Songti SC", "STSong", "SimSun", Georgia, serif;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1;
+}
+.cal-head span {
+  font-size: 9px;
+  opacity: 0.85;
+  letter-spacing: 0.1em;
+  font-variant-numeric: tabular-nums;
 }
 .cal-grid {
   display: grid;
@@ -608,25 +629,40 @@
   gap: 2px 1px;
 }
 .cal-grid span {
-  font-size: 8px;
-  line-height: 1.3;
+  font-size: 8.5px;
+  line-height: 1.35;
   text-align: center;
   color: #6b5a3e;
   border-radius: 50%;
   font-variant-numeric: tabular-nums;
   padding: 1px 0;
 }
+/* 周末列红字（周日 + 周六） */
+.cal-grid span:nth-child(7n + 1),
+.cal-grid span:nth-child(7n) {
+  color: #cf5454;
+}
 .cal-grid .is-today {
-  background: #d64545;
-  color: #fff;
+  background: radial-gradient(circle at 35% 30%, #e45c5c, #b02f2f);
+  color: #fff !important;
   font-weight: 700;
-  box-shadow: 0 0 6px rgba(214, 69, 69, 0.55);
+  box-shadow: 0 0 8px rgba(214, 69, 69, 0.6);
+}
+/* 底部撕页线 */
+.cal-sheet::after {
+  content: "";
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  bottom: -1px;
+  height: 0;
+  border-bottom: 2px dashed rgba(160, 130, 80, 0.5);
 }
 
 /* ---------- 透明玻璃鱼缸：小鱼游动，点击放大 ---------- */
 .room-tub {
   position: absolute;
-  left: calc(50% + 265px);
+  left: calc(50% + 238px);
   bottom: 64px;
   width: 236px;
   height: 162px;
