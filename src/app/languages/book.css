@@ -413,15 +413,12 @@
 }
 .sign-title {
   font-family: "Kaiti SC", "STKaiti", "KaiTi", cursive, serif;
-  font-size: 17px;
+  font-size: 16.5px;
   font-weight: 700;
   letter-spacing: 0.06em;
   line-height: 1.7;
-  color: rgba(248, 232, 198, 0.92);
-  text-shadow:
-    0 1px 0 rgba(0, 0, 0, 0.55),
-    0 -1px 0 rgba(255, 226, 170, 0.12),
-    0 0 18px rgba(255, 208, 130, 0.14);
+  color: rgba(238, 220, 184, 0.5);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
 }
 /* 标题下的花饰分隔线 */
 .sign-title::after {
@@ -432,14 +429,6 @@
   letter-spacing: 0.4em;
   color: rgba(201, 162, 75, 0.7);
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
-}
-.sign-sub {
-  font-family: "Songti SC", "STSong", "SimSun", Georgia, serif;
-  font-size: 9px;
-  line-height: 1.8;
-  letter-spacing: 0;
-  color: rgba(232, 214, 180, 0.62);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.65);
 }
 
 /* 功能快捷入口：挂在墙上的小木牌（悬停摆动） */
@@ -1245,7 +1234,7 @@
   position: absolute;
   inset: 0;
   transform-style: preserve-3d;
-  --bd: 44px;
+  --bd: 56px;
 }
 .book3d-face {
   position: absolute;
@@ -1296,21 +1285,25 @@
 /* 书页右侧面与顶面（奶油色页纹） */
 .b3-pages-r {
   width: var(--bd);
-  top: 3px;
-  bottom: 3px;
+  top: 6px;
+  bottom: 6px;
   right: calc(-1 * var(--bd) / 2);
   transform: rotateY(90deg);
-  background: repeating-linear-gradient(180deg, #f7f1e0 0 3px, #d9cfb4 3px 4.5px);
-  box-shadow: inset 0 0 6px rgba(120, 100, 60, 0.4);
+  background:
+    linear-gradient(90deg, rgba(90, 70, 35, 0.28), transparent 22%),
+    repeating-linear-gradient(180deg, #f7f1e0 0 3px, #d9cfb4 3px 4.5px);
+  box-shadow: inset 0 0 8px rgba(120, 100, 60, 0.45);
 }
 .b3-pages-t {
   height: var(--bd);
-  left: 3px;
-  right: 3px;
+  left: 6px;
+  right: 6px;
   top: calc(-1 * var(--bd) / 2);
   transform: rotateX(90deg);
-  background: repeating-linear-gradient(90deg, #f7f1e0 0 3px, #d9cfb4 3px 4.5px);
-  box-shadow: inset 0 0 6px rgba(120, 100, 60, 0.4);
+  background:
+    linear-gradient(180deg, rgba(90, 70, 35, 0.25), transparent 30%),
+    repeating-linear-gradient(90deg, #f7f1e0 0 3px, #d9cfb4 3px 4.5px);
+  box-shadow: inset 0 0 8px rgba(120, 100, 60, 0.45);
 }
 @keyframes focusFloat {
   0%,
@@ -1384,16 +1377,95 @@
   font-variant-numeric: tabular-nums;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
-/* 翻开：封面保持独立立体悬浮（居左），右侧是对开的目录书本 */
+/* 课程专属徽标：金环 + 课程图标 */
+.cover-emblem {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 21px;
+  line-height: 1;
+  background: radial-gradient(circle at 32% 28%, rgba(255, 250, 230, 0.28), rgba(0, 0, 0, 0.22) 75%);
+  border: 1px solid rgba(240, 208, 130, 0.75);
+  box-shadow:
+    inset 0 1px 2px rgba(255, 255, 255, 0.28),
+    inset 0 -2px 5px rgba(0, 0, 0, 0.3),
+    0 0 14px rgba(240, 208, 130, 0.18);
+}
+/* 四种封面装饰变体 */
+.cover-v1 .b3-front::before {
+  content: "";
+  position: absolute;
+  inset: 9px;
+  border: 1px solid rgba(240, 208, 130, 0.4);
+  border-radius: 4px;
+  pointer-events: none;
+}
+.cover-v2 .b3-front::before,
+.cover-v2 .b3-front::after {
+  content: "";
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  height: 13px;
+  background: linear-gradient(90deg, transparent, rgba(240, 208, 130, 0.55) 18%, rgba(240, 208, 130, 0.55) 82%, transparent);
+  border-radius: 2px;
+  pointer-events: none;
+}
+.cover-v2 .b3-front::before {
+  top: 16px;
+}
+.cover-v2 .b3-front::after {
+  bottom: 16px;
+}
+.cover-v3 .b3-front::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 44%;
+  width: 220px;
+  height: 220px;
+  transform: translate(-50%, -50%);
+  border: 1px solid rgba(240, 208, 130, 0.32);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.cover-v3 .b3-front::after {
+  content: "✦";
+  position: absolute;
+  left: 50%;
+  top: 26px;
+  transform: translateX(-50%);
+  font-size: 10px;
+  color: rgba(240, 208, 130, 0.65);
+  pointer-events: none;
+}
+/* 翻开：封面做一个翻阅手势动画后回到悬浮，右侧目录翻入 */
 .focus-book.is-open .focus-book-cover {
   position: relative;
   inset: auto;
   flex: 0 0 min(15rem, 24vw);
   height: 24rem;
   align-self: center;
-  transform: rotateY(-16deg);
-  animation: focusFloat 3s ease-in-out infinite;
   pointer-events: none;
+  animation:
+    coverSwing 0.95s cubic-bezier(0.645, 0.045, 0.355, 1) both,
+    focusFloat 3s ease-in-out 0.95s infinite;
+}
+@keyframes coverSwing {
+  0% {
+    transform: rotateY(-16deg) translateY(0) scale(1);
+  }
+  40% {
+    transform: rotateY(-150deg) translateY(-10px) scale(1.05);
+  }
+  72% {
+    transform: rotateY(-115deg) translateY(-6px) scale(1.03);
+  }
+  100% {
+    transform: rotateY(-16deg) translateY(0) scale(1);
+  }
 }
 /* 目录书本：对开两页 + 中缝书脊，作为独立书本放在封面右侧 */
 .focus-book-pages {
@@ -1445,10 +1517,10 @@
   transform-origin: left center;
 }
 .focus-book.is-open .focus-book-toc {
-  animation: pageFlip 0.8s 0.1s cubic-bezier(0.645, 0.045, 0.355, 1) both;
+  animation: pageFlip 0.8s 0.4s cubic-bezier(0.645, 0.045, 0.355, 1) both;
 }
 .focus-book.is-open .focus-book-toc-b {
-  animation: pageFlip 0.8s 0.3s cubic-bezier(0.645, 0.045, 0.355, 1) both;
+  animation: pageFlip 0.8s 0.6s cubic-bezier(0.645, 0.045, 0.355, 1) both;
 }
 @keyframes tocHide {
   from {

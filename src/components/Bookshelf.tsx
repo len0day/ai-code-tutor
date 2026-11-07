@@ -235,9 +235,6 @@ export default function Bookshelf({
         <p className="sign-title">
           CodeTutor AI —— 用 AI 导师 学编程、运维与外语
         </p>
-        <p className="sign-sub">
-          11 门课 · 259 节 —— AI 全程陪学：讲解、答疑、出题、批改、模拟面试、规划路径
-        </p>
       </div>
 
       <nav className="room-decor wall-tags" aria-label="功能快捷入口">
@@ -365,12 +362,12 @@ export default function Bookshelf({
             className={`focus-book ${opened ? "is-open" : ""}`}
             data-course={current.lang}
           >
-            {/* 封面：真 3D 书体（封面 + 书脊 + 书页 + 封底），烫金排版 */}
+            {/* 封面：真 3D 书体（封面 + 书脊 + 书页 + 封底），每本有专属装饰与烫金排版 */}
             <button
               onClick={openBook}
               aria-label={opened ? undefined : `翻开《${current.name}》`}
               tabIndex={opened ? -1 : 0}
-              className="focus-book-cover"
+              className={`focus-book-cover cover-v${courseIndex[current.lang] % 4}`}
               style={
                 {
                   "--cover-from": SPINE_COLORS[current.lang]?.[0] ?? "#a1a1aa",
@@ -387,9 +384,12 @@ export default function Bookshelf({
                 {/* 书页侧面与顶面 */}
                 <span className="book3d-face b3-pages-r" />
                 <span className="book3d-face b3-pages-t" />
-                {/* 正面：烫金排版 */}
+                {/* 正面：专属徽标 + 烫金排版 */}
                 <span className="book3d-face b3-front">
                   <span className="focus-book-inner">
+                    <span className="cover-emblem" aria-hidden="true">
+                      {current.emoji}
+                    </span>
                     <span className="cover-label foil">
                       {current.kind === "language" ? "LANGUAGE" : "PROGRAMMING"}
                     </span>
