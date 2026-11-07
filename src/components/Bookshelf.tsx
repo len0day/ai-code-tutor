@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { Course, Progress } from "@/lib/types";
 import { flatLessons } from "@/data/courses";
 import { ChapterTree } from "@/components/BookReader";
+import AquariumModal from "@/components/AquariumModal";
 
 /** 每门课程的书脊配色 */
 const SPINE_COLORS: Record<string, [string, string]> = {
@@ -33,6 +34,15 @@ const WALL_POSTERS: Array<[string, string]> = [
   ["学习建议", "/advice"],
   ["学习报告", "/report"],
 ];
+
+/** 鱼的 species → emoji（与 /api/aquarium 的 FISH_SPECIES 对应） */
+const FISH_EMOJI: Record<string, string> = {
+  guppy: "🐠",
+  goldfish: "🐟",
+  puffer: "🐡",
+  shark: "🦈",
+  whale: "🐋",
+};
 
 export interface BookshelfProps {
   courses: Course[];
@@ -140,6 +150,26 @@ export default function Bookshelf({
     }),
     [progress]
   );
+
+  // ---- 鱼缸：拉一次，缸里游自己买的鱼（未登录时请求失败即保持默认鱼） ----
+  const [tankOpen, setTankOpen] = useState(false);
+  interface TankFish {
+    id: string;
+    species: string;
+  }
+  const [tankFish, setTankFish] = useState<TankFish[]>([]);
+  useEffect(() => {
+    let alive = true;
+    fetch("/api/aquarium")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (alive && d?.fish) setTankFish(d.fish.slice(0, 3));
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, [tankOpen]);
 
   const pick = (lang: string) => {
     clearTimers();
@@ -275,23 +305,52 @@ export default function Bookshelf({
 
       <div className="room-floor" aria-hidden="true" />
 
-      {/* 书桌 + 显示器电脑 */}
-      <div className="room-desk" aria-hidden="true">
-        <span className="monitor">
-          <span className="monitor-display">
-            <span className="ls-line" />
-            <span className="ls-line short" />
-            <span className="ls-line" />
+      {/* 鱼缸浴缸：小鱼游动，点击放大查看 + 用 XP 养鱼 */}
+      <button
+        className="room-tub"
+        onClick={(e) => {
+          e.stopPropagation();
+          setTankOpen(true);
+        }}
+        aria-label="打开鱼缸：查看和喂养你的鱼"
+        title="点开鱼缸 —— 用 XP 买鱼、买鱼食、喂食"
+      >
+        <span className="tub-rim" aria-hidden="true">
+          <span className="tub-water">
+            {tankFish.map((f, i) => (
+              <i
+                key={f.id}
+                className={`tub-fish tf-${i % 3}`}
+                style={
+                  {
+                    "--dur": `${7 + (i * 3)}s`,
+                    "--dist": "110px",
+                    top: `${18 + i * 22}%`,
+                    animationDelay: `${-i * 2.5}s`,
+                  } as React.CSSProperties
+                }
+              >
+                {FISH_EMOJI[f.species] ?? "🐟"}
+              </i>
+            ))}
+            {tankFish.length === 0 && (
+              <>
+                <i className="tub-fish tf-0" style={{ "--dur": "9s", top: "20%" } as React.CSSProperties}>
+                  🐠
+                </i>
+                <i className="tub-fish tf-1" style={{ "--dur": "12s", top: "55%" } as React.CSSProperties}>
+                  🐟
+                </i>
+              </>
+            )}
           </span>
-          <span className="monitor-neck" />
-          <span className="monitor-base" />
         </span>
-        <span className="desk-keyboard" />
-        <span className="desk-mouse" />
-        <span className="desk-slab" />
-        <span className="desk-leg leg-l" />
-        <span className="desk-leg leg-r" />
-      </div>
+        <span className="tub-body" aria-hidden="true" />
+        <span className="tub-foot foot-l" aria-hidden="true" />
+        <span className="tub-foot foot-r" aria-hidden="true" />
+        <span className="tub-caption">我的鱼缸</span>
+      </button>
+      <AquariumModal open={tankOpen} onClose={() => setTankOpen(false)} />
 
       {/* 书架旁的礼物盒（增值包） */}
       {giftBox && (

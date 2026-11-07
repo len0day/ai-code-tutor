@@ -152,6 +152,20 @@ export const SCHEMA_STATEMENTS: string[] = [
     updated_at TEXT NOT NULL,
     PRIMARY KEY (user_id, lesson_id)
   )`,
+  `CREATE TABLE IF NOT EXISTS aquarium_fish (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    species TEXT NOT NULL,
+    size INTEGER NOT NULL DEFAULT 1,
+    fed_count INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL
+  )`,
+  `CREATE TABLE IF NOT EXISTS aquarium_state (
+    user_id TEXT PRIMARY KEY,
+    food INTEGER NOT NULL DEFAULT 1,
+    last_fed_at TEXT
+  )`,
+  `CREATE INDEX IF NOT EXISTS idx_aquarium_user ON aquarium_fish (user_id)`,
   `CREATE INDEX IF NOT EXISTS idx_cache_task ON content_cache (task)`,
   `CREATE INDEX IF NOT EXISTS idx_token_usage_date ON ai_usage (date)`,
   `CREATE INDEX IF NOT EXISTS idx_wrong_user ON wrong_questions (user_id)`,

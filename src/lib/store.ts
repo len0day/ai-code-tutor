@@ -207,6 +207,23 @@ export async function saveProgress(userId: string, p: Progress): Promise<void> {
   });
 }
 
+// ---- 鱼缸：扣除经验值 ----
+/** 扣除 XP（余额不足返回 false，不产生负数） */
+export async function spendXp(userId: string, amount: number): Promise<boolean> {
+  if (!Number.isFinite(amount) || amount <= 0) return false;
+  const db = await getDb();
+  const stat = await db.get<{ xp: number }>(
+    "SELECT xp FROM user_stats WHERE user_id = $userId",
+    { userId }
+  );
+  if (!stat || stat.xp < amount) return false;
+  await db.run(
+    "UPDATE user_stats SET xp = xp - $amount WHERE user_id = $userId",
+    { amount, userId }
+  );
+  return true;
+}
+
 // ---- 知识库 ----
 export async function getNotebook(userId: string): Promise<Notebook> {
   const db = await getDb();

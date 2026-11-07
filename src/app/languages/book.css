@@ -613,103 +613,156 @@
   box-shadow: 0 0 6px rgba(214, 69, 69, 0.55);
 }
 
-/* ---------- 书桌 + 显示器电脑 ---------- */
-.room-desk {
+/* ---------- 鱼缸浴缸：小鱼游动，点击放大 ---------- */
+.room-tub {
   position: absolute;
-  left: calc(50% + 315px);
-  bottom: 24px;
-  width: 200px;
-  height: 150px;
-  z-index: 1;
-  transition: opacity 0.5s ease;
+  left: calc(50% + 310px);
+  bottom: 22px;
+  width: 172px;
+  height: 116px;
+  z-index: 2;
+  border: none;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  transition: opacity 0.5s ease, transform 0.3s ease;
 }
-/* 显示器 */
-.monitor {
+.room-tub:hover {
+  transform: translateY(-3px);
+}
+.shelf-scene.has-book .room-tub {
+  opacity: 0.3;
+  pointer-events: none;
+}
+.shelf-scene.is-open-book .room-tub {
+  opacity: 0;
+  pointer-events: none;
+}
+/* 瓷缸身 */
+.tub-body {
   position: absolute;
-  left: 50%;
-  top: 0;
-  transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  z-index: 1;
-}
-.monitor-display {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  width: 134px;
-  height: 82px;
-  padding: 11px 13px;
+  left: 8px;
+  right: 8px;
+  bottom: 10px;
+  height: 74px;
+  border-radius: 10px 10px 26px 26px / 10px 10px 42px 42px;
   background:
-    radial-gradient(130% 100% at 30% 0%, rgba(120, 165, 245, 0.5), rgba(40, 70, 140, 0.35) 70%),
-    #16233f;
-  border: 4px solid #2c3a52;
-  border-radius: 9px;
+    linear-gradient(90deg, rgba(120, 130, 150, 0.28), rgba(255, 255, 255, 0.24) 26%, rgba(255, 255, 255, 0.12) 55%, rgba(70, 80, 100, 0.32)),
+    linear-gradient(180deg, #f2f4f8 0%, #cdd3de 60%, #9aa3b5 100%);
   box-shadow:
-    0 0 30px rgba(110, 150, 235, 0.42),
-    inset 0 0 16px rgba(110, 150, 235, 0.3);
+    inset 0 2px 3px rgba(255, 255, 255, 0.65),
+    inset 0 -8px 14px rgba(60, 70, 90, 0.35),
+    6px 10px 18px rgba(20, 12, 4, 0.4);
 }
-.monitor-neck {
-  width: 16px;
-  height: 15px;
-  background: linear-gradient(180deg, #2a3648 0%, #1a2536 100%);
-}
-.monitor-base {
-  width: 78px;
-  height: 8px;
-  border-radius: 4px 4px 9px 9px;
-  background: linear-gradient(180deg, #3b4a63 0%, #22304a 100%);
-  box-shadow: 0 3px 8px rgba(20, 12, 4, 0.45);
-}
-/* 键盘与鼠标（摆在桌面上） */
-.desk-keyboard {
+/* 缸沿 + 缸内的水 */
+.tub-rim {
   position: absolute;
-  left: 50%;
-  top: 96px;
-  transform: translateX(-56%);
-  width: 98px;
-  height: 8px;
-  border-radius: 3px;
-  background: linear-gradient(180deg, #3b4a63 0%, #22304a 100%);
-  box-shadow: 0 2px 5px rgba(20, 12, 4, 0.4);
+  left: 2px;
+  right: 2px;
+  top: 8px;
+  height: 46px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #ffffff 0%, #d6dbe4 100%);
+  box-shadow:
+    inset 0 2px 3px rgba(255, 255, 255, 0.8),
+    0 4px 10px rgba(20, 12, 4, 0.35);
+  z-index: 1;
 }
-.desk-mouse {
+.tub-water {
   position: absolute;
-  left: calc(50% + 30px);
-  top: 93px;
-  width: 12px;
-  height: 17px;
-  border-radius: 6px;
-  background: linear-gradient(180deg, #42536e 0%, #22304a 100%);
-  box-shadow: 0 2px 5px rgba(20, 12, 4, 0.4);
+  left: 12px;
+  right: 12px;
+  top: 9px;
+  bottom: 4px;
+  border-radius: 50%;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(125, 211, 252, 0.75) 0%, rgba(14, 116, 144, 0.88) 100%);
+  box-shadow: inset 0 3px 8px rgba(4, 60, 80, 0.5);
 }
-/* 书桌：厚桌板 + 双腿 */
-.desk-slab {
+/* 缸沿卷边 */
+.tub-rim::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.85);
+  border-bottom-color: rgba(160, 170, 190, 0.7);
+}
+/* 水面波光 */
+.tub-water::before {
+  content: "";
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  top: 12%;
+  height: 8px;
+  border-radius: 50%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55) 45%, transparent);
+  animation: waterShimmer 3.2s ease-in-out infinite;
+}
+@keyframes waterShimmer {
+  0%, 100% { transform: translateX(-6px); opacity: 0.7; }
+  50% { transform: translateX(6px); opacity: 1; }
+}
+/* 游动的小鱼 */
+.tub-fish {
   position: absolute;
   left: 0;
-  right: 0;
-  top: 104px;
-  height: 14px;
-  border-radius: 4px;
-  background: linear-gradient(180deg, #c08a4f 0%, #8a5a2f 60%, #5f3c1c 100%);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 235, 200, 0.45),
-    0 5px 12px rgba(20, 12, 4, 0.4);
+  font-style: normal;
+  font-size: 13px;
+  line-height: 1;
+  animation: tubSwim var(--dur, 9s) linear infinite;
+  filter: drop-shadow(0 1px 1px rgba(4, 60, 80, 0.6));
 }
-.desk-leg {
+@keyframes tubSwim {
+  0%, 100% { transform: translateX(4px) scaleX(1); }
+  46% { transform: translateX(var(--dist, 110px)) scaleX(1); }
+  50% { transform: translateX(var(--dist, 110px)) scaleX(-1); }
+  96% { transform: translateX(4px) scaleX(-1); }
+}
+/* 气泡 */
+.room-tub .tub-bubble,
+.room-tub i.tub-bubble {
   position: absolute;
-  top: 118px;
-  width: 13px;
-  height: 32px;
-  border-radius: 0 0 3px 3px;
-  background: linear-gradient(180deg, #8a5a2f 0%, #5f3c1c 100%);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.9), rgba(190, 230, 255, 0.4));
+  bottom: 52px;
+  animation: bubbleUp 3.4s ease-in infinite;
+  pointer-events: none;
 }
-.leg-l {
-  left: 22px;
+@keyframes bubbleUp {
+  0% { transform: translateY(0) scale(0.7); opacity: 0; }
+  25% { opacity: 0.9; }
+  100% { transform: translateY(-46px) scale(1.1); opacity: 0; }
 }
-.leg-r {
-  right: 22px;
+/* 狮爪脚 */
+.tub-foot {
+  position: absolute;
+  bottom: 0;
+  width: 14px;
+  height: 14px;
+  background: linear-gradient(180deg, #d3a45e 0%, #8a5a2f 100%);
+  border-radius: 2px 2px 4px 4px;
+  box-shadow: 0 3px 6px rgba(20, 12, 4, 0.45);
+}
+.foot-l {
+  left: 24px;
+}
+.foot-r {
+  right: 24px;
+}
+.tub-caption {
+  position: absolute;
+  left: 50%;
+  bottom: -8px;
+  transform: translateX(-50%);
+  font-size: 10px;
+  color: rgba(255, 232, 190, 0.7);
+  white-space: nowrap;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
 }
 
 /* 绿植 */
@@ -927,12 +980,12 @@
 }
 .shelf-scene.has-book .room-plant,
 .shelf-scene.has-book .room-floor,
-.shelf-scene.has-book .room-desk {
+.shelf-scene.has-book .room-tub {
   opacity: 0.3;
 }
 .shelf-scene.is-open-book .room-plant,
 .shelf-scene.is-open-book .room-floor,
-.shelf-scene.is-open-book .room-desk {
+.shelf-scene.is-open-book .room-tub {
   opacity: 0;
 }
 /* 窄屏收起房间装饰 */
@@ -940,7 +993,7 @@
   .room-decor,
   .room-floor,
   .room-plant,
-  .room-desk {
+  .room-tub {
     display: none;
   }
 }
@@ -2080,6 +2133,241 @@
 .vertical-title {
   writing-mode: vertical-rl;
   letter-spacing: 0.35em;
+}
+
+
+/* ---------- 鱼缸放大弹窗 ---------- */
+.aquarium-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  background: rgba(10, 14, 24, 0.72);
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.25s ease both;
+  padding: 20px;
+}
+.aquarium-panel {
+  width: min(860px, 94vw);
+  max-height: 92vh;
+  overflow-y: auto;
+  border-radius: 22px;
+  background: linear-gradient(180deg, #16203a 0%, #101828 100%);
+  border: 1px solid rgba(120, 150, 220, 0.3);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+  padding: 20px 22px 24px;
+}
+.aq-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.aq-head h2 {
+  font-family: "Songti SC", "STSong", Georgia, serif;
+  font-size: 20px;
+  color: #e8efff;
+  margin-right: auto;
+}
+.aq-wallet {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.aq-chip {
+  font-size: 12px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-variant-numeric: tabular-nums;
+}
+.aq-chip.xp {
+  background: rgba(240, 208, 130, 0.16);
+  color: #ffd98a;
+  border: 1px solid rgba(240, 208, 130, 0.4);
+}
+.aq-chip.food {
+  background: rgba(134, 239, 172, 0.12);
+  color: #bbf7d0;
+  border: 1px solid rgba(134, 239, 172, 0.35);
+}
+.aq-feed {
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 14px;
+  border-radius: 999px;
+  color: #08220f;
+  background: linear-gradient(180deg, #86efac, #34d399);
+  transition: filter 0.2s ease;
+}
+.aq-feed:hover:not(:disabled) {
+  filter: brightness(1.12);
+}
+.aq-feed:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.aq-close {
+  border: none;
+  background: rgba(255, 255, 255, 0.08);
+  color: #cdd7ee;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 13px;
+}
+.aq-close:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+/* 大鱼缸 */
+.aq-tank {
+  position: relative;
+  height: 340px;
+  border-radius: 18px;
+  overflow: hidden;
+  background:
+    radial-gradient(130% 90% at 50% 0%, rgba(120, 200, 255, 0.22), transparent 60%),
+    linear-gradient(180deg, #0f3a56 0%, #0a2740 55%, #061827 100%);
+  border: 6px solid #1d2c44;
+  box-shadow:
+    inset 0 10px 40px rgba(2, 20, 34, 0.8),
+    0 14px 40px rgba(0, 0, 0, 0.5);
+}
+.aq-water-line {
+  position: absolute;
+  left: 4%;
+  right: 4%;
+  top: 9%;
+  height: 6px;
+  border-radius: 50%;
+  background: linear-gradient(90deg, transparent, rgba(180, 230, 255, 0.6) 45%, transparent);
+  animation: waterShimmer 3.4s ease-in-out infinite;
+}
+.aq-empty {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: rgba(180, 210, 240, 0.55);
+  font-size: 14px;
+}
+.aq-fish {
+  position: absolute;
+  left: 0;
+  line-height: 1;
+  animation: aqSwim var(--dur, 10s) linear infinite;
+  filter: drop-shadow(0 2px 3px rgba(2, 16, 28, 0.6));
+  cursor: default;
+}
+.aq-fish-body {
+  display: inline-block;
+  animation: aqBob 2.2s ease-in-out infinite alternate;
+}
+@keyframes aqSwim {
+  0%, 100% { transform: translateX(-10px) scaleX(1); }
+  47% { transform: translateX(var(--dist, 600px)) scaleX(1); }
+  53% { transform: translateX(var(--dist, 600px)) scaleX(-1); }
+  96% { transform: translateX(-10px) scaleX(-1); }
+}
+@keyframes aqBob {
+  from { transform: translateY(-5px); }
+  to { transform: translateY(5px); }
+}
+/* 喂食时落下的鱼食 */
+.aq-flake {
+  position: absolute;
+  top: -20px;
+  font-style: normal;
+  font-size: 13px;
+  animation: flakeDrop 1.3s ease-in both;
+}
+.fl-a { left: 30%; animation-delay: 0s; }
+.fl-b { left: 52%; animation-delay: 0.25s; }
+.fl-c { left: 70%; animation-delay: 0.5s; }
+@keyframes flakeDrop {
+  0% { transform: translateY(0) rotate(0); opacity: 0; }
+  15% { opacity: 1; }
+  100% { transform: translateY(300px) rotate(160deg); opacity: 0.2; }
+}
+.aq-bubble {
+  position: absolute;
+  bottom: 8px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.85), rgba(150, 210, 255, 0.3));
+  animation: bubbleUp 4s ease-in infinite;
+}
+.aq-error {
+  margin-top: 10px;
+  font-size: 13px;
+  color: #fca5a5;
+}
+.aq-toast {
+  margin-top: 10px;
+  font-size: 13px;
+  color: #86efac;
+  animation: fadeIn 0.3s ease both;
+}
+/* 商店 */
+.aq-shop {
+  margin-top: 16px;
+}
+.aq-shop h3 {
+  font-size: 14px;
+  color: #aebadb;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+.aq-shop-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.aq-card {
+  flex: 1 1 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 12px 8px 10px;
+  border-radius: 14px;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(140, 170, 240, 0.22);
+  color: #dbe4f8;
+  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+.aq-card:hover:not(:disabled) {
+  transform: translateY(-3px);
+  border-color: rgba(240, 208, 130, 0.6);
+  background: rgba(255, 255, 255, 0.09);
+}
+.aq-card:disabled {
+  opacity: 0.38;
+  cursor: default;
+}
+.aq-card-emoji {
+  font-size: 26px;
+  line-height: 1;
+}
+.aq-card-name {
+  font-size: 12.5px;
+  font-weight: 600;
+}
+.aq-card-price {
+  font-size: 11px;
+  color: #ffd98a;
+  font-variant-numeric: tabular-nums;
+}
+.aq-hint {
+  margin-top: 10px;
+  font-size: 11.5px;
+  color: rgba(174, 186, 219, 0.6);
 }
 
 /* ---------- 减少动效 ---------- */
