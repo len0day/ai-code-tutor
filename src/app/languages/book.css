@@ -221,9 +221,9 @@
 
 /* 挂钟（实时走时，右上区域中心） */
 .wall-clock {
-  right: 5%;
+  right: 6.5%;
   left: auto;
-  top: 15%;
+  top: 10%;
   width: 176px;
   height: 176px;
   border-radius: 50%;
@@ -278,8 +278,8 @@
 
 /* 进度挂牌：挂轴卷轴（绸面 + 上下木轴 + 挂绳） */
 .wall-plaques {
-  left: 4%;
-  top: 40%;
+  left: 3%;
+  top: 33%;
   display: flex;
   flex-direction: column;
   gap: 24px;
