@@ -232,10 +232,36 @@ export default function Nav() {
               登录
             </Link>
           ) : (
-            <span className="hidden sm:inline text-sm text-slate-600 max-w-[90px] truncate">
-              {me.role === "admin" ? "👑 " : "👤 "}
-              {me.username}
-            </span>
+            <>
+              {stats && (
+                <span
+                  className="hidden xl:inline-flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400 tabular-nums"
+                  title="我的学习数据：XP 经验值 · 连续学习天数 · 已完成课程"
+                >
+                  <span className="bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-300 rounded-full px-2 py-0.5">
+                    ⚡ {stats.xp}
+                  </span>
+                  <span className="bg-orange-50 dark:bg-orange-950/40 text-orange-600 dark:text-orange-300 rounded-full px-2 py-0.5">
+                    🔥 {stats.streak}
+                  </span>
+                  <span className="bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-300 rounded-full px-2 py-0.5">
+                    ✅ {stats.done}
+                  </span>
+                </span>
+              )}
+              <span className="hidden sm:inline text-sm text-slate-600 max-w-[90px] truncate">
+                {me.role === "admin" ? "👑 " : "👤 "}
+                {me.username}
+              </span>
+              <button
+                onClick={handleLogout}
+                title="退出登录"
+                aria-label="退出登录"
+                className="hidden sm:inline px-2 py-1.5 rounded-lg text-sm text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+              >
+                ⏻
+              </button>
+            </>
           )}
           <button
             onClick={() => setMenuOpen((v) => !v)}
