@@ -13,8 +13,8 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# 非 root 用户运行
-RUN addgroup -S app && adduser -S app -G app
+# 非 root 用户运行（固定 uid 1000，与云端迁移脚本 chown 对齐）
+RUN addgroup -S app && adduser -S -u 1000 -G app app
 
 COPY --from=builder /app/package.json /app/package-lock.json ./
 COPY --from=builder /app/node_modules ./node_modules

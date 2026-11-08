@@ -1,0 +1,21 @@
+# CodeTutor 云端入口：自动签发/续期 Let's Encrypt 证书，反代到 app:3000
+{
+	email {$ACME_EMAIL}
+}
+
+{$CODETUTOR_DOMAIN} {
+	encode gzip zstd
+
+	# AI 讲解/导师对话走 SSE 流式：关闭缓冲，保证打字机效果
+	reverse_proxy app:3000 {
+		flush_interval -1
+		header_up X-Forwarded-Proto {scheme}
+		header_up X-Real-IP {remote_host}
+	}
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+	}
+}
