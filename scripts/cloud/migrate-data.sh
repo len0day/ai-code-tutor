@@ -6,6 +6,7 @@
 #
 # 用法：./scripts/cloud/migrate-data.sh user@服务器IP
 #   例：./scripts/cloud/migrate-data.sh tencent-cloud
+#   登录方式：密码（服务器未放开公钥时提示输入；~/.ssh/config 已开 ControlMaster，整条链只问一次）
 set -euo pipefail
 
 DEST="${1:?用法: $0 user@服务器IP}"
@@ -17,16 +18,20 @@ echo "==> 打包本机数据（data/ 全量：SQLite + 密钥 + 用户数据）"
 tar -czf /tmp/codetutor-migrate.tgz -C "$ROOT" data
 
 echo "==> 上传到 $DEST:$REMOTE_DIR"
-ssh "$DEST" "mkdir -p $REMOTE_DIR"
+ssh "$DEST" "mkdir -p '$REMOTE_DIR' 2>/dev/null || sudo -n mkdir -p '$REMOTE_DIR'"
 rsync -avz /tmp/codetutor-migrate.tgz "$DEST:$REMOTE_DIR/"
 
 echo "==> 在服务器上解压并对齐 compose 挂载路径（./data → /app/data）"
-ssh "$DEST" "
-  cd $REMOTE_DIR
-  tar -xzf codetutor-migrate.tgz
-  rm -f codetutor-migrate.tgz
-  chown -R 1000:1000 data   # 容器内 app 用户 (uid 1000)
-"
+ssh "$DEST" "bash -s" <<'EOS'
+set -e
+REMOTE_DIR="/opt/codetutor/app"
+cd "$REMOTE_DIR"
+tar -xzf codetutor-migrate.tgz
+rm -f codetutor-migrate.tgz
+# 容器内 app 用户 uid=1000；服务器 ubuntu 用户通常也是 1000
+sudo -n chown -R 1000:1000 data 2>/dev/null || chown -R 1000:1000 data 2>/dev/null || true
+chmod -R u+rwX data 2>/dev/null || true
+EOS
 
 rm -f /tmp/codetutor-migrate.tgz
 echo "✅ 迁移完成。现在可以在服务器上：cd $REMOTE_DIR && docker compose up -d"
