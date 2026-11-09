@@ -20,20 +20,32 @@ rsync -avz \
 
 echo "==> [3/5] 服务器上构建并启动（测试模式只起 app，不开 80/443）"
 ssh "$DEST" "bash -s" <<'EOS'
-set -e
 REMOTE_DIR="/opt/codetutor/app"
-cd "$REMOTE_DIR"
+cd "$REMOTE_DIR" || { echo "✗ 目录不存在，请先执行服务器初始化步骤"; exit 1; }
 # 当前用户没有 docker 权限时，退回 sudo（腾讯云 ubuntu 默认免密 sudo）
 DC="docker"
 if ! docker info >/dev/null 2>&1; then
   if sudo -n true >/dev/null 2>&1; then DC="sudo docker"; fi
 fi
-$DC compose build app
-$DC compose up -d app
-sleep 6
+
+echo '--- [诊断] 当前容器状态 ---'
+$DC compose ps -a 2>&1 || true
+echo '--- [诊断] app 最近日志（崩溃原因在这）---'
+$DC compose logs --tail=20 app 2>&1 || true
+echo '--- [诊断] 内存（构建 OOM 看这里）---'
+free -h 2>/dev/null || true
+echo '--- [诊断] 以上 ------'
+
+echo '--- 构建 ---'
+$DC compose build app || { echo "✗ 构建失败（若报 Killed/OOM，看上面的内存行）"; exit 1; }
+echo '--- 启动 ---'
+$DC compose up -d app || { echo "✗ 启动失败"; exit 1; }
+sleep 8
 echo '--- 健康检查 ---'
 curl -s -o /dev/null -w '首页 HTTP %{http_code}\n' http://127.0.0.1:3000/
 $DC compose ps
+echo '--- 启动日志 ---'
+$DC compose logs --tail=20 app 2>&1 || true
 EOS
 
 echo "==> [4/5] 写 .env（测试模式占位，正式再改域名/邮箱）"
