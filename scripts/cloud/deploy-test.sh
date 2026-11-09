@@ -13,10 +13,17 @@ echo "==> [1/5] 迁移数据（data/ 全量：SQLite + 密钥 + 用户数据）"
 ./scripts/cloud/migrate-data.sh "$DEST"
 
 echo "==> [2/5] 同步代码（排除依赖与数据目录）"
+# ⚠️ 排除项必须用 / 锚定到项目根！
+#    未锚定的 --exclude data 会匹配任意层级名为 data 的目录，
+#    把 src/data/（11 门课的课程数据）一起排掉，服务器构建会报
+#    "Can't resolve './src/data/courses'"。
 rsync -avz \
-  --exclude node_modules --exclude .next --exclude .git \
-  --exclude data --exclude "*.log" \
+  --exclude '/node_modules' --exclude '/.next' --exclude '/.git' \
+  --exclude '/data' --exclude '*.log' \
   "$ROOT/" "$DEST:$REMOTE_DIR/"
+
+echo "==> [2.5/5] 校验关键文件已同步（避免构建时报看不懂的模块缺失）"
+ssh "$DEST" "test -f '$REMOTE_DIR/src/data/courses/index.ts' && echo '  ✓ src/data/courses 已同步' || { echo '  ✗ src/data/courses 缺失！'; exit 1; }; test -f '$REMOTE_DIR/Dockerfile' && echo '  ✓ Dockerfile 已同步' || { echo '  ✗ Dockerfile 缺失'; exit 1; }"
 
 echo "==> [3/5] 服务器上构建并启动（测试模式只起 app，不开 80/443）"
 ssh "$DEST" "bash -s" <<'EOS'

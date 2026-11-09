@@ -19,10 +19,14 @@ echo "==> [2/4] 迁移数据（data/ 全量：SQLite + 密钥 + 用户数据）"
 ./scripts/cloud/migrate-data.sh "$DEST"
 
 echo "==> [3/4] 同步代码（排除依赖与数据目录）"
+# ⚠️ 排除项必须用 / 锚定到项目根，否则会把 src/data/（课程数据）一起排掉
 rsync -avz \
-  --exclude node_modules --exclude .next --exclude .git \
-  --exclude data --exclude "*.log" \
+  --exclude '/node_modules' --exclude '/.next' --exclude '/.git' \
+  --exclude '/data' --exclude '*.log' \
   "$ROOT/" "$DEST:$REMOTE_DIR/"
+
+echo "==> [3.5/4] 校验关键文件已同步"
+ssh "$DEST" "test -f '$REMOTE_DIR/src/data/courses/index.ts' && echo '  ✓ src/data/courses 已同步' || { echo '  ✗ src/data/courses 缺失！'; exit 1; }"
 
 echo "==> [4/4] 镜像灌入服务器并启动（服务器只 up，不 build）"
 docker save "$IMAGE" | gzip | ssh "$DEST" "gunzip | docker load"
