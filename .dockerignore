@@ -1,0 +1,27 @@
+# 依赖与构建产物：不能进镜像（宿主机的 node_modules 含 macOS 原生二进制，会覆盖容器内依赖）
+node_modules
+.next
+out
+*.tsbuildinfo
+
+# 数据目录：含 auth-secret.json（会话签名密钥）与用户数据库，绝不能进镜像层
+data
+!data/.gitkeep
+
+# 版本控制与开发文件
+.git
+.gitignore
+.github
+.vscode
+.idea
+src/.mimosa
+*.md
+!README.md
+
+# 日志与临时文件
+*.log
+npm-debug.log*
+.DS_Store
+.env
+.env.local
+.env.*.local

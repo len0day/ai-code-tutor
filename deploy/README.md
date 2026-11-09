@@ -35,6 +35,10 @@ sudo mkdir -p /opt/codetutor/app && sudo chown -R $USER:$USER /opt/codetutor
 sudo usermod -aG docker $USER && newgrp docker
 # 4) 确认免密 sudo（腾讯云 Ubuntu 默认有）
 sudo -n true && echo "sudo OK"
+# 5) 加 4G swap（2G 内存机器跑 next build 容易 OOM）
+sudo fallocate -l 4G /swapfile && sudo chmod 600 /swapfile && sudo mkswap /swapfile && sudo swapon /swapfile
+echo '"/swapfile none swap sw 0 0"' | sudo tee -a /etc/fstab
+free -h
 ```
 
 ## 2. 一键试部署（本机执行）
@@ -42,6 +46,12 @@ sudo -n true && echo "sudo OK"
 ```bash
 ./scripts/cloud/deploy-test.sh        # = 迁移数据 + 同步代码 + 构建 + 启动 + 健康检查
 ```
+
+> **服务器内存不够（next build 被 OOM kill）时**，改用镜像直传方案——本机构建镜像灌到服务器，
+> 服务器只启动不构建：
+> ```bash
+> ./scripts/cloud/deploy-image.sh
+> ```
 
 完成后浏览器访问 **http://43.142.68.82:3000** 验证（管理员 admin 账号与数据都在——本机 `data/app.db` 已随迁移脚本上去）。
 

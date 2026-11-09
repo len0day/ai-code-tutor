@@ -8,6 +8,12 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build
 
+# 生产依赖阶段：只装 dependencies，丢掉 devDependencies（镜像瘦身）
+FROM node:22-alpine AS deps
+WORKDIR /app
+COPY package.json package-lock.json .npmrc ./
+RUN npm ci --omit=dev && npm cache clean --force
+
 # 运行阶段（node:sqlite 内置于 Node 22）
 FROM node:22-alpine
 WORKDIR /app
@@ -15,8 +21,8 @@ ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
 # 官方 node 镜像自带 node 用户（uid/gid = 1000），与云端迁移脚本 chown 1000:1000 对齐
+COPY --from=deps    --chown=node:node /app/node_modules ./node_modules
 COPY --from=builder --chown=node:node /app/package.json /app/package-lock.json ./
-COPY --from=builder --chown=node:node /app/node_modules ./node_modules
 COPY --from=builder --chown=node:node /app/.next ./.next
 COPY --from=builder --chown=node:node /app/public ./public
 COPY --from=builder --chown=node:node /app/scripts ./scripts
@@ -27,4 +33,4 @@ VOLUME ["/app/data"]
 
 USER node
 EXPOSE 3000
-CMD ["npm start"]
+CMD ["npm", "start"]
