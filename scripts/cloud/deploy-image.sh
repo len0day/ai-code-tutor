@@ -28,19 +28,25 @@ echo "==> [4/4] 镜像灌入服务器并启动（服务器只 up，不 build）"
 docker save "$IMAGE" | gzip | ssh "$DEST" "gunzip | docker load"
 
 ssh "$DEST" "bash -s" <<'EOS'
-set -e
 REMOTE_DIR="/opt/codetutor/app"
-cd "$REMOTE_DIR"
+cd "$REMOTE_DIR" || { echo "✗ 目录不存在，请先执行服务器初始化步骤"; exit 1; }
 DC="docker"
 if ! docker info >/dev/null 2>&1; then
   if sudo -n true >/dev/null 2>&1; then DC="sudo docker"; fi
 fi
+echo '--- 服务器上的镜像 ---'
+$DC images codetutor-app --format '{{.Repository}}:{{.Tag}}  {{.Size}}' 2>&1 || true
+echo '--- 磁盘 ---'
+df -h / 2>/dev/null | head -3
 [ -f .env ] || cp .env.example .env
-$DC compose up -d app
-sleep 6
+echo '--- 启动 ---'
+$DC compose up -d app || { echo "✗ 启动失败"; exit 1; }
+sleep 8
 echo '--- 健康检查 ---'
 curl -s -o /dev/null -w '首页 HTTP %{http_code}\n' http://127.0.0.1:3000/
 $DC compose ps
+echo '--- 启动日志 ---'
+$DC compose logs --tail=20 app 2>&1 || true
 EOS
 
 echo "✅ 完成！测试入口：http://43.142.68.82:3000"

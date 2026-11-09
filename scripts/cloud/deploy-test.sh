@@ -32,12 +32,20 @@ echo '--- [诊断] 当前容器状态 ---'
 $DC compose ps -a 2>&1 || true
 echo '--- [诊断] app 最近日志（崩溃原因在这）---'
 $DC compose logs --tail=20 app 2>&1 || true
-echo '--- [诊断] 内存（构建 OOM 看这里）---'
+echo '--- [诊断] 内存 / swap ---'
 free -h 2>/dev/null || true
+echo '--- [诊断] 磁盘 ---'
+df -h / /opt 2>/dev/null | head -4
 echo '--- [诊断] 以上 ------'
 
-echo '--- 构建 ---'
-$DC compose build app || { echo "✗ 构建失败（若报 Killed/OOM，看上面的内存行）"; exit 1; }
+echo '--- 构建（日志存 /tmp/codetutor-build.log）---'
+$DC compose build app > /tmp/codetutor-build.log 2>&1 || {
+  echo "✗ 构建失败，日志在服务器 /tmp/codetutor-build.log，关键 40 行："
+  tail -40 /tmp/codetutor-build.log
+  echo '--- 是否被 OOM 杀掉 ---'
+  dmesg 2>/dev/null | grep -iE "killed process|out of memory" | tail -5 || echo '(dmesg 不可读，看上面的 free -h：swap 为 0 就是内存不足)'
+  exit 1
+}
 echo '--- 启动 ---'
 $DC compose up -d app || { echo "✗ 启动失败"; exit 1; }
 sleep 8
