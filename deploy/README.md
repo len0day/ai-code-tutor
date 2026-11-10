@@ -96,6 +96,20 @@ docker compose up -d --build        # 更新代码后重建
 docker compose restart app          # 重启
 ```
 
+### 忘记密码时重置
+
+账号密码是 scrypt 哈希，**忘记后无法找回**，只能重置（首个注册的账号自动成为 admin）：
+
+```bash
+# 服务器上（容器内数据卷与本机 data/ 是同一份）
+docker exec -e CT_NEW_PASSWORD='你的新密码' app node scripts/reset-password.mjs admin
+
+# 本机
+CT_NEW_PASSWORD='你的新密码' node scripts/reset-password.mjs admin
+```
+
+> 密码通过环境变量传入，脚本与仓库里不存任何密码字面量；不传该变量则交互输入（不回显）。
+
 更新流程（本机 → 云端）：`git push` 后在服务器 `cd /opt/codetutor/app && git pull && docker compose up -d --build`；数据结构有变化时先重跑 `./scripts/cloud/migrate-data.sh tencent-cloud`。
 
 ## 数据库说明
