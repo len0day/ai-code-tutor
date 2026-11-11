@@ -198,6 +198,25 @@ export default function Bookshelf({
       }, 460)
     );
   };
+  /** 给树苗浇水（桌面端盆栽 / 移动端工具条共用） */
+  const waterPlant = async () => {
+    if (watering || plantSize >= 5) return;
+    setWatering(true);
+    try {
+      const r = await fetch("/api/aquarium", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "water" }),
+      });
+      const d = await r.json();
+      if (r.ok && typeof d.plantSize === "number") setPlantSize(d.plantSize);
+    } catch {
+      /* 忽略 */
+    } finally {
+      window.setTimeout(() => setWatering(false), 1500);
+    }
+  };
+
   /** 点击书以外的任意区域 = 放回书架 */
   const handleSceneClick = (e: React.MouseEvent) => {
     if (!picked || returning) return;
@@ -312,6 +331,46 @@ export default function Bookshelf({
 
       <div className="room-floor" aria-hidden="true" />
 
+      {/* 移动端工具条：鱼缸 / 树苗 / 礼包（桌面端由房间里的实体呈现） */}
+      {!picked && (
+        <div className="mobile-tools">
+          <button
+            className="mt-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              setTankOpen(true);
+            }}
+            aria-label="打开鱼缸：查看和喂养你的鱼"
+          >
+            <span className="mt-fish" aria-hidden="true">
+              🐠
+            </span>
+            <span className="mt-label">鱼缸</span>
+            {tankFish.length > 0 && <span className="mt-count">{tankFish.length}</span>}
+          </button>
+          <button
+            className={`mt-btn ${watering ? "is-watering" : ""}`}
+            onClick={async (e) => {
+              e.stopPropagation();
+              await waterPlant();
+            }}
+            aria-label={`给树苗浇水（当前 ${plantSize} 号，最大 5 号）`}
+          >
+            <span className="mt-plant-icon" aria-hidden="true">
+              {["🌱", "🌱", "🌿", "🪴", "🌳"][plantSize - 1] ?? "🌱"}
+            </span>
+            <span className="mt-label">树苗</span>
+            <span className="mt-count">{plantSize}/5</span>
+          </button>
+          {giftBox && (
+            <Link href={giftBox.href} className="mt-btn" aria-label={`打开礼物：${giftBox.label}`}>
+              <span aria-hidden="true">🎁</span>
+              <span className="mt-label">{giftBox.label}</span>
+            </Link>
+          )}
+        </div>
+      )}
+
       {/* 鱼缸浴缸：小鱼游动，点击放大查看 + 用 XP 养鱼 */}
       <button
         className="room-tub"
@@ -392,21 +451,7 @@ export default function Bookshelf({
         }`}
         onClick={async (e) => {
           e.stopPropagation();
-          if (watering || plantSize >= 5) return;
-          setWatering(true);
-          try {
-            const r = await fetch("/api/aquarium", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ action: "water" }),
-            });
-            const d = await r.json();
-            if (r.ok && typeof d.plantSize === "number") setPlantSize(d.plantSize);
-          } catch {
-            /* 忽略 */
-          } finally {
-            window.setTimeout(() => setWatering(false), 1500);
-          }
+          await waterPlant();
         }}
         title="点一点浇水，树苗会慢慢长大"
         aria-label={`给树苗浇水（当前 ${plantSize} 号，最大 5 号）`}

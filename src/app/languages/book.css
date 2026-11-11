@@ -31,6 +31,8 @@
 /* 内页左侧装订线（骑马钉书脊阴影） */
 .book-page {
   position: relative;
+  /* 允许在 grid 里收缩到内容最小宽度以下，否则内部横向滚动条会把整页撑宽 */
+  min-width: 0;
 }
 .book-page::before {
   content: "";
@@ -59,7 +61,9 @@
 /* ---------- 双页对开 ---------- */
 .book-spread {
   display: grid;
-  grid-template-columns: 1fr;
+  /* minmax(0,1fr) 而非 1fr：默认的 auto 最小值会让内部横向滚动条
+     （章节 chip 条）把整列撑到 900+px，移动端出现横向滚动 */
+  grid-template-columns: minmax(0, 1fr);
 }
 @media (min-width: 1024px) {
   .book-spread {
@@ -2464,6 +2468,180 @@
   color: rgba(174, 186, 219, 0.6);
 }
 
+/* ============================================================
+   移动端优化（手机 / 平板竖屏）
+   ============================================================ */
+
+/* ---------- 1. 工具抽屉：占满全宽 + 阻断滚动穿透 ---------- */
+@media (max-width: 1023px) {
+  .tool-drawer {
+    width: 100vw;
+    max-width: 100vw;
+    overscroll-behavior: contain;
+  }
+  .tool-drawer > div:last-child {
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+  /* 抽屉页签在窄屏可横向滚动，别把关闭按钮挤出去 */
+  .tool-drawer .flex.items-center.gap-1 {
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .tool-drawer .flex.items-center.gap-1::-webkit-scrollbar {
+    display: none;
+  }
+  .tool-drawer .flex.items-center.gap-1 > button {
+    flex: 0 0 auto;
+  }
+}
+
+/* ---------- 2. 抽出/翻开的书：手机上直接盖住书架 ---------- */
+@media (max-width: 1023px) {
+  /* 选择器需与 .shelf-scene.has-book .focus-stage 同级或更高，
+     否则 padding-top 会被那条规则清零，封面顶到屏幕外 */
+  .shelf-scene.has-book .focus-stage {
+    position: fixed;
+    inset: 0;
+    z-index: 70;
+    justify-content: flex-start;
+    padding: 3.5rem 0.9rem 1.5rem;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    background: rgba(24, 16, 9, 0.94);
+    backdrop-filter: blur(8px);
+  }
+  .shelf-scene.has-book .focus-stage .focus-book {
+    margin: 0 auto;
+  }
+  /* 放回按钮：固定在顶部，随时可点 */
+  .shelf-scene.has-book .focus-stage .focus-actions {
+    position: fixed;
+    top: 0.5rem;
+    left: 0;
+    right: 0;
+    z-index: 72;
+  }
+  .shelf-scene.has-book .focus-stage .return-btn {
+    background: rgba(24, 16, 9, 0.72);
+    padding: 6px 16px;
+    border: 1px solid rgba(255, 220, 160, 0.22);
+  }
+}
+
+/* ---------- 3. 书脊：窄屏字号收紧，完整书名不再被裁 ---------- */
+@media (max-width: 700px) {
+  .book-spine {
+    width: 46px;
+    padding: 28px 3px 8px;
+  }
+  .spine-title {
+    font-size: 9.5px;
+    letter-spacing: 0.02em;
+    max-height: 132px;
+  }
+  .spine-title.is-long {
+    font-size: 8.5px;
+    letter-spacing: 0;
+  }
+  .spine-plate {
+    font-size: 15px;
+  }
+}
+
+/* ---------- 4. 移动端工具条：鱼缸 / 树苗 / 礼包不再消失 ---------- */
+.mobile-tools {
+  display: none;
+  position: relative;
+  z-index: 3;
+}
+@media (max-width: 1023px) {
+  .mobile-tools {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem 0.75rem;
+  }
+  .mt-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    /* 触控目标不小于 36px */
+    padding: 0.55rem 0.9rem;
+    border-radius: 999px;
+    font-size: 13px;
+    line-height: 1;
+    color: #f6e7c6;
+    background: linear-gradient(160deg, rgba(120, 86, 40, 0.55), rgba(70, 48, 22, 0.75));
+    border: 1px solid rgba(255, 214, 150, 0.28);
+    box-shadow: 0 3px 10px rgba(20, 12, 4, 0.35);
+    cursor: pointer;
+    transition: transform 0.2s ease, filter 0.2s ease;
+  }
+  .mt-btn:active {
+    transform: scale(0.95);
+  }
+  .mt-btn .mt-label {
+    white-space: nowrap;
+  }
+  .mt-btn .mt-count {
+    font-size: 10.5px;
+    padding: 1px 6px;
+    border-radius: 999px;
+    background: rgba(255, 226, 168, 0.22);
+    font-variant-numeric: tabular-nums;
+  }
+  /* 小鱼在工具条里游 */
+  .mt-fish {
+    display: inline-block;
+    font-size: 15px;
+    animation: mtSwim 4.5s ease-in-out infinite;
+  }
+  .mt-plant-icon {
+    display: inline-block;
+    font-size: 15px;
+  }
+  .mt-btn.is-watering .mt-plant-icon {
+    animation: mtWater 0.6s ease-in-out 2;
+  }
+}
+@keyframes mtSwim {
+  0%,
+  100% {
+    transform: translateX(-5px) scaleX(-1);
+  }
+  50% {
+    transform: translateX(5px) scaleX(1);
+  }
+}
+@keyframes mtWater {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+/* ---------- 5. 书架行：窄屏留出滚动提示的边距 ---------- */
+@media (max-width: 700px) {
+  .bookcase {
+    padding: 0 8px;
+    min-width: 0;
+    /* 撑满可用宽度，每层能多露出几本书 */
+    width: 100%;
+  }
+  .shelf-row {
+    padding: 6px 2px 0;
+    gap: 4px;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
 /* ---------- 减少动效 ---------- */
 @media (prefers-reduced-motion: reduce) {
   .page-flip,
@@ -2479,6 +2657,10 @@
   .tool-drawer-backdrop {
     animation: none !important;
     transition: none !important;
+  }
+  .mt-fish,
+  .mt-plant-icon {
+    animation: none !important;
   }
   .focus-book .focus-book-cover {
     transform: rotateY(-8deg);

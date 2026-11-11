@@ -30,7 +30,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           id="main-content"
           role="main"
           tabIndex={-1}
-          className="flex-1 w-full max-w-6xl mx-auto px-4 py-8 focus:outline-none"
+          className="flex-1 w-full max-w-6xl mx-auto px-3.5 py-5 sm:px-4 sm:py-8 focus:outline-none"
         >
           {children}
         </main>
