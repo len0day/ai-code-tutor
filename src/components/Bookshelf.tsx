@@ -81,6 +81,73 @@ export default function Bookshelf({
   };
   useEffect(() => () => clearTimers(), []);
 
+  // ---- 3D 房间模式：进入开门动画 + 2D/3D 视角切换 ----
+  const [mode3d, setMode3d] = useState(true);
+  type DoorState = "closed" | "opening" | "open" | "closing";
+  const [doors, setDoors] = useState<DoorState>("closed");
+  const doorTimers = useRef<number[]>([]);
+  const sceneRef = useRef<HTMLDivElement>(null);
+
+  // 读取上次的视角偏好（默认 3D）
+  useEffect(() => {
+    try {
+      if (localStorage.getItem("ct-room3d") === "0") setMode3d(false);
+    } catch {
+      /* 忽略 */
+    }
+  }, []);
+
+  // 进入页面：双开木门缓缓打开
+  useEffect(() => {
+    const t1 = window.setTimeout(() => setDoors("opening"), 300);
+    const t2 = window.setTimeout(() => setDoors("open"), 1700);
+    doorTimers.current.push(t1, t2);
+    return () => {
+      doorTimers.current.forEach((t) => window.clearTimeout(t));
+      doorTimers.current = [];
+    };
+  }, []);
+
+  /** 2D/3D 切换：先关门遮住场景 → 换模式 → 再开门 */
+  const toggleMode = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (doors !== "open") return;
+    setDoors("closing");
+    doorTimers.current.push(
+      window.setTimeout(() => {
+        setMode3d((m) => {
+          const next = !m;
+          try {
+            localStorage.setItem("ct-room3d", next ? "1" : "0");
+          } catch {
+            /* 忽略 */
+          }
+          return next;
+        });
+        setDoors("opening");
+        doorTimers.current.push(window.setTimeout(() => setDoors("open"), 1300));
+      }, 540)
+    );
+  };
+
+  /** 3D 模式：鼠标视差 —— 房间随光标轻微转动，产生纵深感 */
+  const onSceneMouseMove = (e: React.MouseEvent) => {
+    if (!mode3d) return;
+    const el = sceneRef.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const px = (e.clientX - r.left) / r.width - 0.5;
+    const py = (e.clientY - r.top) / r.height - 0.5;
+    el.style.setProperty("--room-ry", `${(px * 8).toFixed(2)}deg`);
+    el.style.setProperty("--room-rx", `${(-py * 5).toFixed(2)}deg`);
+  };
+  const onSceneMouseLeave = () => {
+    const el = sceneRef.current;
+    if (!el) return;
+    el.style.setProperty("--room-ry", "0deg");
+    el.style.setProperty("--room-rx", "0deg");
+  };
+
   const stats = useMemo(() => {
     const map: Record<
       string,
@@ -236,12 +303,26 @@ export default function Bookshelf({
   const flatR = boundary > 0 ? flatAll.slice(boundary) : [];
 
   return (
-    <div
-      className={`shelf-scene ${picked ? "has-book" : ""} ${
-        opened ? "is-open-book" : ""
-      }`}
-      onClick={handleSceneClick}
-    >
+    <>
+      <div
+        ref={sceneRef}
+        className={`shelf-scene ${picked ? "has-book" : ""} ${
+          opened ? "is-open-book" : ""
+        } ${mode3d ? "is-3d" : ""}`}
+        onClick={handleSceneClick}
+        onMouseMove={onSceneMouseMove}
+        onMouseLeave={onSceneMouseLeave}
+      >
+        {/* 3D 房间层：桌面在 3D 模式下整体微转（视差），地板与侧墙向远处铺开 */}
+        <div className="room-stage">
+          {mode3d && (
+            <>
+              <div className="room3d-floor" aria-hidden="true" />
+              <div className="room3d-wall wall-l" aria-hidden="true" />
+              <div className="room3d-wall wall-r" aria-hidden="true" />
+              <div className="room3d-light" aria-hidden="true" />
+            </>
+          )}
       {/* ---------- 房间装饰（挂在墙上，不参与布局） ---------- */}
       <div className="room-decor pendant-lamp" aria-hidden="true">
         <span className="lamp-cord" />
@@ -416,7 +497,6 @@ export default function Bookshelf({
         <span className="tub-foot foot-r" aria-hidden="true" />
         <span className="tub-caption">我的鱼缸</span>
       </button>
-      <AquariumModal open={tankOpen} onClose={() => setTankOpen(false)} />
 
       {/* 书架旁的礼物盒（增值包） */}
       {giftBox && (
@@ -656,6 +736,36 @@ export default function Bookshelf({
           </div>
         </div>
       )}
-    </div>
+      </div>
+      {/* /room-stage */}
+
+      {/* 视角切换：2D 平面 ↔ 3D 房间（切门时先关门再开门） */}
+      <button
+        className="room-mode-toggle"
+        onClick={toggleMode}
+        aria-pressed={mode3d}
+        title={mode3d ? "切换到 2D 平面视图" : "切换到 3D 房间视图"}
+      >
+        <span aria-hidden="true">{mode3d ? "🧊" : "🖼️"}</span>
+        {mode3d ? "3D 视角" : "2D 平面"}
+      </button>
+      </div>
+      {/* /shelf-scene */}
+
+      {/* 鱼缸弹窗：fixed 定位，必须在带 perspective 的场景外 */}
+      <AquariumModal open={tankOpen} onClose={() => setTankOpen(false)} />
+
+      {/* 3D 开门进场：双开木门（进入页面 / 切换视角时播放） */}
+      <div className={`room-door is-${doors}`} aria-hidden={doors === "open"}>
+        <div className="door-panel door-l">
+          <span className="door-molding" aria-hidden="true" />
+          <span className="door-knob" aria-hidden="true" />
+        </div>
+        <div className="door-panel door-r">
+          <span className="door-molding" aria-hidden="true" />
+          <span className="door-knob" aria-hidden="true" />
+        </div>
+      </div>
+    </>
   );
 }
