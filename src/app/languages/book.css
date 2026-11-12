@@ -2642,6 +2642,33 @@
   }
 }
 
+/* ---------- 6. 课程页移动端页签：吸顶条 + 双层页签 ---------- */
+/* 左页目录在手机上隐藏（页签已并入正文页）；
+   需要压过 .book-fullscreen > .book-page { display:flex }，故用同等+伪类的写法 */
+@media (max-width: 1023px) {
+  .book-fullscreen > .book-page:first-child,
+  .book-fullscreen > div[aria-hidden="true"] {
+    display: none;
+  }
+}
+.chip-strip {
+  /* 与纸面同色（带轻微透明 + 毛玻璃），内容从下面滚过不会透出文字 */
+  background: rgba(253, 251, 245, 0.94);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border-bottom: 1px solid rgba(160, 130, 70, 0.12);
+}
+.dark .chip-strip {
+  background: rgba(36, 30, 20, 0.94);
+  border-bottom-color: rgba(255, 220, 150, 0.1);
+}
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 /* ---------- 减少动效 ---------- */
 @media (prefers-reduced-motion: reduce) {
   .page-flip,

@@ -77,6 +77,7 @@ export default function BookStage({
   const [key, setKey] = useState(flat[0]?.key ?? "");
   const [flipKey, setFlipKey] = useState(0);
   const rootRef = useRef<HTMLDivElement>(null);
+  const touchStart = useRef<{ x: number; y: number; ok: boolean } | null>(null);
 
   // pages 变化（如讲解分节生成）后当前页可能消失 → 回退到最近的有效页
   useEffect(() => {
@@ -99,6 +100,32 @@ export default function BookStage({
     flat.findIndex((e) => e.key === key)
   );
   const current = flat[idx] ?? flat[0];
+
+  /** 当前页所属的顶级页（移动端页签第二行显示它的子页） */
+  const activeGroup = pages.find(
+    (p) => p.id === current.key || (p.children ?? []).some((c) => c.id === current.key)
+  );
+
+  /** 移动端滑动翻页：横向滑动切上一/下一页（避开代码块与可横向滚动区） */
+  const onTouchStart = (e: React.TouchEvent) => {
+    const t = e.target as HTMLElement;
+    touchStart.current = {
+      x: e.touches[0].clientX,
+      y: e.touches[0].clientY,
+      ok: !t.closest("pre, code, input, textarea, select, .no-swipe"),
+    };
+  };
+  const onTouchEnd = (e: React.TouchEvent) => {
+    const s = touchStart.current;
+    touchStart.current = null;
+    if (!s?.ok) return;
+    const dx = e.changedTouches[0].clientX - s.x;
+    const dy = e.changedTouches[0].clientY - s.y;
+    if (Math.abs(dx) > 64 && Math.abs(dy) < 56) {
+      if (dx < 0) flipTo(idx + 1);
+      else flipTo(idx - 1);
+    }
+  };
 
   function flipTo(n: number) {
     if (n < 0 || n >= flat.length || n === idx) return;
@@ -131,36 +158,19 @@ export default function BookStage({
   return (
     <div
       ref={rootRef}
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
       className="book-spread book-fullscreen paper rounded-r-xl rounded-l-lg border-x border-amber-900/10 dark:border-amber-100/10 shadow-lg"
     >
-      {/* ---- 左页：本书页目录 ---- */}
-      <div className="book-page relative p-4 sm:p-5">
-        <div className="hidden lg:flex items-center justify-between border-b border-amber-900/15 dark:border-amber-100/10 pb-2.5 mb-3">
+      {/* ---- 左页：本书页目录（移动端隐藏，页签并入正文页） ---- */}
+      <div className="book-page relative p-4 sm:p-5 hidden lg:block">
+        <div className="flex items-center justify-between border-b border-amber-900/15 dark:border-amber-100/10 pb-2.5 mb-3">
           <span className="serif-title text-sm tracking-[0.3em] amber-head">
             本 书 页
           </span>
           <span className="text-[11px] text-slate-400 tabular-nums">
             {courseEmoji} {courseName}
           </span>
-        </div>
-
-        {/* 移动端：页切换 chips */}
-        <div className="lg:hidden flex gap-1.5 overflow-x-auto pb-2 mb-1 -mx-1 px-1">
-          {flat.map((e) => (
-            <button
-              key={e.key}
-              onClick={() => flipTo(flat.findIndex((x) => x.key === e.key))}
-              aria-current={key === e.key ? "page" : undefined}
-              className={`shrink-0 px-2.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
-                key === e.key
-                  ? "bg-rose-600 text-white"
-                  : "bg-amber-900/5 text-slate-600 dark:bg-amber-100/10"
-              }`}
-            >
-              {e.icon ? `${e.icon} ` : ""}
-              {e.label}
-            </button>
-          ))}
         </div>
 
         <nav aria-label="本书页目录" className="hidden lg:block">
@@ -210,7 +220,7 @@ export default function BookStage({
       {/* ---- 右页：正文 ---- */}
       <div className="book-page relative p-4 sm:p-6 flex flex-col">
         {/* 页眉 */}
-        <div className="flex items-center justify-between gap-2 pb-3 mb-4 border-b border-amber-900/15 dark:border-amber-100/10">
+        <div className="flex items-center justify-between gap-2 pb-3 mb-3 border-b border-amber-900/15 dark:border-amber-100/10">
           <div className="min-w-0">
             <div className="serif-title text-lg font-bold truncate flex items-center gap-2">
               {current.icon && (
@@ -227,6 +237,55 @@ export default function BookStage({
           <div className="flex items-center gap-1.5 shrink-0">{headerRight}</div>
         </div>
 
+        {/* 移动端：两级页签（吸顶；顶级页一行，当前组的子页一行） */}
+        <div className="lg:hidden chip-strip sticky top-14 z-20 -mx-4 px-4 pt-2 pb-2.5 mb-3 no-swipe">
+          <div className="flex gap-1.5 overflow-x-auto no-scrollbar -mx-1 px-1">
+            {pages.map((p) => {
+              const groupActive = p.id === activeGroup?.id;
+              const exact = key === p.id;
+              return (
+                <button
+                  key={p.id}
+                  onClick={() => flipTo(flat.findIndex((x) => x.key === p.id))}
+                  aria-current={exact ? "page" : undefined}
+                  className={`shrink-0 flex items-center gap-1 px-3 py-2 rounded-lg text-xs font-medium whitespace-nowrap border transition-colors ${
+                    exact
+                      ? "bg-rose-600 text-white border-rose-600 shadow-sm shadow-rose-600/30"
+                      : groupActive
+                        ? "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-500/15 dark:text-rose-200 dark:border-rose-400/30"
+                        : "bg-transparent text-slate-600 border-amber-900/15 dark:text-amber-100/70 dark:border-amber-100/15"
+                  }`}
+                >
+                  {p.icon && (
+                    <span aria-hidden="true" className="text-[13px]">
+                      {p.icon}
+                    </span>
+                  )}
+                  {p.label}
+                </button>
+              );
+            })}
+          </div>
+          {(activeGroup?.children?.length ?? 0) > 0 && (
+            <div className="flex gap-1.5 overflow-x-auto no-scrollbar mt-1.5 -mx-1 px-1">
+              {activeGroup!.children!.map((c) => (
+                <button
+                  key={c.id}
+                  onClick={() => flipTo(flat.findIndex((x) => x.key === c.id))}
+                  aria-current={key === c.id ? "page" : undefined}
+                  className={`shrink-0 px-2.5 py-1.5 rounded-full text-[11px] whitespace-nowrap border transition-colors ${
+                    key === c.id
+                      ? "bg-rose-600/90 text-white border-rose-600"
+                      : "bg-transparent text-slate-500 border-dashed border-amber-900/25 dark:text-amber-100/60 dark:border-amber-100/20"
+                  }`}
+                >
+                  {c.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
         {/* 页内容 */}
         <div key={`${flipKey}-${current.key}`} className="page-flip flex-1">
           {current.content}
@@ -237,7 +296,7 @@ export default function BookStage({
           <button
             onClick={() => flipTo(idx - 1)}
             disabled={idx === 0}
-            className="hand-note text-sm text-slate-500 disabled:opacity-30 hover:text-rose-600 px-2 truncate max-w-[38%]"
+            className="hand-note text-sm text-slate-500 disabled:opacity-30 hover:text-rose-600 px-2 py-1.5 truncate max-w-[38%]"
           >
             ← {idx > 0 ? flat[idx - 1].label : "封面"}
           </button>
@@ -247,7 +306,7 @@ export default function BookStage({
           <button
             onClick={() => flipTo(idx + 1)}
             disabled={idx === flat.length - 1}
-            className="hand-note text-sm text-slate-500 disabled:opacity-30 hover:text-rose-600 px-2 truncate max-w-[38%]"
+            className="hand-note text-sm text-slate-500 disabled:opacity-30 hover:text-rose-600 px-2 py-1.5 truncate max-w-[38%]"
           >
             {idx < flat.length - 1 ? flat[idx + 1].label : "封底"} →
           </button>
