@@ -2690,10 +2690,11 @@
 .shelf-scene.is-3d {
   perspective: 1250px;
 }
-/* 抽书阅读时暂停房间旋转（fixed 浮层需要干净的定位上下文） */
+/* 抽书阅读时暂停房间旋转（fixed 浮层需要干净的定位上下文）。
+   基准角自带 2° 俯视（模拟站在房间里微微低头看），视差在其上叠加 */
 .shelf-scene.is-3d:not(.has-book) .room-stage {
   transform-style: preserve-3d;
-  transform: rotateX(var(--room-rx, 0deg)) rotateY(var(--room-ry, 0deg));
+  transform: rotateX(calc(2deg + var(--room-rx, 0deg))) rotateY(var(--room-ry, 0deg));
   transition: transform 0.4s ease-out;
 }
 
@@ -2751,9 +2752,9 @@
   transform: rotateY(-64deg);
 }
 
-/* 3D 模式物件摆放：
-   - 书柜靠墙（Z≈0）、挂件贴墙（Z≈2px）——它们属于墙面
-   - 鱼缸/树苗/礼包立在房间中前部（Z 150+），与墙拉开纵深 */
+/* 3D 模式物件摆放 —— 纵深阶梯（近大远小 + 近低远高）：
+   树苗贴墙根(Z40) → 礼包中景(Z110) → 鱼缸最前(Z210)，三者基线逐级下移，
+   与贴墙的书柜/挂件拉开真实纵深，而不是排在同一平面 */
 .is-3d .bookcase {
   transform: translateZ(6px);
   filter: drop-shadow(0 30px 24px rgba(0, 0, 0, 0.4));
@@ -2763,22 +2764,112 @@
 .is-3d .room-decor.wall-plaques { transform: translateZ(2px); }
 .is-3d .room-decor.wall-tags { transform: translateZ(3px); }
 .is-3d .room-floor { display: none; }
-/* 树苗：立在房间最前方 */
+
+/* 树苗：贴着墙根（书柜左前），几乎不放大。
+   地板与后墙的交界线约在 stage bottom 100px —— 近墙物件基线高，近景物件基线低 */
 .is-3d .room-plant {
-  transform: translateZ(170px) rotateY(-7deg);
+  bottom: 102px;
+  transform: translateZ(40px) rotateY(-6deg);
+  transform-style: preserve-3d;
 }
 .is-3d .room-plant:hover {
-  transform: translateZ(170px) rotateY(-7deg) translateY(-2px);
+  transform: translateZ(40px) rotateY(-6deg) translateY(-2px);
+}
+/* 地面接触阴影 */
+.is-3d .room-plant::after {
+  content: "";
+  position: absolute;
+  left: -10%;
+  right: -10%;
+  bottom: -10px;
+  height: 16px;
+  border-radius: 50%;
+  background: radial-gradient(50% 50% at 50% 50%, rgba(0, 0, 0, 0.42), transparent 72%);
+  transform: translateZ(2px);
+}
+/* 3D 花盆：梯形陶盆 + 盆沿 */
+.is-3d .room-plant::before {
+  content: "";
+  position: absolute;
+  left: 18%;
+  right: 18%;
+  bottom: -4px;
+  height: 34px;
+  background:
+    linear-gradient(90deg, rgba(0, 0, 0, 0.28), transparent 30%, rgba(255, 255, 255, 0.18) 55%, rgba(0, 0, 0, 0.3)),
+    linear-gradient(180deg, #b0653a 0%, #8a4a2a 70%, #6d3a20 100%);
+  border-radius: 4px 4px 10px 10px;
+  clip-path: polygon(0 0, 100% 0, 82% 100%, 18% 100%);
+  transform: translateZ(6px);
+  box-shadow: inset 0 3px 0 rgba(255, 200, 150, 0.35);
+}
+/* 叶丛分层：前后两片叶子错开 Z，形成体积 */
+.is-3d .plant-body {
+  position: relative;
+  transform-style: preserve-3d;
+}
+.is-3d .plant-body::before,
+.is-3d .plant-body::after {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  font-size: 0.72em;
+  opacity: 0.9;
+  filter: brightness(0.75) saturate(0.9);
+  text-shadow: none;
+}
+.is-3d .plant-body::before {
+  content: "🌿";
+  transform: translate(-78%, 6%) translateZ(-26px);
+}
+.is-3d .plant-body::after {
+  content: "🌱";
+  transform: translate(-16%, 26%) translateZ(20px);
 }
 
-/* ---- 立体鱼缸：玻璃侧板 + 水面（仅 3D 模式显示） ---- */
+/* 礼包：中景（树苗与鱼缸之间） */
+.is-3d .gift-box {
+  bottom: 78px;
+  transform: translateZ(110px) rotateY(8deg);
+  transform-style: preserve-3d;
+}
+
+/* 鱼缸：最前景，玻璃缸体完整六面观感 */
 .is-3d .room-tub {
-  transform: translateZ(150px);
+  bottom: 58px;
+  transform: translateZ(210px);
   transform-style: preserve-3d;
 }
 .is-3d .room-tub:hover {
-  transform: translateZ(150px) translateY(-4px);
+  transform: translateZ(210px) translateY(-4px);
 }
+/* 缸内后壁玻璃（水体的后景深） */
+.is-3d .room-tub::before {
+  content: "";
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  top: 10px;
+  bottom: 26px;
+  background: linear-gradient(180deg, rgba(120, 175, 210, 0.4), rgba(60, 105, 145, 0.5));
+  border: 1px solid rgba(200, 230, 248, 0.4);
+  transform: translateZ(-26px);
+  pointer-events: none;
+}
+/* 地面接触阴影 */
+.is-3d .room-tub::after {
+  content: "";
+  position: absolute;
+  left: 2%;
+  right: 2%;
+  bottom: -16px;
+  height: 20px;
+  border-radius: 50%;
+  background: radial-gradient(50% 50% at 50% 50%, rgba(0, 0, 0, 0.45), transparent 72%);
+  transform: translateZ(2px);
+}
+
+/* ---- 立体鱼缸：玻璃侧板 + 水面 + 缸内后壁（仅 3D 模式显示；Z 见上方纵深阶梯） ---- */
 .tub3d-side,
 .tub3d-top {
   display: none;
@@ -2819,11 +2910,7 @@
   transform: rotateX(74deg);
 }
 
-/* ---- 立体礼物盒：侧面 + 盒盖顶面 ---- */
-.is-3d .gift-box {
-  transform: translateZ(160px) rotateY(8deg);
-  transform-style: preserve-3d;
-}
+/* ---- 立体礼物盒：侧面 + 盒盖顶面（Z 见上方纵深阶梯） ---- */
 .gift3d-side,
 .gift3d-top {
   display: none;
@@ -2834,12 +2921,20 @@
   position: absolute;
   top: 10px;
   bottom: 4px;
-  right: 0;
   width: 26px;
   background: linear-gradient(180deg, #c2437a, #8f2d56);
   border: 1px solid rgba(255, 190, 215, 0.4);
+}
+.is-3d .gift3d-side.side-r {
+  right: 0;
   transform-origin: right center;
   transform: rotateY(-76deg);
+}
+.is-3d .gift3d-side.side-l {
+  left: 0;
+  transform-origin: left center;
+  transform: rotateY(76deg);
+  filter: brightness(0.82);
 }
 .is-3d .gift3d-top {
   display: block;
@@ -2862,11 +2957,11 @@
 }
 .shelf-scene.is-3d:not(.has-book)[data-zoom="tub"] .room-tub {
   /* 放大同时向屏幕中心拉，避免特写溢出右缘 */
-  transform: translateZ(150px) translate(-46%, -58%) scale(1.45);
+  transform: translateZ(210px) translate(-46%, -58%) scale(1.45);
   z-index: 40;
 }
 .shelf-scene.is-3d:not(.has-book)[data-zoom="tub"] .room-tub:hover {
-  transform: translateZ(150px) translate(-46%, -58%) scale(1.45);
+  transform: translateZ(210px) translate(-46%, -58%) scale(1.45);
 }
 .shelf-scene.is-3d:not(.has-book)[data-zoom="plant"] .room-stage {
   transform-origin: 24% 80%;
@@ -2874,7 +2969,7 @@
   transition: transform 0.85s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .shelf-scene.is-3d:not(.has-book)[data-zoom="plant"] .room-plant {
-  transform: translateZ(170px) translate(30%, -34%) scale(1.6);
+  transform: translateZ(40px) translate(30%, -34%) scale(2.1);
   z-index: 40;
 }
 /* 拉近时压暗其余物件，聚焦目标 */

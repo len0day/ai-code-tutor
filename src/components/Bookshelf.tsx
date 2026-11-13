@@ -532,8 +532,9 @@ export default function Bookshelf({
             <span className="gift-print">{giftBox.label}</span>
           </span>
           <span className="gift-shadow" aria-hidden="true" />
-          {/* 3D 侧面与盒盖顶面（仅 3D 模式显示） */}
-          <span className="gift3d-side" aria-hidden="true" />
+          {/* 3D 侧面×2 与盒盖顶面（仅 3D 模式显示） */}
+          <span className="gift3d-side side-l" aria-hidden="true" />
+          <span className="gift3d-side side-r" aria-hidden="true" />
           <span className="gift3d-top" aria-hidden="true" />
           <span className="gift-sparkle sparkle-a" aria-hidden="true">
             ✦
