@@ -1412,8 +1412,8 @@
   user-select: none;
 }
 
-/* 抽出书后：书架与书同行摆放 */
-.shelf-scene.has-book {
+/* 抽出书后：书架与书同行摆放（flex 作用在 stage 上——scene 里只剩 stage 一个流内子元素） */
+.shelf-scene.has-book .room-stage {
   display: flex;
   align-items: center;
   gap: 1.5rem;
@@ -1432,17 +1432,20 @@
   padding-top: 0;
   padding-bottom: 0;
 }
+/* 3D 模式抽书时解除 scene 的 perspective：
+   它会把移动端 fixed 的全屏书浮层劫持为相对 scene 定位并被裁剪（开书空白）；
+   书的 3D 封面有自己的 perspective(1700px)，不受影响 */
+.shelf-scene.is-3d.has-book {
+  perspective: none;
+}
 /* 翻开阅读态：书架让位，封面立于最左，目录两页铺满整行（像大纲页） */
 .shelf-scene.is-open-book .shelf-wrap {
   display: none;
 }
 @media (max-width: 1023px) {
-  .shelf-scene.has-book {
-    flex-direction: column;
-    gap: 1rem;
-  }
-  .shelf-scene.has-book .shelf-wrap {
-    max-width: 100%;
+  /* 移动端抽书 = fixed 全屏浮层盖住书架，stage 无需 flex 同行 */
+  .shelf-scene.has-book .room-stage {
+    display: block;
   }
   .shelf-scene.has-book .shelf-wrap.shelf-dimmed {
     opacity: 0.45;
