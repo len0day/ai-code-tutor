@@ -87,6 +87,8 @@ export default function Bookshelf({
   const [doors, setDoors] = useState<DoorState>("closed");
   const doorTimers = useRef<number[]>([]);
   const sceneRef = useRef<HTMLDivElement>(null);
+  /** 点击物件的镜头拉近：'' | 'tub' | 'plant' */
+  const [zoom, setZoom] = useState<"" | "tub" | "plant">("");
 
   // 读取上次的视角偏好（默认 3D）
   useEffect(() => {
@@ -138,8 +140,8 @@ export default function Bookshelf({
     const r = el.getBoundingClientRect();
     const px = (e.clientX - r.left) / r.width - 0.5;
     const py = (e.clientY - r.top) / r.height - 0.5;
-    el.style.setProperty("--room-ry", `${(px * 8).toFixed(2)}deg`);
-    el.style.setProperty("--room-rx", `${(-py * 5).toFixed(2)}deg`);
+    el.style.setProperty("--room-ry", `${(px * 11).toFixed(2)}deg`);
+    el.style.setProperty("--room-rx", `${(-py * 7).toFixed(2)}deg`);
   };
   const onSceneMouseLeave = () => {
     const el = sceneRef.current;
@@ -244,6 +246,7 @@ export default function Bookshelf({
 
   const pick = (lang: string) => {
     clearTimers();
+    setZoom("");
     setPicked(lang);
     setOpened(false);
     setReturning(false);
@@ -265,10 +268,11 @@ export default function Bookshelf({
       }, 460)
     );
   };
-  /** 给树苗浇水（桌面端盆栽 / 移动端工具条共用） */
+  /** 给树苗浇水（桌面端盆栽 / 移动端工具条共用）；3D 模式下镜头拉近 */
   const waterPlant = async () => {
     if (watering || plantSize >= 5) return;
     setWatering(true);
+    setZoom((z) => z || "plant");
     try {
       const r = await fetch("/api/aquarium", {
         method: "POST",
@@ -280,12 +284,16 @@ export default function Bookshelf({
     } catch {
       /* 忽略 */
     } finally {
-      window.setTimeout(() => setWatering(false), 1500);
+      window.setTimeout(() => {
+        setWatering(false);
+        setZoom((z) => (z === "plant" ? "" : z));
+      }, 1500);
     }
   };
 
-  /** 点击书以外的任意区域 = 放回书架 */
+  /** 点击书以外的任意区域 = 放回书架 / 退出镜头拉近 */
   const handleSceneClick = (e: React.MouseEvent) => {
+    setZoom("");
     if (!picked || returning) return;
     const t = e.target as HTMLElement;
     if (t.closest(".focus-book") || t.closest(".focus-actions")) return;
@@ -306,6 +314,7 @@ export default function Bookshelf({
     <>
       <div
         ref={sceneRef}
+        data-zoom={zoom || undefined}
         className={`shelf-scene ${picked ? "has-book" : ""} ${
           opened ? "is-open-book" : ""
         } ${mode3d ? "is-3d" : ""}`}
@@ -452,12 +461,17 @@ export default function Bookshelf({
         </div>
       )}
 
-      {/* 鱼缸浴缸：小鱼游动，点击放大查看 + 用 XP 养鱼 */}
+      {/* 鱼缸浴缸：小鱼游动，点击放大查看 + 用 XP 养鱼（3D 模式先拉近镜头再开弹窗） */}
       <button
         className="room-tub"
         onClick={(e) => {
           e.stopPropagation();
-          setTankOpen(true);
+          if (mode3d) {
+            setZoom("tub");
+            window.setTimeout(() => setTankOpen(true), 430);
+          } else {
+            setTankOpen(true);
+          }
         }}
         aria-label="打开鱼缸：查看和喂养你的鱼"
         title="点开鱼缸 —— 用 XP 买鱼、买鱼食、喂食"
@@ -493,6 +507,10 @@ export default function Bookshelf({
           </span>
         </span>
         <span className="tub-body" aria-hidden="true" />
+        {/* 3D 玻璃侧板与水面（仅 3D 模式显示） */}
+        <span className="tub3d-side side-l" aria-hidden="true" />
+        <span className="tub3d-side side-r" aria-hidden="true" />
+        <span className="tub3d-top" aria-hidden="true" />
         <span className="tub-foot foot-l" aria-hidden="true" />
         <span className="tub-foot foot-r" aria-hidden="true" />
         <span className="tub-caption">我的鱼缸</span>
@@ -514,6 +532,9 @@ export default function Bookshelf({
             <span className="gift-print">{giftBox.label}</span>
           </span>
           <span className="gift-shadow" aria-hidden="true" />
+          {/* 3D 侧面与盒盖顶面（仅 3D 模式显示） */}
+          <span className="gift3d-side" aria-hidden="true" />
+          <span className="gift3d-top" aria-hidden="true" />
           <span className="gift-sparkle sparkle-a" aria-hidden="true">
             ✦
           </span>
@@ -752,8 +773,15 @@ export default function Bookshelf({
       </div>
       {/* /shelf-scene */}
 
-      {/* 鱼缸弹窗：fixed 定位，必须在带 perspective 的场景外 */}
+      {/* 鱼缸弹窗：fixed 定位，必须在带 perspective 的场景外；关闭后保持拉近，点空白处退出 */}
       <AquariumModal open={tankOpen} onClose={() => setTankOpen(false)} />
+
+      {/* 镜头拉近提示 */}
+      {zoom && (
+        <div className="zoom-hint" aria-hidden="true">
+          ↩ 点击空白处返回全景
+        </div>
+      )}
 
       {/* 3D 开门进场：双开木门（进入页面 / 切换视角时播放） */}
       <div className={`room-door is-${doors}`} aria-hidden={doors === "open"}>

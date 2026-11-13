@@ -2688,7 +2688,7 @@
    3D 房间模式（is-3d）：地板 / 侧墙 / 视差 / 物件前移
    ============================================================ */
 .shelf-scene.is-3d {
-  perspective: 1500px;
+  perspective: 1250px;
 }
 /* 抽书阅读时暂停房间旋转（fixed 浮层需要干净的定位上下文） */
 .shelf-scene.is-3d:not(.has-book) .room-stage {
@@ -2751,31 +2751,164 @@
   transform: rotateY(-64deg);
 }
 
-/* 3D 模式：物件离墙前移（视差转动时产生纵深）+ 落地投影 */
+/* 3D 模式物件摆放：
+   - 书柜靠墙（Z≈0）、挂件贴墙（Z≈2px）——它们属于墙面
+   - 鱼缸/树苗/礼包立在房间中前部（Z 150+），与墙拉开纵深 */
 .is-3d .bookcase {
-  transform: translateZ(46px);
-  filter: drop-shadow(0 36px 28px rgba(0, 0, 0, 0.42));
+  transform: translateZ(6px);
+  filter: drop-shadow(0 30px 24px rgba(0, 0, 0, 0.4));
 }
-.is-3d .room-tub {
-  transform: translateZ(96px) rotateY(7deg);
-}
-.is-3d .room-tub:hover {
-  transform: translateZ(96px) rotateY(7deg) translateY(-3px);
-}
+.is-3d .room-decor.wall-clock { transform: translateZ(3px); }
+.is-3d .room-decor.wall-calendar { transform: translateZ(2px); }
+.is-3d .room-decor.wall-plaques { transform: translateZ(2px); }
+.is-3d .room-decor.wall-tags { transform: translateZ(3px); }
+.is-3d .room-floor { display: none; }
+/* 树苗：立在房间最前方 */
 .is-3d .room-plant {
-  transform: translateZ(120px) rotateY(-8deg);
+  transform: translateZ(170px) rotateY(-7deg);
 }
 .is-3d .room-plant:hover {
-  transform: translateZ(120px) rotateY(-8deg) translateY(-2px);
+  transform: translateZ(170px) rotateY(-7deg) translateY(-2px);
 }
+
+/* ---- 立体鱼缸：玻璃侧板 + 水面（仅 3D 模式显示） ---- */
+.is-3d .room-tub {
+  transform: translateZ(150px);
+  transform-style: preserve-3d;
+}
+.is-3d .room-tub:hover {
+  transform: translateZ(150px) translateY(-4px);
+}
+.tub3d-side,
+.tub3d-top {
+  display: none;
+  pointer-events: none;
+}
+.is-3d .tub3d-side {
+  display: block;
+  position: absolute;
+  top: 8px;
+  bottom: 24px;
+  width: 30px;
+  background: linear-gradient(180deg, rgba(196, 228, 246, 0.55), rgba(120, 170, 205, 0.4) 70%, rgba(70, 110, 145, 0.45));
+  border: 1px solid rgba(215, 238, 250, 0.55);
+  box-shadow: inset 0 0 14px rgba(255, 255, 255, 0.28);
+}
+.is-3d .tub3d-side.side-l {
+  left: 0;
+  transform-origin: left center;
+  transform: rotateY(78deg);
+}
+.is-3d .tub3d-side.side-r {
+  right: 0;
+  transform-origin: right center;
+  transform: rotateY(-78deg);
+}
+.is-3d .tub3d-top {
+  display: block;
+  position: absolute;
+  left: 3px;
+  right: 3px;
+  top: 3px;
+  height: 32px;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.35), transparent 30%),
+    linear-gradient(180deg, rgba(150, 205, 235, 0.75), rgba(90, 145, 185, 0.6));
+  border: 1px solid rgba(215, 238, 250, 0.55);
+  transform-origin: center bottom;
+  transform: rotateX(74deg);
+}
+
+/* ---- 立体礼物盒：侧面 + 盒盖顶面 ---- */
 .is-3d .gift-box {
-  transform: translateZ(104px) rotateY(9deg);
+  transform: translateZ(160px) rotateY(8deg);
+  transform-style: preserve-3d;
 }
-.is-3d .room-decor.wall-clock { transform: translateZ(26px); }
-.is-3d .room-decor.wall-calendar { transform: translateZ(18px); }
-.is-3d .room-decor.wall-plaques { transform: translateZ(22px); }
-.is-3d .room-decor.wall-tags { transform: translateZ(30px); }
-.is-3d .room-floor { display: none; }
+.gift3d-side,
+.gift3d-top {
+  display: none;
+  pointer-events: none;
+}
+.is-3d .gift3d-side {
+  display: block;
+  position: absolute;
+  top: 10px;
+  bottom: 4px;
+  right: 0;
+  width: 26px;
+  background: linear-gradient(180deg, #c2437a, #8f2d56);
+  border: 1px solid rgba(255, 190, 215, 0.4);
+  transform-origin: right center;
+  transform: rotateY(-76deg);
+}
+.is-3d .gift3d-top {
+  display: block;
+  position: absolute;
+  left: 2px;
+  right: 1px;
+  top: 0;
+  height: 26px;
+  background: linear-gradient(180deg, #e06a9c, #b04374);
+  border: 1px solid rgba(255, 190, 215, 0.45);
+  transform-origin: center bottom;
+  transform: rotateX(72deg);
+}
+
+/* ---- 点击物件的镜头拉近：物件自身放大成特写 + 场景轻微转向 + 其余压暗 ---- */
+.shelf-scene.is-3d:not(.has-book)[data-zoom="tub"] .room-stage {
+  transform-origin: 72% 82%;
+  transform: rotateY(9deg) rotateX(-2deg) scale(1.12);
+  transition: transform 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.shelf-scene.is-3d:not(.has-book)[data-zoom="tub"] .room-tub {
+  /* 放大同时向屏幕中心拉，避免特写溢出右缘 */
+  transform: translateZ(150px) translate(-46%, -58%) scale(1.45);
+  z-index: 40;
+}
+.shelf-scene.is-3d:not(.has-book)[data-zoom="tub"] .room-tub:hover {
+  transform: translateZ(150px) translate(-46%, -58%) scale(1.45);
+}
+.shelf-scene.is-3d:not(.has-book)[data-zoom="plant"] .room-stage {
+  transform-origin: 24% 80%;
+  transform: rotateY(-10deg) rotateX(-2deg) scale(1.12);
+  transition: transform 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.shelf-scene.is-3d:not(.has-book)[data-zoom="plant"] .room-plant {
+  transform: translateZ(170px) translate(30%, -34%) scale(1.6);
+  z-index: 40;
+}
+/* 拉近时压暗其余物件，聚焦目标 */
+.shelf-scene[data-zoom="tub"] .room-decor,
+.shelf-scene[data-zoom="tub"] .gift-box,
+.shelf-scene[data-zoom="tub"] .room-plant,
+.shelf-scene[data-zoom="plant"] .room-decor,
+.shelf-scene[data-zoom="plant"] .gift-box,
+.shelf-scene[data-zoom="plant"] .room-tub {
+  opacity: 0.22;
+}
+.gift-box,
+.room-plant,
+.room-tub {
+  transition: opacity 0.45s ease;
+}
+/* 拉近态提示 */
+.zoom-hint {
+  position: fixed;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 65;
+  padding: 7px 16px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  letter-spacing: 0.06em;
+  color: #ffe9c2;
+  background: rgba(24, 16, 9, 0.72);
+  border: 1px solid rgba(255, 214, 150, 0.25);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  animation: fadeIn 0.4s ease both;
+  pointer-events: none;
+}
 
 /* 视角切换按钮 */
 .room-mode-toggle {
@@ -2869,12 +3002,16 @@
 .room-door.is-closing .door-r { animation: doorCloseR 0.5s ease-in forwards; }
 @keyframes doorCloseL { from { transform: rotateY(-104deg); } to { transform: rotateY(0deg); } }
 @keyframes doorCloseR { from { transform: rotateY(104deg); } to { transform: rotateY(0deg); } }
-/* 开完后整层淡出（回收交互层） */
+/* 开完后整层淡出（回收交互层）。
+   ⚠️ 门板必须保持「打开」姿态再淡出：否则 is-opening 的动画填充随类名移除，
+   门板会跳回关闭姿态盖住房间一帧——这就是开门后的闪烁 */
 .room-door.is-open {
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.5s ease 0.2s, visibility 0.5s 0.2s;
+  transition: opacity 0.45s ease 0.15s, visibility 0.45s 0.15s;
 }
+.room-door.is-open .door-l { transform: rotateY(-104deg); }
+.room-door.is-open .door-r { transform: rotateY(104deg); }
 
 /* ---------- 减少动效 ---------- */
 @media (prefers-reduced-motion: reduce) {
