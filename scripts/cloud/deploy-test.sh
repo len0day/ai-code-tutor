@@ -34,15 +34,21 @@ ssh "$DEST" "PORT=$PORT bash -s" <<'EOS'
 REMOTE_DIR="/opt/codetutor/app"
 export CODETUTOR_PORT="$PORT"
 cd "$REMOTE_DIR" || { echo "✗ 目录不存在，请先执行服务器初始化步骤"; exit 1; }
-# 端口占用预检：被占则直接报错换端口，不再等到 compose 启动才报隐晦错
-if ss -tln 2>/dev/null | awk '{print $4}' | grep -qE "[:.]$PORT$"; then
-  echo "✗ 服务器端口 $PORT 已被其他应用占用：换端口重试（PORT=xxxx ./scripts/cloud/deploy-test.sh ...）"
-  ss -tlnp 2>/dev/null | grep -E "[:.]$PORT " || true
-  exit 1
-fi
+# 端口占用预检：被占则直接报错换端口，不再等到 compose 启动才报隐晦错。
+# ⚠️ 本项目自己的旧容器会占着这个端口（更新的目标就是替换它）——那种情况不算冲突。
 DC="docker"
 if ! docker info >/dev/null 2>&1; then
   if sudo -n true >/dev/null 2>&1; then DC="sudo docker"; fi
+fi
+if ss -tln 2>/dev/null | awk '{print $4}' | grep -qE "[:.]$PORT$"; then
+  # 占用者是否就是本项目的容器？是 → 允许（将被替换）
+  OWNERS="$($DC ps --format '{{.Names}} {{.Ports}}' 2>/dev/null | grep -E "[:.]$PORT->" || true)"
+  if [ -z "$OWNERS" ]; then
+    echo "✗ 服务器端口 $PORT 被其他应用占用：换端口重试（PORT=xxxx ./scripts/cloud/deploy-test.sh ...）"
+    ss -tlnp 2>/dev/null | grep -E "[:.]$PORT " || true
+    exit 1
+  fi
+  echo "ℹ 端口 $PORT 当前由本项目旧容器占用（将被替换）：$OWNERS"
 fi
 
 echo '--- [诊断] 当前容器状态 ---'

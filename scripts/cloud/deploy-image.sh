@@ -36,14 +36,19 @@ ssh "$DEST" "PORT=$PORT bash -s" <<'EOS'
 REMOTE_DIR="/opt/codetutor/app"
 export CODETUTOR_PORT="$PORT"
 cd "$REMOTE_DIR" || { echo "✗ 目录不存在，请先执行服务器初始化步骤"; exit 1; }
-if ss -tln 2>/dev/null | awk '{print $4}' | grep -qE "[:.]$PORT$"; then
-  echo "✗ 服务器端口 $PORT 已被其他应用占用：换端口重试（PORT=xxxx ./scripts/cloud/deploy-image.sh ...）"
-  ss -tlnp 2>/dev/null | grep -E "[:.]$PORT " || true
-  exit 1
-fi
 DC="docker"
 if ! docker info >/dev/null 2>&1; then
   if sudo -n true >/dev/null 2>&1; then DC="sudo docker"; fi
+fi
+# 端口预检：本项目旧容器占用不算冲突（更新的目标就是替换它）
+if ss -tln 2>/dev/null | awk '{print $4}' | grep -qE "[:.]$PORT$"; then
+  OWNERS="$($DC ps --format '{{.Names}} {{.Ports}}' 2>/dev/null | grep -E "[:.]$PORT->" || true)"
+  if [ -z "$OWNERS" ]; then
+    echo "✗ 服务器端口 $PORT 被其他应用占用：换端口重试（PORT=xxxx ./scripts/cloud/deploy-image.sh ...）"
+    ss -tlnp 2>/dev/null | grep -E "[:.]$PORT " || true
+    exit 1
+  fi
+  echo "ℹ 端口 $PORT 当前由本项目旧容器占用（将被替换）：$OWNERS"
 fi
 echo '--- 服务器上的镜像 ---'
 $DC images codetutor-app --format '{{.Repository}}:{{.Tag}}  {{.Size}}' 2>&1 || true
