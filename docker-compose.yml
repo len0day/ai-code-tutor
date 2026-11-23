@@ -1,18 +1,24 @@
 # CodeTutor 云端部署编排：app + caddy(自动HTTPS)；PostgreSQL 为可选（--profile pg）
 #
+# 项目名固定为 codetutor（name: 字段）：与同机其他应用的 compose 项目完全隔离，
+#   容器名形如 codetutor-app-1，不会被误当成孤儿容器清理，也不碰别人的容器。
+# 对外端口默认 3100：同机 3000/8787 等端口可能已被其他应用占用。
+#   改端口：.env 设 CODETUTOR_PORT=xxxx，或部署时 PORT=xxxx ./scripts/cloud/deploy-test.sh
+#
 # 默认：SQLite（挂载卷 ./data 持久化，migrate-data.sh 迁移的本机数据直接可用）
 # 切换 PostgreSQL：.env 里设 USE_PG=1，然后 docker compose --profile pg up -d
 #   ⚠️ 引擎切换 = 空库起步（历史数据不自动搬运）；首次上云建议先用 SQLite 承接迁移数据
 #
 # 用法：docker compose build && docker compose up -d
-#   备案前测试：IP:3000 直连；正式上线走 Caddy(80/443) 自动 HTTPS
+#   备案前测试：IP:端口 直连；正式上线走 Caddy(80/443) 自动 HTTPS
+name: codetutor
 services:
   app:
     image: codetutor-app:latest
     build: .
     restart: unless-stopped
     ports:
-      - "3000:3000" # 备案前用 IP:3000 直连测试；正式上线走 Caddy(80/443)，此映射可保留
+      - "${CODETUTOR_PORT:-3100}:3000" # 备案前用 IP:端口 直连测试；正式上线走 Caddy(80/443)，此映射可保留
     environment:
       NODE_ENV: production
       PORT: 3000

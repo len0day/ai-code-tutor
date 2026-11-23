@@ -11,6 +11,8 @@ export interface ToolTab {
   label: string;
   icon: string;
   content: React.ReactNode;
+  /** 置灰不可点（如模拟面试「真实模式」中锁定 AI 导师） */
+  disabled?: boolean;
 }
 
 export default function ToolDrawer({
@@ -47,13 +49,18 @@ export default function ToolDrawer({
           {tabs.map((t) => (
             <button
               key={t.id}
-              onClick={() => onTabChange(t.id)}
+              onClick={() => !t.disabled && onTabChange(t.id)}
+              disabled={t.disabled}
               aria-selected={tab === t.id}
+              aria-disabled={t.disabled || undefined}
+              title={t.disabled ? `${t.label}暂不可用` : undefined}
               role="tab"
               className={`px-2 py-1 rounded-md text-[11px] font-medium transition-colors ${
                 tab === t.id
                   ? "bg-indigo-600 text-white"
-                  : "text-slate-500 hover:bg-slate-100 dark:hover:bg-white/10"
+                  : t.disabled
+                    ? "text-slate-300 dark:text-slate-600 cursor-not-allowed"
+                    : "text-slate-500 hover:bg-slate-100 dark:hover:bg-white/10"
               }`}
             >
               {t.icon} {t.label}

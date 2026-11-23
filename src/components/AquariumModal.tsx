@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import TankFish from "@/components/TankFish";
 
 /**
  * 鱼缸放大查看：大水箱里养鱼游动 + 用 XP 购买新鱼 / 鱼食 + 喂食。
@@ -180,7 +181,9 @@ export default function AquariumModal({
                   } as React.CSSProperties
                 }
               >
-                <span className="aq-fish-body">{sp?.emoji ?? "🐟"}</span>
+                <span className="aq-fish-body">
+                  <TankFish species={f.species} size={0.8 + (f.size ?? 1) * 0.1} />
+                </span>
               </span>
             );
           })}

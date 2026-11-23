@@ -6,15 +6,17 @@
 
 | 事项 | 说明 |
 |---|---|
-| 服务器 | 腾讯云轻量（`ssh` 配置别名 `tencent-cloud` → `ubuntu@43.142.68.82`），镜像选 **Docker 基础镜像**（Ubuntu 24.04） |
+| 服务器 | 腾讯云轻量（`ssh` 配置别名 `tencent-cloud` → `ubuntu@211.159.219.76`），镜像选 **Docker 基础镜像**（Ubuntu 24.04） |
 | 域名 | 用子域名 **study.aiedutalk.online**（域名在 Cloudflare，解析改一条记录即可） |
-| ICP 备案 | 大陆服务器绑定域名对外提供 Web 服务需要备案（个人备案即可，腾讯云控制台提交，约 1-3 周）；**备案完成前用 `IP:3000` 直连测试** |
+| ICP 备案 | 大陆服务器绑定域名对外提供 Web 服务需要备案（个人备案即可，腾讯云控制台提交，约 1-3 周）；**备案完成前用 `IP:端口` 直连测试** |
+| 端口 | 默认 **3100**（同机还跑着其他应用，3000/8787 等已被占用）；换端口：`PORT=xxxx ./scripts/cloud/deploy-test.sh ...` |
+| 共存 | 同机其他应用的容器**不要动**：CodeTutor 用独立 compose 项目名 `codetutor`，部署脚本不做 `--remove-orphans` / `compose down` |
 | 登录方式 | **密码登录**（`ubuntu` 账号，服务器未放开公钥）。所有 ssh/rsync 命令都会提示输入密码 |
 
 > 本机 `~/.ssh/config` 已配置好别名，直接用 `tencent-cloud` 即可：
 > ```
 > Host tencent-cloud
->     HostName 43.142.68.82
+>     HostName 211.159.219.76
 >     User ubuntu
 >     ControlMaster auto
 >     ControlPath ~/.ssh/cm/%r@%h:%p
@@ -44,18 +46,19 @@ free -h
 ## 2. 一键试部署（本机执行）
 
 ```bash
-./scripts/cloud/deploy-test.sh        # = 迁移数据 + 同步代码 + 构建 + 启动 + 健康检查
+# 服务器地址必须显式传入（脚本不写死，后面换服务器/换 IP 只改参数）
+./scripts/cloud/deploy-test.sh ubuntu@211.159.219.76   # = 迁移数据 + 同步代码 + 构建 + 启动 + 健康检查
 ```
 
 > **服务器内存不够（next build 被 OOM kill）时**，改用镜像直传方案——本机构建镜像灌到服务器，
 > 服务器只启动不构建：
 > ```bash
-> ./scripts/cloud/deploy-image.sh
+> ./scripts/cloud/deploy-image.sh ubuntu@211.159.219.76
 > ```
 
-完成后浏览器访问 **http://43.142.68.82:3000** 验证（管理员 admin 账号与数据都在——本机 `data/app.db` 已随迁移脚本上去）。
+完成后浏览器访问 **http://211.159.219.76:3100** 验证（管理员 admin 账号与数据都在——本机 `data/app.db` 已随迁移脚本上去）。
 
-> 腾讯云轻量控制台的「防火墙」需放行 3000 端口（测试期）与 80/443（正式期）。
+> 腾讯云轻量控制台的「防火墙」需放行 **3100 端口**（测试期）与 80/443（正式期）。
 
 ## 3. 正式上线（Caddy 自动 HTTPS）
 
@@ -72,7 +75,7 @@ docker compose logs -f app         # 看到首页健康检查 200 即成功
 
 | 记录 | 现状 | 改为 |
 |---|---|---|
-| `study.aiedutalk.online` | CNAME → 本机 Tunnel（紫云） | **A 记录 → 43.142.68.82**（建议灰云 DNS only，Caddy 直签证书最省事） |
+| `study.aiedutalk.online` | CNAME → 本机 Tunnel（紫云） | **A 记录 → 211.159.219.76**（建议灰云 DNS only，Caddy 直签证书最省事） |
 
 切换后：
 - https://study.aiedutalk.online 自动获得 Let's Encrypt 证书（Caddy 签发续期）

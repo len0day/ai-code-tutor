@@ -1,11 +1,17 @@
 "use client";
 
 import Link from "next/link";
+import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Course, Progress } from "@/lib/types";
 import { flatLessons } from "@/data/courses";
 import { ChapterTree } from "@/components/BookReader";
 import AquariumModal from "@/components/AquariumModal";
+import TankFish from "@/components/TankFish";
+import PlantSvg from "@/components/PlantSvg";
+import AuthModal from "@/components/AuthModal";
+import { fetchNotebook } from "@/lib/client";
 
 /** 每门课程的书脊配色 */
 const SPINE_COLORS: Record<string, [string, string]> = {
@@ -35,13 +41,55 @@ const WALL_POSTERS: Array<[string, string]> = [
   ["学习报告", "/report"],
 ];
 
-/** 鱼的 species → emoji（与 /api/aquarium 的 FISH_SPECIES 对应） */
-const FISH_EMOJI: Record<string, string> = {
-  guppy: "🐠",
-  goldfish: "🐟",
-  puffer: "🐡",
-  shark: "🦈",
-  whale: "🐋",
+const Room3DGl = dynamic(() => import("@/components/Room3D"), { ssr: false });
+
+/** 墙上挂牌 → 悬浮面板内容 */
+const TAG_PANELS: Record<
+  string,
+  { icon: string; title: string; desc: string; href: string; cta: string }
+> = {
+  learn: {
+    icon: "📚",
+    title: "课程大厅",
+    desc: "10+ 门编程与运维课程，闯关制学习：练习测验 + 模拟面试双达标才能解锁下一课。",
+    href: "/learn",
+    cta: "进入课程大纲",
+  },
+  notebook: {
+    icon: "🗂️",
+    title: "知识库",
+    desc: "你的收藏、错题本与课堂笔记都收录在这里，随时翻出来复习。",
+    href: "/notebook",
+    cta: "进入知识库",
+  },
+  advice: {
+    icon: "🤖",
+    title: "学习建议",
+    desc: "AI 会结合你的学习数据，告诉你下一步该学什么、怎么学最有效。",
+    href: "/advice",
+    cta: "查看学习建议",
+  },
+  report: {
+    icon: "📊",
+    title: "学习报告",
+    desc: "学习时长、课程完成度、测验与面试成绩的趋势一览。",
+    href: "/report",
+    cta: "查看学习报告",
+  },
+  settings: {
+    icon: "⚙️",
+    title: "设置",
+    desc: "AI 提供商与 API Key 配置、系统偏好（仅管理员可见）。",
+    href: "/settings",
+    cta: "打开设置",
+  },
+  admin: {
+    icon: "🛠️",
+    title: "后台管理",
+    desc: "用户管理、全局配置与数据统计（仅管理员可见）。",
+    href: "/admin",
+    cta: "进入后台",
+  },
 };
 
 export interface BookshelfProps {
@@ -51,6 +99,10 @@ export interface BookshelfProps {
   lockedLangs?: string[];
   /** 书架旁的礼物盒（增值包入口） */
   giftBox?: { href: string; label: string; sub: string };
+  /** 访客模式：点击场景物件时弹出注册引导而非直接使用 */
+  guest?: boolean;
+  /** 当前用户是否管理员（决定 3D 场景里的后台入口） */
+  isAdmin?: boolean;
 }
 
 /**
@@ -66,6 +118,8 @@ export default function Bookshelf({
   progress,
   lockedLangs = [],
   giftBox,
+  guest = false,
+  isAdmin = false,
 }: BookshelfProps) {
   /** 抽出的那本书（null = 书架状态） */
   const [picked, setPicked] = useState<string | null>(null);
@@ -88,7 +142,22 @@ export default function Bookshelf({
   const doorTimers = useRef<number[]>([]);
   const sceneRef = useRef<HTMLDivElement>(null);
   /** 点击物件的镜头拉近：'' | 'tub' | 'plant' */
-  const [zoom, setZoom] = useState<"" | "tub" | "plant">("");
+  const [zoom, setZoom] = useState<"" | "tub" | "plant" | "shelf" | "window">("");
+
+  // ---- 全局轻提示（浇水结果等；不用 alert，也不打断场景） ----
+  const [toast, setToast] = useState<{ text: string; kind: "ok" | "warn" } | null>(null);
+  const toastTimer = useRef<number | null>(null);
+  const showToast = (text: string, kind: "ok" | "warn" = "ok") => {
+    if (toastTimer.current) window.clearTimeout(toastTimer.current);
+    setToast({ text, kind });
+    toastTimer.current = window.setTimeout(() => setToast(null), 2800);
+  };
+  useEffect(
+    () => () => {
+      if (toastTimer.current) window.clearTimeout(toastTimer.current);
+    },
+    []
+  );
 
   // 读取上次的视角偏好（默认 3D）
   useEffect(() => {
@@ -99,16 +168,28 @@ export default function Bookshelf({
     }
   }, []);
 
-  // 进入页面：双开木门缓缓打开
+  // 进入页面：首访门关着等推门（点击后开门 + 魔法入场）；老访客自动开门
+  const [revealAt, setRevealAt] = useState(0);
   useEffect(() => {
-    const t1 = window.setTimeout(() => setDoors("opening"), 300);
-    const t2 = window.setTimeout(() => setDoors("open"), 1700);
-    doorTimers.current.push(t1, t2);
+    const seen = localStorage.getItem("ct-door-intro");
+    if (seen) {
+      const t1 = window.setTimeout(() => setDoors("opening"), 300);
+      const t2 = window.setTimeout(() => setDoors("open"), 1700);
+      doorTimers.current.push(t1, t2);
+    }
     return () => {
       doorTimers.current.forEach((t) => window.clearTimeout(t));
       doorTimers.current = [];
     };
   }, []);
+  /** 首访：点击门 → 推门而入 + 魔法入场 */
+  const enterRoom = () => {
+    if (doors !== "closed") return;
+    setDoors("opening");
+    doorTimers.current.push(window.setTimeout(() => setDoors("open"), 1400));
+    localStorage.setItem("ct-door-intro", "1");
+    setRevealAt(Date.now());
+  };
 
   /** 2D/3D 切换：先关门遮住场景 → 换模式 → 再开门 */
   const toggleMode = (e: React.MouseEvent) => {
@@ -173,6 +254,47 @@ export default function Bookshelf({
     return map;
   }, [courses, progress]);
 
+  // 3D 模式：Three.js 房间全端渲染（桌面 + 移动端），2D 平面可切换
+  const router = useRouter();
+  const sceneCls = mode3d ? "is-gl" : "";
+
+  // ---- 访客模式：点击场景物件 → 弹出注册引导 ----
+  const [authOpen, setAuthOpen] = useState(false);
+  const [authReason, setAuthReason] = useState("");
+  const openAuth = (reason: string): boolean => {
+    if (!guest) return false;
+    setAuthReason(reason);
+    setAuthOpen(true);
+    return true;
+  };
+
+  // ---- 墙上挂牌 → 悬浮面板 ----
+  const [panel, setPanel] = useState<string | null>(null);
+  const [nbCounts, setNbCounts] = useState<{ fav: number; wrong: number; notes: number } | null>(null);
+  useEffect(() => {
+    if (panel !== "notebook" || guest) return;
+    fetchNotebook()
+      .then((nb) => {
+        setNbCounts({
+          fav: nb.favorites.length,
+          wrong: nb.wrongQuestions?.length ?? 0,
+          notes: Object.keys(nb.notes ?? {}).length,
+        });
+      })
+      .catch(() => {});
+  }, [panel, guest]);
+
+  /** GL 房间回调：点书 → 抽书；点鱼缸 → 推近后开弹窗；点空处 → 放回/退出拉近 */
+  const glOpenTub = () => {
+    if (openAuth("打开鱼缸，看看你的鱼")) return;
+    setZoom("tub");
+    window.setTimeout(() => setTankOpen(true), 700);
+  };
+  const glEmptyClick = () => {
+    setZoom("");
+    if (picked && !returning) putBack();
+  };
+
   const current = courses.find((c) => c.lang === picked) ?? null;
   const currentStats = current ? stats[current.lang] : null;
 
@@ -235,7 +357,7 @@ export default function Bookshelf({
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
         if (!alive || !d) return;
-        if (d.fish) setTankFish(d.fish.slice(0, 4));
+        if (d.fish) setTankFish(d.fish.slice(0, 12));
         if (typeof d.plantSize === "number") setPlantSize(d.plantSize);
       })
       .catch(() => {});
@@ -244,7 +366,85 @@ export default function Bookshelf({
     };
   }, [tankOpen]);
 
+  // ---- 鱼儿的知识点泡泡：定期从课程要点里抽一条浮出水面，帮用户巩固所学 ----
+  interface FishTip {
+    lang: string;
+    lessonId: string;
+    courseName: string;
+    lessonTitle: string;
+    text: string;
+  }
+  const tipsPool = useMemo<FishTip[]>(() => {
+    const pool: FishTip[] = [];
+    for (const c of courses) {
+      for (const { lesson } of flatLessons(c.lang)) {
+        for (const kp of lesson.keyPoints.slice(0, 4)) {
+          pool.push({
+            lang: c.lang,
+            lessonId: lesson.id,
+            courseName: c.name,
+            lessonTitle: lesson.title,
+            text: kp,
+          });
+        }
+      }
+    }
+    return pool;
+  }, [courses]);
+
+  const [tip, setTip] = useState<FishTip | null>(null);
+  const [tipShown, setTipShown] = useState(false);
+  useEffect(() => {
+    if (tipsPool.length === 0) return;
+    let alive = true;
+    let hideTimer = 0;
+    const rotate = () => {
+      if (!alive) return;
+      // 70% 概率优先从学过/看过的课里抽，帮记忆；没学过就全网抽
+      const learned = tipsPool.filter(
+        (t) =>
+          progress?.lessons[t.lessonId]?.completed ||
+          progress?.lessons[t.lessonId]?.visitedAt
+      );
+      const pool = learned.length > 0 && Math.random() < 0.7 ? learned : tipsPool;
+      setTip(pool[Math.floor(Math.random() * pool.length)]);
+      setTipShown(true);
+      hideTimer = window.setTimeout(() => alive && setTipShown(false), 9500);
+    };
+    const first = window.setTimeout(rotate, 5200);
+    const iv = window.setInterval(rotate, 26000);
+    return () => {
+      alive = false;
+      window.clearTimeout(first);
+      window.clearInterval(iv);
+      window.clearTimeout(hideTimer);
+    };
+  }, [tipsPool, progress]);
+
+  const tipLink =
+    tip && (
+      <Link
+        href={`/learn/${tip.lang}/${tip.lessonId}`}
+        onClick={(e) => {
+          e.stopPropagation();
+          if (openAuth("去复习这个知识点")) e.preventDefault();
+        }}
+        className={`fish-tip ${tipShown ? "is-show" : ""}`}
+        title="鱼儿想起的知识点 —— 点击去复习"
+      >
+        <span className="fish-tip-cord" aria-hidden="true" />
+        <span className="fish-tip-bubble">
+          <span className="fish-tip-meta">
+            🐟 {tip.courseName} · {tip.lessonTitle}
+          </span>
+          <span className="fish-tip-text">💡 {tip.text}</span>
+          <span className="fish-tip-go">去复习 →</span>
+        </span>
+      </Link>
+    );
+
   const pick = (lang: string) => {
+    if (openAuth(`抽出《${courses.find((c) => c.lang === lang)?.name ?? "一本书"}》`)) return;
     clearTimers();
     setZoom("");
     setPicked(lang);
@@ -268,11 +468,18 @@ export default function Bookshelf({
       }, 460)
     );
   };
-  /** 给树苗浇水（桌面端盆栽 / 移动端工具条共用）；3D 模式下镜头拉近 */
+  /** 给树苗浇水（桌面端盆栽 / 移动端工具条共用）；3D 模式下镜头拉近。
+   *  每次点击都给出可见反馈：浇水动画 + 结果轻提示（满级/失败不再无声无息） */
   const waterPlant = async () => {
-    if (watering || plantSize >= 5) return;
+    if (openAuth("给树苗浇水，看它慢慢长大")) return;
+    if (watering) return;
+    if (plantSize >= 5) {
+      showToast("🌳 树苗已经长成大树啦，明天再来看它吧");
+      return;
+    }
     setWatering(true);
     setZoom((z) => z || "plant");
+    const before = plantSize;
     try {
       const r = await fetch("/api/aquarium", {
         method: "POST",
@@ -280,9 +487,18 @@ export default function Bookshelf({
         body: JSON.stringify({ action: "water" }),
       });
       const d = await r.json();
-      if (r.ok && typeof d.plantSize === "number") setPlantSize(d.plantSize);
+      if (r.ok && typeof d.plantSize === "number") {
+        setPlantSize(d.plantSize);
+        showToast(
+          d.plantSize > before
+            ? "💧 浇水成功，树苗长大了一点！"
+            : "💧 浇好了～树苗正在慢慢吸收"
+        );
+      } else {
+        showToast(d?.error ?? "浇水没成功，稍后再试试", "warn");
+      }
     } catch {
-      /* 忽略 */
+      showToast("网络开小差了，浇水没成功", "warn");
     } finally {
       window.setTimeout(() => {
         setWatering(false);
@@ -293,6 +509,8 @@ export default function Bookshelf({
 
   /** 点击书以外的任意区域 = 放回书架 / 退出镜头拉近 */
   const handleSceneClick = (e: React.MouseEvent) => {
+    // GL 房间模式：画布内部点击已由 Room3D 自行处理，这里不重复响应
+    if ((e.target as HTMLElement).closest(".room-gl-wrap")) return;
     setZoom("");
     if (!picked || returning) return;
     const t = e.target as HTMLElement;
@@ -315,22 +533,50 @@ export default function Bookshelf({
       <div
         ref={sceneRef}
         data-zoom={zoom || undefined}
-        className={`shelf-scene ${picked ? "has-book" : ""} ${
+        className={`shelf-scene ${sceneCls} ${picked ? "has-book" : ""} ${
           opened ? "is-open-book" : ""
-        } ${mode3d ? "is-3d" : ""}`}
+        }`}
         onClick={handleSceneClick}
         onMouseMove={onSceneMouseMove}
         onMouseLeave={onSceneMouseLeave}
       >
-        {/* 3D 房间层：桌面在 3D 模式下整体微转（视差），地板与侧墙向远处铺开 */}
+        {/* 3D 房间层：Three.js 真实 3D（全端）；2D 模式为旧平面布局 */}
         <div className="room-stage">
           {mode3d && (
-            <>
-              <div className="room3d-floor" aria-hidden="true" />
-              <div className="room3d-wall wall-l" aria-hidden="true" />
-              <div className="room3d-wall wall-r" aria-hidden="true" />
-              <div className="room3d-light" aria-hidden="true" />
-            </>
+            <Room3DGl
+              courses={courses}
+              stats={stats}
+              lockedLangs={lockedLangs}
+              plantSize={plantSize}
+              watering={watering}
+              tankFish={tankFish}
+              tip={tip}
+              tipShown={tipShown}
+              dimmed={!!picked}
+              focus={zoom}
+              roomStats={roomStats}
+              isAdmin={isAdmin}
+              onTagPanel={(id) => {
+                if (openAuth(`打开「${TAG_PANELS[id]?.title ?? "功能"}」`)) return;
+                setPanel(id);
+              }}
+              onSceneTheme={(night) => {
+                // 吊灯切换日夜时，同步站点主题（与导航栏主题按钮同一套存储）
+                document.documentElement.classList.toggle("dark", night);
+                localStorage.setItem("ct-theme", night ? "dark" : "light");
+              }}
+              revealAt={revealAt}
+              onPickBook={pick}
+              onOpenTub={glOpenTub}
+              onWaterPlant={waterPlant}
+              onFocusShelf={() => setZoom("shelf")}
+              onFocusWindow={() => setZoom("window")}
+              onNavigate={(href) => {
+                if (openAuth("这个入口需要注册后访问")) return;
+                router.push(href);
+              }}
+              onEmptyClick={glEmptyClick}
+            />
           )}
       {/* ---------- 房间装饰（挂在墙上，不参与布局） ---------- */}
       <div className="room-decor pendant-lamp" aria-hidden="true">
@@ -412,7 +658,14 @@ export default function Bookshelf({
 
       <nav className="room-decor wall-tags" aria-label="功能快捷入口">
         {WALL_POSTERS.map(([label, href]) => (
-          <Link key={label} href={href} className="wall-tag">
+          <Link
+            key={label}
+            href={href}
+            className="wall-tag"
+            onClick={(e) => {
+              if (openAuth(`打开「${label}」`)) e.preventDefault();
+            }}
+          >
             <span className="tag-cord" aria-hidden="true" />
             <span className="tag-board">{label}</span>
           </Link>
@@ -428,6 +681,7 @@ export default function Bookshelf({
             className="mt-btn"
             onClick={(e) => {
               e.stopPropagation();
+              if (openAuth("打开鱼缸，看看你的鱼")) return;
               setTankOpen(true);
             }}
             aria-label="打开鱼缸：查看和喂养你的鱼"
@@ -453,9 +707,27 @@ export default function Bookshelf({
             <span className="mt-count">{plantSize}/5</span>
           </button>
           {giftBox && (
-            <Link href={giftBox.href} className="mt-btn" aria-label={`打开礼物：${giftBox.label}`}>
+            <Link
+              href={giftBox.href}
+              className="mt-btn"
+              aria-label={`打开礼物：${giftBox.label}`}
+              onClick={(e) => {
+                if (openAuth(`打开${giftBox.label}`)) e.preventDefault();
+              }}
+            >
               <span aria-hidden="true">🎁</span>
               <span className="mt-label">{giftBox.label}</span>
+            </Link>
+          )}
+          {/* 移动端知识点泡泡：放在工具条上，点击跳去复习 */}
+          {tip && (
+            <Link
+              href={`/learn/${tip.lang}/${tip.lessonId}`}
+              onClick={(e) => e.stopPropagation()}
+              className={`fish-tip-m ${tipShown ? "is-show" : ""}`}
+              title={`${tip.courseName} · ${tip.lessonTitle}`}
+            >
+              💡 {tip.text}
             </Link>
           )}
         </div>
@@ -466,6 +738,7 @@ export default function Bookshelf({
         className="room-tub"
         onClick={(e) => {
           e.stopPropagation();
+          if (openAuth("打开鱼缸，看看你的鱼")) return;
           if (mode3d) {
             setZoom("tub");
             window.setTimeout(() => setTankOpen(true), 430);
@@ -478,29 +751,42 @@ export default function Bookshelf({
       >
         <span className="tub-rim" aria-hidden="true">
           <span className="tub-water">
+            {/* 缸内装饰：水草 + 上升的气泡 */}
+            <i className="tub-weed w1" aria-hidden="true" />
+            <i className="tub-weed w2" aria-hidden="true" />
+            <i className="tub-bubble b1" aria-hidden="true" />
+            <i className="tub-bubble b2" aria-hidden="true" />
+            <i className="tub-bubble b3" aria-hidden="true" />
             {tankFish.map((f, i) => (
               <i
                 key={f.id}
                 className={`tub-fish tf-${i % 3}`}
                 style={
                   {
-                    "--dur": `${7 + (i * 3)}s`,
-                    "--dist": "110px",
-                    top: `${18 + i * 22}%`,
-                    animationDelay: `${-i * 2.5}s`,
+                    "--dur": `${8 + (i % 5) * 2.4}s`,
+                    "--dist": "104px",
+                    "--bob-delay": `${-i * 1.4}s`,
+                    top: `${16 + (i % 4) * 21}%`,
+                    animationDelay: `${-i * 2.7}s`,
                   } as React.CSSProperties
                 }
               >
-                {FISH_EMOJI[f.species] ?? "🐟"}
+                <span className="fish-bob">
+                  <TankFish species={f.species} size={0.72 + (i % 3) * 0.13} />
+                </span>
               </i>
             ))}
             {tankFish.length === 0 && (
               <>
-                <i className="tub-fish tf-0" style={{ "--dur": "9s", top: "20%" } as React.CSSProperties}>
-                  🐠
+                <i className="tub-fish tf-0" style={{ "--dur": "9.5s", top: "22%" } as React.CSSProperties}>
+                  <span className="fish-bob">
+                    <TankFish species="guppy" size={0.78} />
+                  </span>
                 </i>
-                <i className="tub-fish tf-1" style={{ "--dur": "12s", top: "55%" } as React.CSSProperties}>
-                  🐟
+                <i className="tub-fish tf-1" style={{ "--dur": "12.5s", top: "58%" } as React.CSSProperties}>
+                  <span className="fish-bob">
+                    <TankFish species="goldfish" size={0.92} />
+                  </span>
                 </i>
               </>
             )}
@@ -516,33 +802,39 @@ export default function Bookshelf({
         <span className="tub-caption">我的鱼缸</span>
       </button>
 
-      {/* 书架旁的礼物盒（增值包） */}
+      {/* 鱼儿吐出的知识点泡泡（桌面端房间内；移动端在工具条上方） */}
+      {tipLink}
+
+      {/* 墙上挂的礼物挂件（增值包入口）：钉子 + 缎带吊绳 + 礼盒牌 */}
       {giftBox && (
-        <Link href={giftBox.href} className="gift-box" aria-label={`打开礼物：${giftBox.label}`}>
-          <span className="gift-bow" aria-hidden="true">
-            <span className="bow-loop bow-loop-l" />
-            <span className="bow-loop bow-loop-r" />
-            <span className="bow-knot" />
+        <Link
+          href={giftBox.href}
+          className="gift-box"
+          aria-label={`打开礼物：${giftBox.label}`}
+          onClick={(e) => {
+            if (openAuth(`打开${giftBox.label}`)) e.preventDefault();
+          }}
+        >
+          <span className="gift-nail" aria-hidden="true" />
+          <span className="gift-cord" aria-hidden="true" />
+          <span className="gift-hanger">
+            <span className="gift-bow" aria-hidden="true">
+              <span className="bow-loop bow-loop-l" />
+              <span className="bow-loop bow-loop-r" />
+              <span className="bow-knot" />
+            </span>
+            <span className="gift-body" aria-hidden="true">
+              <span className="gift-ribbon-v" />
+              <span className="gift-print">{giftBox.label}</span>
+            </span>
+            <span className="gift-tag">{giftBox.sub}</span>
           </span>
-          <span className="gift-lid" aria-hidden="true">
-            <span className="gift-lid-band" />
-          </span>
-          <span className="gift-body" aria-hidden="true">
-            <span className="gift-ribbon-v" />
-            <span className="gift-print">{giftBox.label}</span>
-          </span>
-          <span className="gift-shadow" aria-hidden="true" />
-          {/* 3D 侧面×2 与盒盖顶面（仅 3D 模式显示） */}
-          <span className="gift3d-side side-l" aria-hidden="true" />
-          <span className="gift3d-side side-r" aria-hidden="true" />
-          <span className="gift3d-top" aria-hidden="true" />
           <span className="gift-sparkle sparkle-a" aria-hidden="true">
             ✦
           </span>
           <span className="gift-sparkle sparkle-b" aria-hidden="true">
             ✦
           </span>
-          <span className="gift-caption">{giftBox.sub}</span>
         </Link>
       )}
 
@@ -567,7 +859,7 @@ export default function Bookshelf({
           </>
         )}
         <span className="plant-body" aria-hidden="true">
-          {["🌱", "🌱", "🌿", "🪴", "🌳"][plantSize - 1] ?? "🌱"}
+          <PlantSvg stage={plantSize} />
         </span>
       </button>
 
@@ -777,6 +1069,59 @@ export default function Bookshelf({
       {/* 鱼缸弹窗：fixed 定位，必须在带 perspective 的场景外；关闭后保持拉近，点空白处退出 */}
       <AquariumModal open={tankOpen} onClose={() => setTankOpen(false)} />
 
+      {/* 墙上挂牌悬浮面板：点击场景里的牌子弹出 */}
+      {panel && TAG_PANELS[panel] && (
+        <div
+          className="wall-panel-overlay"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setPanel(null);
+          }}
+        >
+          <div className="wall-panel" role="dialog" aria-label={TAG_PANELS[panel].title}>
+            <button
+              className="wall-panel-close"
+              onClick={() => setPanel(null)}
+              aria-label="关闭"
+            >
+              ✕
+            </button>
+            <p className="wall-panel-icon" aria-hidden="true">
+              {TAG_PANELS[panel].icon}
+            </p>
+            <h3 className="wall-panel-title">{TAG_PANELS[panel].title}</h3>
+            <p className="wall-panel-desc">{TAG_PANELS[panel].desc}</p>
+            {panel === "notebook" && (
+              <p className="wall-panel-stats">
+                ⭐ 收藏 {nbCounts?.fav ?? "…"} · 🧯 错题 {nbCounts?.wrong ?? "…"} · 📝 笔记 {nbCounts?.notes ?? 0}
+              </p>
+            )}
+            {panel === "report" && (
+              <p className="wall-panel-stats">
+                ⚡ {roomStats.xp} XP · 🔥 连续 {roomStats.streak} 天 · ✅ 完成 {roomStats.done} 课
+              </p>
+            )}
+            <Link
+              href={TAG_PANELS[panel].href}
+              className="wall-panel-cta"
+              onClick={(e) => {
+                if (openAuth(`打开「${TAG_PANELS[panel].title}」`)) e.preventDefault();
+                else setPanel(null);
+              }}
+            >
+              {TAG_PANELS[panel].cta} →
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {/* 访客注册引导：第一次点击 3D 场景里的物件时弹出（key 保证每次打开都是干净表单） */}
+      <AuthModal
+        key={authOpen ? "open" : "closed"}
+        open={authOpen}
+        reason={authReason}
+        onClose={() => setAuthOpen(false)}
+      />
+
       {/* 镜头拉近提示 */}
       {zoom && (
         <div className="zoom-hint" aria-hidden="true">
@@ -784,15 +1129,35 @@ export default function Bookshelf({
         </div>
       )}
 
-      {/* 3D 开门进场：双开木门（进入页面 / 切换视角时播放） */}
-      <div className={`room-door is-${doors}`} aria-hidden={doors === "open"}>
+      {/* 轻提示（浇水结果等；不用 alert，不打断场景） */}
+      {toast && (
+        <div className={`room-toast ${toast.kind === "warn" ? "is-warn" : ""}`} role="status">
+          {toast.text}
+        </div>
+      )}
+
+      {/* 3D 开门进场：首访门关着印字等待推门；老访客自动开门 */}
+      <div
+        className={`room-door is-${doors}`}
+        aria-hidden={doors === "open"}
+        onClick={enterRoom}
+        role={doors === "closed" ? "button" : undefined}
+        aria-label={doors === "closed" ? "推开门，进入 TutorAI" : undefined}
+      >
         <div className="door-panel door-l">
           <span className="door-molding" aria-hidden="true" />
           <span className="door-knob" aria-hidden="true" />
+          <div className="door-lead" aria-hidden="true">
+            <p className="door-lead-line">准备好进入</p>
+          </div>
         </div>
         <div className="door-panel door-r">
           <span className="door-molding" aria-hidden="true" />
           <span className="door-knob" aria-hidden="true" />
+          <div className="door-lead" aria-hidden="true">
+            <p className="door-lead-line">TutorAI 的世界了吗</p>
+            <p className="door-lead-hint">👆 点门把手 · 推门而入</p>
+          </div>
         </div>
       </div>
     </>

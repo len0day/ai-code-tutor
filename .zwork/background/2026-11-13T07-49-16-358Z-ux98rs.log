@@ -1,0 +1,25 @@
+▲ Next.js 16.4.4 (Turbopack)
+- Local:         http://localhost:3210
+- Network:       http://192.168.124.2:3210
+✓ Ready in 278ms
+✓ Running next.config.ts took 919ms
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+
+  To migrate automatically, run:
+  npx @next/codemod@canary middleware-to-proxy .
+
+  Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+ GET /api/admin/has-users 200 in 415ms (next.js: 315ms, proxy.ts: 52ms, application-code: 48ms)
+ POST /api/auth/register 200 in 322ms (next.js: 186ms, proxy.ts: 6ms, application-code: 130ms)
+ GET / 200 in 259ms (next.js: 80ms, application-code: 178ms)
+ GET /api/auth/me 200 in 162ms (next.js: 140ms, proxy.ts: 10ms, application-code: 11ms)
+ GET /api/auth/me 200 in 29ms (next.js: 11ms, proxy.ts: 7ms, application-code: 11ms)
+ GET /api/auth/me 200 in 39ms (next.js: 12ms, proxy.ts: 12ms, application-code: 15ms)
+ GET /api/progress 200 in 459ms (next.js: 318ms, proxy.ts: 8ms, application-code: 133ms)
+ GET /api/settings 200 in 425ms (next.js: 315ms, proxy.ts: 8ms, application-code: 102ms)
+ GET /api/me/usage 200 in 541ms (next.js: 387ms, proxy.ts: 5ms, application-code: 149ms)
+ GET /api/aquarium 200 in 607ms (next.js: 526ms, proxy.ts: 9ms, application-code: 72ms)
+ GET /api/progress 200 in 124ms (next.js: 47ms, proxy.ts: 46ms, application-code: 31ms)
+ GET /api/aquarium 200 in 56ms (next.js: 20ms, proxy.ts: 13ms, application-code: 23ms)
+[?25h

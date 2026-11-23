@@ -79,6 +79,40 @@ export default function BookStage({
   const rootRef = useRef<HTMLDivElement>(null);
   const touchStart = useRef<{ x: number; y: number; ok: boolean } | null>(null);
 
+  // ---- 移动端页签条：溢出时可滚 ----
+  // ① 鼠标滚轮纵向滚动转横向（桌面窄窗口 / 无触摸板的用户也能滚到右侧页签）。
+  //    监听绑在整条吸顶条上：即使光标停在页签之间的留白/被裁剪区，也能滚动
+  const chipStripRef = useRef<HTMLDivElement>(null);
+  const chipScrollerRef = useRef<HTMLDivElement>(null);
+  const chipSubScrollerRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const strip = chipStripRef.current;
+    if (!strip) return;
+    const onWheel = (e: WheelEvent) => {
+      const el =
+        (e.target as HTMLElement | null)?.closest?.(".chip-scroller") ??
+        chipScrollerRef.current;
+      if (!el || el.scrollWidth <= el.clientWidth + 1) return;
+      const dx = Math.abs(e.deltaX) >= Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+      if (!dx) return;
+      const max = el.scrollWidth - el.clientWidth;
+      // 已滚到边界时不拦截，让页面继续上下滚
+      if ((dx < 0 && el.scrollLeft <= 0.5) || (dx > 0 && el.scrollLeft >= max - 0.5)) return;
+      e.preventDefault();
+      el.scrollLeft += dx;
+    };
+    strip.addEventListener("wheel", onWheel, { passive: false });
+    // 吸顶条随组件卸载一并销毁，监听器无需手动移除
+  }, []);
+
+  // ② 当前页签变化 → 自动滚入视野中央（不用手动去找「模拟面试」这类右侧页签）
+  useEffect(() => {
+    for (const root of [chipScrollerRef.current, chipSubScrollerRef.current]) {
+      const active = root?.querySelector('[aria-current="page"]');
+      active?.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" });
+    }
+  }, [key]);
+
   // pages 变化（如讲解分节生成）后当前页可能消失 → 回退到最近的有效页
   useEffect(() => {
     if (!flat.some((e) => e.key === key)) {
@@ -238,8 +272,8 @@ export default function BookStage({
         </div>
 
         {/* 移动端：两级页签（吸顶；顶级页一行，当前组的子页一行） */}
-        <div className="lg:hidden chip-strip sticky top-14 z-20 -mx-4 px-4 pt-2 pb-2.5 mb-3 no-swipe">
-          <div className="flex gap-1.5 overflow-x-auto no-scrollbar -mx-1 px-1">
+        <div ref={chipStripRef} className="lg:hidden chip-strip sticky top-14 z-20 -mx-4 px-4 pt-2 pb-2.5 mb-3 no-swipe">
+          <div ref={chipScrollerRef} className="chip-scroller flex gap-1.5 overflow-x-auto no-scrollbar -mx-1 px-1">
             {pages.map((p) => {
               const groupActive = p.id === activeGroup?.id;
               const exact = key === p.id;
@@ -267,7 +301,7 @@ export default function BookStage({
             })}
           </div>
           {(activeGroup?.children?.length ?? 0) > 0 && (
-            <div className="flex gap-1.5 overflow-x-auto no-scrollbar mt-1.5 -mx-1 px-1">
+            <div ref={chipSubScrollerRef} className="chip-scroller flex gap-1.5 overflow-x-auto no-scrollbar mt-1.5 -mx-1 px-1">
               {activeGroup!.children!.map((c) => (
                 <button
                   key={c.id}

@@ -3,14 +3,14 @@
 import { useEffect, useMemo, useState } from "react";
 import { COURSES, LANGUAGE_COURSES } from "@/data/courses";
 import { fetchProgress } from "@/lib/client";
-import { useRequireUser } from "@/lib/useMe";
+import { useMe } from "@/lib/useMe";
 import Bookshelf from "@/components/Bookshelf";
 import type { Progress } from "@/lib/types";
 import "./book.css";
 
 /** 语言学习增值包：书架 + 抽出的书 */
 export default function LanguagesPage() {
-  const me = useRequireUser();
+  const me = useMe();
   const [progress, setProgress] = useState<Progress | null>(null);
   const [usage, setUsage] = useState<{
     unlocked: string[];
@@ -32,10 +32,11 @@ export default function LanguagesPage() {
     return COURSES.filter((c) => !usage.unlocked.includes(c.lang)).map((c) => c.lang);
   }, [usage]);
 
+  // 登录态：未登录 = 访客模式，同样先看 3D 书架（点书弹出注册引导）
   if (me === undefined) {
     return <p className="text-center text-slate-400 py-24">加载中…</p>;
   }
-  if (me === null) return null;
+  const guest = me === null;
 
   return (
     <div className="space-y-10">
@@ -69,8 +70,10 @@ export default function LanguagesPage() {
 
         <Bookshelf
           courses={LANGUAGE_COURSES}
-          progress={progress}
-          lockedLangs={lockedLangs}
+          progress={guest ? null : progress}
+          lockedLangs={guest ? [] : lockedLangs}
+          guest={guest}
+          isAdmin={!guest && me.role === "admin"}
         />
       </section>
 

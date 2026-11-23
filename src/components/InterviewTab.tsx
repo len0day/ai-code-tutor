@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Markdown from "./Markdown";
 import ContentOutline from "./ContentOutline";
 import SpeakButton from "./SpeakButton";
@@ -13,7 +13,15 @@ import type {
   Lesson,
 } from "@/lib/types";
 
-type Phase = "idle" | "guide" | "loading" | "asking" | "grading" | "feedback" | "report";
+type Phase =
+  | "idle"
+  | "guide"
+  | "generating"
+  | "asking"
+  | "grading"
+  | "feedback"
+  | "reporting"
+  | "report";
 
 const TYPE_LABEL: Record<string, string> = {
   concept: "概念题",
@@ -38,9 +46,16 @@ interface Props {
   lesson: Lesson;
   /** 通关状态变化时通知父级刷新解锁状态 */
   onGateChange?: () => void;
+  /** 「真实面试模式」开关变化：true = 面试进行中，父级需锁定 AI 导师 */
+  onTutorLockChange?: (locked: boolean) => void;
 }
 
-export default function InterviewTab({ lang, lesson, onGateChange }: Props) {
+export default function InterviewTab({
+  lang,
+  lesson,
+  onGateChange,
+  onTutorLockChange,
+}: Props) {
   const [phase, setPhase] = useState<Phase>("idle");
   const [guide, setGuide] = useState("");
   const [guideReasoning, setGuideReasoning] = useState("");
@@ -55,6 +70,18 @@ export default function InterviewTab({ lang, lesson, onGateChange }: Props) {
   const [fromCache, setFromCache] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  /** 面试前的选择：关闭 AI 导师（模拟真实面试场景） */
+  const [tutorOff, setTutorOff] = useState(false);
+
+  /** 进入/退出面试时通知父级锁定或恢复 AI 导师 */
+  const setTutorLock = (locked: boolean) => onTutorLockChange?.(locked);
+
+  // 面试中途切走本页签（组件卸载、面试进度丢失）时，确保 AI 导师恢复可用
+  useEffect(() => {
+    return () => onTutorLockChange?.(false);
+    // 卸载时只需最初传入的回调（父级内部只做 setState，无过期数据风险）
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const reset = () => {
     setQuestions([]);
@@ -64,6 +91,12 @@ export default function InterviewTab({ lang, lesson, onGateChange }: Props) {
     setGrades([]);
     setReport(null);
     setError("");
+  };
+
+  /** 放弃面试回到开场页（同时恢复 AI 导师） */
+  const exitInterview = () => {
+    setPhase("idle");
+    setTutorLock(false);
   };
 
   // ---------- 模式一：AI 讲解高频面试题 ----------
@@ -93,7 +126,7 @@ export default function InterviewTab({ lang, lesson, onGateChange }: Props) {
     setLoading(true);
     reset();
     setFromCache(false);
-    setPhase("loading");
+    setPhase("generating"); // 出题中：展示「生成中」提示，不再整块空白
     try {
       const data = await aiJson<{ questions: InterviewQuestion[]; cached?: boolean }>({
         task: "interview-questions",
@@ -109,9 +142,12 @@ export default function InterviewTab({ lang, lesson, onGateChange }: Props) {
       setQIndex(0);
       setFromCache(data.cached === true);
       setPhase("asking");
+      // 真实面试模式：面试正式开始后锁定 AI 导师
+      if (tutorOff) setTutorLock(true);
     } catch (e) {
       setError(e instanceof Error ? e.message : "出题失败");
       setPhase("idle");
+      setTutorLock(false); // 出题失败回到开场页 → 恢复 AI 导师
     } finally {
       setLoading(false);
     }
@@ -173,7 +209,7 @@ export default function InterviewTab({ lang, lesson, onGateChange }: Props) {
     }
     // 最后一题 → 生成面试报告
     setLoading(true);
-    setPhase("loading");
+    setPhase("reporting"); // 报告生成中：展示「生成中」提示
     try {
       const items = questions.map((q, i) => ({
         question: q.question,
@@ -188,6 +224,7 @@ export default function InterviewTab({ lang, lesson, onGateChange }: Props) {
       });
       setReport(r);
       setPhase("report");
+      setTutorLock(false); // 面试结束（报告已出）→ 恢复 AI 导师
       await postProgress({ type: "interviewResult", lessonId: lesson.id, score: r.total });
       onGateChange?.(); // 刷新闯关解锁状态
     } catch (e) {
@@ -212,12 +249,35 @@ export default function InterviewTab({ lang, lesson, onGateChange }: Props) {
         {error && (
           <p className="text-sm text-red-500 bg-red-50 rounded-lg px-4 py-3">{error}</p>
         )}
+        {/* 面试前可选：关闭 AI 导师，模拟真实面试场景 */}
+        <label
+          className={`flex items-start gap-3 border rounded-xl px-4 py-3.5 transition-colors select-none cursor-pointer ${
+            tutorOff
+              ? "border-indigo-300 bg-indigo-50/60"
+              : "border-border hover:border-indigo-200 hover:bg-slate-50"
+          }`}
+        >
+          <input
+            type="checkbox"
+            checked={tutorOff}
+            onChange={(e) => setTutorOff(e.target.checked)}
+            className="mt-0.5 w-4 h-4 accent-indigo-600 shrink-0 cursor-pointer"
+          />
+          <span className="flex-1">
+            <span className="block text-sm font-medium text-slate-700">
+              🔒 关闭 AI 导师（模拟真实面试）
+            </span>
+            <span className="block text-xs text-slate-400 mt-1 leading-relaxed">
+              勾选后，面试过程中将无法打开 AI 导师求助，面试结束后自动恢复。
+            </span>
+          </span>
+        </label>
         <button
           onClick={() => startInterview(false)}
           disabled={loading}
           className="w-full btn-primary disabled:opacity-50 text-white font-medium py-3 rounded-xl transition-colors"
         >
-          {loading ? "面试官正在准备题目…" : "🎤 开始模拟面试"}
+          {tutorOff ? "🎤 开始模拟面试（无导师模式）" : "🎤 开始模拟面试"}
         </button>
         <div className="flex items-center gap-3 text-xs text-slate-400">
           <span className="flex-1 border-t border-border" />
@@ -266,6 +326,63 @@ export default function InterviewTab({ lang, lesson, onGateChange }: Props) {
         ) : (
           <p className="text-sm text-slate-400">AI 正在整理本课的面试高频题…</p>
         )}
+      </div>
+    );
+  }
+
+  // ---------- 出题中：生成提示（此前是整块空白，用户不知道在等什么） ----------
+  if (phase === "generating") {
+    return (
+      <div className="p-8 text-center space-y-4">
+        <div className="text-5xl animate-bounce">🎤</div>
+        <p className="text-sm font-bold text-indigo-600">面试官正在出题…</p>
+        <p className="text-xs text-slate-400 leading-relaxed max-w-[280px] mx-auto">
+          AI 正在根据本课知识点生成 5 道面试题（概念 / 场景 / 编码），
+          通常需要十几秒，请稍候
+        </p>
+        <div className="h-1.5 w-48 mx-auto bg-slate-100 rounded-full overflow-hidden">
+          <div className="h-full w-1/3 bg-indigo-500 rounded-full loading-slide" />
+        </div>
+        {tutorOff && (
+          <p className="text-[11px] text-slate-400">
+            🔒 已选择真实面试模式：题目生成后 AI 导师将暂时关闭
+          </p>
+        )}
+      </div>
+    );
+  }
+
+  // ---------- 报告生成中：生成提示 ----------
+  if (phase === "reporting") {
+    return (
+      <div className="p-8 text-center space-y-4">
+        <div className="text-5xl animate-pulse">📊</div>
+        <p className="text-sm font-bold text-indigo-600">面试官正在撰写面试报告…</p>
+        <p className="text-xs text-slate-400 leading-relaxed max-w-[280px] mx-auto">
+          正在汇总 {questions.length} 道题的作答与评分，生成总评与录用建议，请稍候
+        </p>
+        <div className="h-1.5 w-48 mx-auto bg-slate-100 rounded-full overflow-hidden">
+          <div className="h-full w-1/3 bg-indigo-500 rounded-full loading-slide" />
+        </div>
+        {/* 等待期间先展示已完成的逐题评分，让用户知道进度没卡住 */}
+        <div className="space-y-1.5 text-left max-w-[300px] mx-auto pt-2">
+          {questions.map((qq, i) => (
+            <div
+              key={qq.id}
+              className="flex items-center gap-2 text-xs bg-slate-50 rounded-lg px-3 py-1.5"
+            >
+              <span className="text-slate-400 w-7 shrink-0">Q{i + 1}</span>
+              <span className="flex-1 truncate text-slate-500">{qq.question}</span>
+              <span
+                className={`font-bold px-1.5 py-0.5 rounded border shrink-0 ${scoreColor(
+                  grades[i]?.score ?? 0
+                )}`}
+              >
+                {grades[i]?.score ?? 0}
+              </span>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
@@ -367,13 +484,23 @@ export default function InterviewTab({ lang, lesson, onGateChange }: Props) {
           <span>
             第 <b className="text-indigo-600">{qIndex + 1}</b> / {questions.length} 题
           </span>
-          <button
-            onClick={() => setPhase("idle")}
-            className="hover:text-slate-600"
-            title="放弃本次面试"
-          >
-            退出面试
-          </button>
+          <span className="flex items-center gap-2">
+            {tutorOff && (
+              <span
+                className="text-[11px] text-slate-400 bg-slate-50 border border-border rounded-full px-2 py-0.5"
+                title="真实面试模式：AI 导师已关闭，面试结束后自动恢复"
+              >
+                🔒 AI 导师已关闭
+              </span>
+            )}
+            <button
+              onClick={exitInterview}
+              className="hover:text-slate-600"
+              title="放弃本次面试"
+            >
+              退出面试
+            </button>
+          </span>
         </div>
         <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
           <div

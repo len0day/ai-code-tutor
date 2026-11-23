@@ -63,6 +63,8 @@ function LessonContent({ me }: { me: ReturnType<typeof useRequireUser> }) {
   const [explainError, setExplainError] = useState("");
   /** 闯关：未解锁 → 预览模式，AI 功能禁用 */
   const [unlocked, setUnlocked] = useState(true);
+  /** 模拟面试「真实模式」：面试中锁定 AI 导师，结束后自动恢复 */
+  const [tutorLocked, setTutorLocked] = useState(false);
 
   // ---- 右侧工具抽屉（桌面端默认展开） ----
   const [drawerOpen, setDrawerOpen] = useState(
@@ -74,6 +76,12 @@ function LessonContent({ me }: { me: ReturnType<typeof useRequireUser> }) {
   const openDrawer = (tab: string) => {
     setDrawerTab(tab);
     setDrawerOpen(true);
+  };
+
+  /** 模拟面试锁定/恢复 AI 导师：锁定时若抽屉正停在导师页，先切走 */
+  const handleTutorLock = (locked: boolean) => {
+    setTutorLocked(locked);
+    if (locked && drawerTab === "tutor") setDrawerTab("notes");
   };
 
   // 记录访问
@@ -443,7 +451,12 @@ function LessonContent({ me }: { me: ReturnType<typeof useRequireUser> }) {
       label: "模拟面试",
       icon: "🎤",
       content: unlocked ? (
-        <InterviewTab lang={lang} lesson={lesson} onGateChange={refreshGate} />
+        <InterviewTab
+          lang={lang}
+          lesson={lesson}
+          onGateChange={refreshGate}
+          onTutorLockChange={handleTutorLock}
+        />
       ) : (
         lockedPage
       ),
@@ -531,8 +544,17 @@ function LessonContent({ me }: { me: ReturnType<typeof useRequireUser> }) {
             <>
               <button
                 onClick={() => openDrawer("tutor")}
-                title="打开 AI 导师"
-                className="text-xs px-2.5 py-1.5 rounded-lg border border-border text-slate-500 hover:border-indigo-300 hover:text-indigo-600 transition-colors"
+                disabled={tutorLocked}
+                title={
+                  tutorLocked
+                    ? "模拟面试进行中，AI 导师已关闭（真实面试模式）"
+                    : "打开 AI 导师"
+                }
+                className={`text-xs px-2.5 py-1.5 rounded-lg border border-border transition-colors ${
+                  tutorLocked
+                    ? "text-slate-300 dark:text-slate-600 cursor-not-allowed"
+                    : "text-slate-500 hover:border-indigo-300 hover:text-indigo-600"
+                }`}
               >
                 💬 导师
               </button>
@@ -590,7 +612,22 @@ function LessonContent({ me }: { me: ReturnType<typeof useRequireUser> }) {
             id: "tutor",
             label: "AI 导师",
             icon: "💬",
-            content: <ChatPanel lang={lang} langName={course.name} lesson={lesson} />,
+            disabled: tutorLocked,
+            content: tutorLocked ? (
+              <div className="p-6 text-center space-y-2">
+                <div className="text-4xl" aria-hidden="true">
+                  🔒
+                </div>
+                <p className="text-sm font-medium text-slate-700">模拟面试进行中</p>
+                <p className="text-xs text-slate-500 leading-relaxed">
+                  已开启真实面试模式，AI 导师暂时关闭。
+                  <br />
+                  退出面试或结束后自动恢复。
+                </p>
+              </div>
+            ) : (
+              <ChatPanel lang={lang} langName={course.name} lesson={lesson} />
+            ),
           },
           {
             id: "lab",

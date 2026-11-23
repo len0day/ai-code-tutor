@@ -118,6 +118,11 @@ body {
   outline-offset: 2px;
   border-radius: 6px;
 }
+/* main 是跳转链接的无交互落点：点击/脚本聚焦时不该出现焦点环 */
+main[tabindex="-1"]:focus,
+main[tabindex="-1"]:focus-visible {
+  outline: none;
+}
 
 /* 跳转到主内容（读屏/键盘用户首个 Tab 可见） */
 .skip-link {
@@ -229,6 +234,15 @@ body {
   content: "▍";
   animation: blink 0.8s infinite;
   color: var(--primary);
+}
+
+/* 面试出题 / 报告生成的等待进度条（不确定进度，来回滑动） */
+@keyframes loading-slide {
+  0% { transform: translateX(-110%); }
+  100% { transform: translateX(320%); }
+}
+.loading-slide {
+  animation: loading-slide 1.4s ease-in-out infinite;
 }
 
 /* ============ Markdown 内容 ============ */
